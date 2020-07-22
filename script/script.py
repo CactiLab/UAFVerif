@@ -46,8 +46,12 @@ class RUN:
         assert self.if_all_set()
         if self.phase == "reg":
             f1 = open(self.setting.regpath, "r")
-        else:
+        elif self.phase == "auth_1br" or self.phase == "autr_2br":
             f1 = open(self.setting.authpath,"r")
+        elif self.phase == "reg_unlink"
+            f1 = open(self.setting.regunlinkpath,"r")
+        elif self.phase == "auth_unlink"
+            f1
         f2 = open(self.setting.querypath,"w")
         f1lines = f1.readlines()
         f2.writelines(self.query[1])
@@ -178,6 +182,38 @@ class Case:
             temp_entities.append("AuthUC(CU, c, facetid, ltype)|\n")
             temp_entities.append("AuthAutr(c,aaid,wrapkey,cntr,atype,ltype)|\n")
             temp_entities.append("AuthASM(MC,c,token,callerid,atype,ltype)|\n")
+        else phase == "reg_unlink":
+            self.types = []
+            self.types.append(("autr_1b","let atype = autr_1b in\n"))
+            self.types.append(("autr_2b", "let atype = autr_2b in\n"))
+            self.types.append(("autr_1r", "let atype = autr_1r in\n"))
+            self.types.append(("autr_2r", "let atype = autr_2r in\n"))
+            self.queries = [("no-query","(*Observational equivalence uses no query*)")]
+            temp_out_fields = ["out(c,skAT);\n", "out(c,token);\n", "out(c,wrapkey);\n"]
+            temp_entities = []
+            temp_entities.append("RegUC(c, MC, fakefacetid)|\n")
+            temp_entities.append("RegUA(https, c, uname,appid,password)|\n")
+            temp_entities.append("RegASM(c, AM, token, fakecallerid, atype)|\n")
+            temp_entities.append("RegUC(CU, c, facetid)|\n")
+            temp_entities.append("RegAutr(c, aaid, skAT, wrapkey, atype)|\n")
+            temp_entities.append("RegASM(MC, c, token, callerid, atype)|\n")
+        else phase == "auth_unlink":
+            self.types = []
+            self.types.append(("autr_1b_em","let atype = autr_1b in\n let ltype = empty in"))
+            self.types.append(("autr_1b_st","let atype = autr_1b in\n let ltype = stepup in"))
+            self.types.append(("autr_1r_em","let atpye = autr_1r in\n let ltype = empty in"))
+            self.types.append(("autr_1r_st","let atpye = autr_1r in\n let ltype = stepup in"))
+            self.queries = [("no-query","(*Observational equivalence uses no query*)")]
+            temp_out_fields = ["out(c,skAU);\n", "out(c,token);\n", "out(c,wrapkey);\n", "out(c,cntr);\n"]
+            temp_entities = []
+            temp_entities.append("AuthUC(c, MC, fakefacetid, ltype)|\n")
+            temp_entities.append("AuthUA(https, c, uname, ltype)|\n")
+            temp_entities.append("AuthASM(c,AM,token,fakecallerid,atype,ltype)|\n")
+            temp_entities.append("AuthUC(CU, c, facetid, ltype)|\n")
+            temp_entities.append("AuthAutr(c,aaid,wrapkey,cntr,atype,ltype)|\n")
+            temp_entities.append("AuthASM(MC,c,token,callerid,atype,ltype)|\n")
+        else:
+            print("use the correct params to initiate the class Case!")
         self.comp_fields = []
         for delnum in range(len(temp_out_fields)+ 1) :
             for pre in itertools.combinations(temp_out_fields, delnum):

@@ -408,7 +408,7 @@ let AuthASM(MC:channel,MA:channel,token:bitstring,callerid:Callerid,atype:Atype,
 	if atype = autr_1b && ltype = empty then
 	(
 		let AuthCMreq_em(appid,fcp) = m in
-		get ASMDB(appid2,kid,kh) in
+		get ASMDB(=appid,kid,kh) in
 		(*check appid or callerid*)
 		let fc = ToFc(hash(fcp)) in
 		let ak = To_12b_token(appid,token,callerid) in 
