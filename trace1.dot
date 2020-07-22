@@ -1,0 +1,282 @@
+digraph {
+graph [ordering = out]
+edge [arrowhead = none, penwidth = 1.6, fontsize = 30]
+node [shape = point, width = 0, height = 0, fontsize = 30]
+Trace [label = <A trace has been found.<br/>
+>, shape = plaintext]
+P0__0 [label = "Honest Process", shape = plaintext]
+P__0 [label = "Attacker", shape = plaintext]
+Trace -> P0__0 [label = "", style = invisible, weight = 100]{rank = same; P0__0 P__0}
+P0__0 -> P0__1 [label = <>, weight = 100]
+P0__1 -> P0__2 [label = <>, weight = 100]
+P0__2 [shape = plaintext, label = <<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"> <TR><TD><FONT COLOR="darkgreen">{1}</FONT><FONT COLOR="blue">new </FONT>appid_1441</TD></TR><TR><TD><FONT COLOR="darkgreen">{2}</FONT><FONT COLOR="blue">new </FONT>appid2_91</TD></TR><TR><TD><FONT COLOR="darkgreen">{3}</FONT><FONT COLOR="blue">new </FONT>aaid_901</TD></TR><TR><TD><FONT COLOR="darkgreen">{4}</FONT><FONT COLOR="blue">new </FONT>aaid2_1</TD></TR><TR><TD><FONT COLOR="darkgreen">{5}</FONT><FONT COLOR="blue">new </FONT>skAU_541</TD></TR><TR><TD><FONT COLOR="darkgreen">{6}</FONT><FONT COLOR="blue">new </FONT>skAU2_1</TD></TR><TR><TD><FONT COLOR="darkgreen">{7}</FONT><FONT COLOR="blue">new </FONT>keyid_1</TD></TR><TR><TD><FONT COLOR="darkgreen">{8}</FONT><FONT COLOR="blue">new </FONT>keyid2_1</TD></TR><TR><TD><FONT COLOR="darkgreen">{9}</FONT><FONT COLOR="blue">new </FONT>wrapkey_1</TD></TR><TR><TD><FONT COLOR="darkgreen">{10}</FONT><FONT COLOR="blue">new </FONT>wrapkey2_1</TD></TR><TR><TD><FONT COLOR="darkgreen">{11}</FONT><FONT COLOR="blue">new </FONT>token_1</TD></TR><TR><TD><FONT COLOR="darkgreen">{12}</FONT><FONT COLOR="blue">new </FONT>token2_1</TD></TR><TR><TD><FONT COLOR="darkgreen">{13}</FONT><FONT COLOR="blue">new </FONT>uname_361</TD></TR><TR><TD><FONT COLOR="darkgreen">{14}</FONT><FONT COLOR="blue">new </FONT>uname2_1</TD></TR><TR><TD><FONT COLOR="darkgreen">{15}</FONT><FONT COLOR="blue">new </FONT>facetid_721</TD></TR><TR><TD><FONT COLOR="darkgreen">{16}</FONT><FONT COLOR="blue">new </FONT>facetid2_1</TD></TR><TR><TD><FONT COLOR="darkgreen">{17}</FONT><FONT COLOR="blue">new </FONT>callerid_1</TD></TR><TR><TD><FONT COLOR="darkgreen">{18}</FONT><FONT COLOR="blue">new </FONT>callerid2_1</TD></TR></TABLE>>]
+P0__2 -> P0__3 [label = <>, weight = 100]
+P0__3 -> P0__4 [label = <>, weight = 100]
+P__0 -> P__1 [label = <>, weight = 100]
+{rank = same; P__1 P0__4}
+P0__4 -> P0__5 [label = <>, weight = 100]
+P__1 -> P__2 [label = <>, weight = 100]
+{rank = same; P__2 P0__5}
+P0__5 -> P__2 [label = <~M = facetid2_1>, arrowhead = normal]
+P0__5 -> P0__6 [label = <>, weight = 100]
+P__2 -> P__3 [label = <>, weight = 100]
+{rank = same; P__3 P0__6}
+/*RPar */
+P0__6 -> P0_1__6 [label = <>]
+P0__6 -> P0_0__6 [label = <>]
+P0__6 [label = "", fixedsize = false, width = 0, height = 0, shape = none]
+{rank = same; P0_0__6 P0_1__6}
+P0_0__6 -> P0_0__7 [label = <>, weight = 100]
+P0_0__7 [shape = plaintext, label = <<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"> <TR><TD>Beginning of process <FONT COLOR="darkgreen">system</FONT>(appid2_91, aaid_901,<br/>
+skAU2_1, keyid2_1, <FONT COLOR="blue">choice</FONT>[wrapkey_1,wrapkey2_1],<br/>
+<FONT COLOR="blue">choice</FONT>[token_1,token2_1], uname_361, facetid_721,<br/>
+callerid_1)</TD></TR><TR><TD><FONT COLOR="darkgreen">{9903}</FONT><FONT COLOR="blue">new </FONT>fakefacetid_2</TD></TR><TR><TD><FONT COLOR="darkgreen">{9904}</FONT><FONT COLOR="blue">new </FONT>fakecallerid_2</TD></TR><TR><TD><FONT COLOR="darkgreen">{10133}</FONT><FONT COLOR="blue">insert </FONT>AuthAppList(appid2_91,facetid_721)<br/>
+</TD></TR><TR><TD><FONT COLOR="darkgreen">{10134}</FONT><FONT COLOR="blue">insert </FONT>ASMDB(appid2_91,keyid2_1,<FONT COLOR="blue">choice</FONT>[<br/>
+senc((skAU2_1,f1(To_12b_token(appid2_91,token_1,<br/>
+callerid_1),appid2_91),uname_361,keyid2_1),wrapkey_1),<br/>
+senc((skAU2_1,f1(To_12b_token(appid2_91,token2_1,<br/>
+callerid_1),appid2_91),uname_361,keyid2_1),wrapkey2_1)])<br/>
+</TD></TR><TR><TD><FONT COLOR="darkgreen">{10135}</FONT><FONT COLOR="blue">insert </FONT>AutrDB(appid2_91,keyid2_1,<FONT COLOR="blue">choice</FONT>[<br/>
+senc((skAU2_1,f1(To_12b_token(appid2_91,token_1,<br/>
+callerid_1),appid2_91),uname_361,keyid2_1),wrapkey_1),<br/>
+senc((skAU2_1,f1(To_12b_token(appid2_91,token2_1,<br/>
+callerid_1),appid2_91),uname_361,keyid2_1),wrapkey2_1)])<br/>
+</TD></TR></TABLE>>]
+P0_0__7 -> P0_0__8 [label = <>, weight = 100]
+P__3 -> P__4 [label = <>, weight = 100]
+{rank = same; P__4 P0_0__7}
+P0_0__8 -> P0_0__9 [label = <>, weight = 100]
+P__4 -> P__5 [label = <>, weight = 100]
+{rank = same; P__5 P0_0__9}
+P0_0__9 -> P0_0__10 [label = <>, weight = 100]
+P__5 -> P__6 [label = <>, weight = 100]
+{rank = same; P__6 P0_0__10}
+P0_0__10 -> P__6 [label = <(~M_1,~M_2,~M_3,~M_4,~M_5,~M_6) = (uname_361,appid2_91,<br/>
+facetid_721,aaid_901,callerid_1,spk(skAU2_1))>, arrowhead = normal]
+P0_0__10 -> P0_0__11 [label = <>, weight = 100]
+P__6 -> P__7 [label = <>, weight = 100]
+{rank = same; P__7 P0_0__11}
+P0_0__11 [label = "!", shape = ellipse]
+P0_1__6 -> P0_1__7 [label = <>, weight = 100]
+P0_1__7 [shape = plaintext, label = <<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"> <TR><TD>Beginning of process <FONT COLOR="darkgreen">system</FONT>(appid_1441, aaid_901,<br/>
+skAU_541, keyid_1, wrapkey_1, token_1, uname_361,<br/>
+facetid_721, callerid_1)</TD></TR><TR><TD><FONT COLOR="darkgreen">{23}</FONT><FONT COLOR="blue">new </FONT>fakefacetid_3</TD></TR><TR><TD><FONT COLOR="darkgreen">{24}</FONT><FONT COLOR="blue">new </FONT>fakecallerid_3</TD></TR><TR><TD><FONT COLOR="darkgreen">{253}</FONT><FONT COLOR="blue">insert </FONT>AuthAppList(appid_1441,facetid_721)<br/>
+</TD></TR><TR><TD><FONT COLOR="darkgreen">{254}</FONT><FONT COLOR="blue">insert </FONT>ASMDB(appid_1441,keyid_1,senc((skAU_541,<br/>
+f1(To_12b_token(appid_1441,token_1,callerid_1),<br/>
+appid_1441),uname_361,keyid_1),wrapkey_1))</TD></TR><TR><TD><FONT COLOR="darkgreen">{255}</FONT><FONT COLOR="blue">insert </FONT>AutrDB(appid_1441,keyid_1,senc((skAU_541,<br/>
+f1(To_12b_token(appid_1441,token_1,callerid_1),<br/>
+appid_1441),uname_361,keyid_1),wrapkey_1))</TD></TR></TABLE>>]
+P0_1__7 -> P0_1__8 [label = <>, weight = 100]
+P__7 -> P__8 [label = <>, weight = 100]
+{rank = same; P__8 P0_1__7}
+P0_1__8 -> P0_1__9 [label = <>, weight = 100]
+P0_0__12 [label = "", style = invisible]
+P0_0__11 -> P0_0__12 [label = <>, weight = 100, style = invisible]
+P__8 -> P__9 [label = <>, weight = 100]
+{rank = same; P__9 P0_0__12 P0_1__9}
+P0_1__9 -> P0_1__10 [label = <>, weight = 100]
+P__9 -> P__10 [label = <>, weight = 100]
+{rank = same; P__10 P0_1__10}
+P0_1__10 -> P__10 [label = <(~M_7,~M_8,~M_9,~M_10,~M_11,~M_12) = (uname_361,<br/>
+appid_1441,facetid_721,aaid_901,callerid_1,spk(<br/>
+skAU_541))>, arrowhead = normal]
+P0_1__10 -> P0_1__11 [label = <>, weight = 100]
+P0_0__13 [label = "", style = invisible]
+P0_0__12 -> P0_0__13 [label = <>, weight = 100, style = invisible]
+P__10 -> P__11 [label = <>, weight = 100]
+{rank = same; P__11 P0_0__13 P0_1__11}
+P0_1__11 [label = "!", shape = ellipse]
+P0_1_0__11 [label = "", fixedsize = false, width = 0, height = 0, shape = none]
+P0_1__11 -> P0_1_0__11 [label = <>, weight = 100]
+P0_1_0__11 -> P0_1_0__12 [label = <>, weight = 100]
+P0_1_0__12 [shape = plaintext, label = <<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"> <TR><TD><FONT COLOR="darkgreen">{258}</FONT><FONT COLOR="blue">new </FONT>https_90</TD></TR><TR><TD><FONT COLOR="darkgreen">{259}</FONT><FONT COLOR="blue">new </FONT>CU_90</TD></TR><TR><TD><FONT COLOR="darkgreen">{260}</FONT><FONT COLOR="blue">new </FONT>MC_90</TD></TR><TR><TD><FONT COLOR="darkgreen">{261}</FONT><FONT COLOR="blue">new </FONT>AM_90</TD></TR></TABLE>>]
+P0_1_0__12 -> P0_1_0__13 [label = <>, weight = 100]
+P0_1_0__13 -> P0_1_0__14 [label = <>, weight = 100]
+P0_0__14 [label = "", style = invisible]
+P0_0__13 -> P0_0__14 [label = <>, weight = 100, style = invisible]
+P__11 -> P__12 [label = <>, weight = 100]
+{rank = same; P__12 P0_0__14 P0_1_0__14}
+P0_1_0__14 -> P0_1_0__15 [label = <>, weight = 100]
+P__12 -> P__13 [label = <>, weight = 100]
+{rank = same; P__13 P0_1_0__15}
+P0_1_0__15 -> P__13 [label = <~M_13 = https_90>, arrowhead = normal]
+P0_1_0__15 -> P0_1_0__16 [label = <>, weight = 100]
+P0_0__15 [label = "", style = invisible]
+P0_0__14 -> P0_0__15 [label = <>, weight = 100, style = invisible]
+P__13 -> P__14 [label = <>, weight = 100]
+{rank = same; P__14 P0_0__15 P0_1_0__16}
+P0_1_0__16 -> P0_1_0__17 [label = <>, weight = 100]
+P0_1_0__17 [shape = plaintext, label = <<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"> <TR><TD><FONT COLOR="darkgreen">{263}</FONT><FONT COLOR="blue">new </FONT>tr_990</TD></TR><TR><TD><FONT COLOR="darkgreen">{264}</FONT><FONT COLOR="blue">new </FONT>cntr_90</TD></TR></TABLE>>]
+P0_1_0__17 -> P0_1_0__18 [label = <>, weight = 100]
+/*RPar */
+P0_1_0__18 -> P0_1_0_5__18 [label = <>]
+P0_1_0__18 -> P0_1_0_4__18 [label = <>]
+P0_1_0__18 -> P0_1_0_3__18 [label = <>]
+P0_1_0__18 -> P0_1_0_2__18 [label = <>]
+P0_1_0__18 -> P0_1_0_1__18 [label = <>]
+P0_1_0__18 -> P0_1_0_0__18 [label = <>]
+P0_1_0__18 [label = "", fixedsize = false, width = 0, height = 0, shape = none]
+{rank = same; P0_1_0_0__18 P0_1_0_1__18 P0_1_0_2__18 P0_1_0_3__18 P0_1_0_4__18 P0_1_0_5__18}
+P0_1_0_0__18 -> P0_1_0_0__19 [label = <>, weight = 100]
+P0_1_0_0__19 [shape = plaintext, label = <<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"> <TR><TD>Beginning of process <FONT COLOR="darkgreen">AuthAutr</FONT>(AM_90, aaid_901,<br/>
+wrapkey_1, cntr_90, autr_1b, empty)</TD></TR></TABLE>>]
+P0_1_0_0__19 -> P0_1_0_0__20 [label = <>, weight = 100]
+P0_1_0_1__18 -> P0_1_0_1__19 [label = <>, weight = 100]
+P0_1_0_1__19 [shape = plaintext, label = <<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"> <TR><TD>Beginning of process <FONT COLOR="darkgreen">AuthASM</FONT>(MC_90, AM_90, token_1,<br/>
+callerid_1, autr_1b, empty)</TD></TR></TABLE>>]
+P0_1_0_1__19 -> P0_1_0_1__20 [label = <>, weight = 100]
+P0_1_0_2__18 -> P0_1_0_2__19 [label = <>, weight = 100]
+P0_1_0_2__19 [shape = plaintext, label = <<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"> <TR><TD>Beginning of process <FONT COLOR="darkgreen">AuthUC</FONT>(CU_90, MC_90, facetid_721,<br/>
+empty)</TD></TR></TABLE>>]
+P0_1_0_2__19 -> P0_1_0_2__20 [label = <>, weight = 100]
+P0_1_0_3__18 -> P0_1_0_3__19 [label = <>, weight = 100]
+P0_1_0_3__19 [shape = plaintext, label = <<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"> <TR><TD>Beginning of process <FONT COLOR="darkgreen">AuthUA</FONT>(https_90, CU_90, uname_361,<br/>
+empty)</TD></TR></TABLE>>]
+P0_1_0_3__19 -> P0_1_0_3__20 [label = <>, weight = 100]
+P0_1_0_4__18 -> P0_1_0_4__19 [label = <>, weight = 100]
+P0_1_0_4__19 [shape = plaintext, label = <<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"> <TR><TD>Beginning of process <FONT COLOR="darkgreen">AuthRP</FONT>(c, uname_361, appid_1441,<br/>
+aaid_901, keyid_1, spk(skAU_541), cntr_90, tr_990,<br/>
+empty)</TD></TR><TR><TD><FONT COLOR="darkgreen">{291}</FONT><FONT COLOR="blue">new </FONT>sdata_540</TD></TR><TR><TD><FONT COLOR="darkgreen">{292}</FONT><FONT COLOR="blue">new </FONT>chlg_540</TD></TR></TABLE>>]
+P0_1_0_4__19 -> P0_1_0_4__20 [label = <>, weight = 100]
+P0_1_0_4__20 -> P0_1_0_4__21 [label = <>, weight = 100]
+P0_1_0_3__20 -> P0_1_0_3__21 [label = <>, weight = 100]
+P0_1_0_2__20 -> P0_1_0_2__21 [label = <>, weight = 100]
+P0_1_0_1__20 -> P0_1_0_1__21 [label = <>, weight = 100]
+P0_1_0_0__20 -> P0_1_0_0__21 [label = <>, weight = 100]
+P0_0__16 [label = "", style = invisible]
+P0_0__15 -> P0_0__16 [label = <>, weight = 100, style = invisible]
+P__14 -> P__15 [label = <>, weight = 100]
+{rank = same; P__15 P0_0__16 P0_1_0_0__21 P0_1_0_1__21 P0_1_0_2__21 P0_1_0_3__21 P0_1_0_4__21}
+P0_1_0_4__21 -> P0_1_0_4__22 [label = <>, weight = 100]
+P__15 -> P__16 [label = <>, weight = 100]
+{rank = same; P__16 P0_1_0_4__22}
+P0_1_0_4__22 -> P__16 [label = <AuthRPreq_em(~M_14,~M_15,~M_16) = AuthRPreq_em(<br/>
+appid_1441,sdata_540,chlg_540)>, arrowhead = normal]
+P0_1_0_4__22 -> P0_1_0_4__23 [label = <>, weight = 100]
+P0_1_0_3__21 -> P0_1_0_3__22 [label = <>, weight = 100]
+P0_1_0_2__21 -> P0_1_0_2__22 [label = <>, weight = 100]
+P0_1_0_1__21 -> P0_1_0_1__22 [label = <>, weight = 100]
+P0_1_0_0__21 -> P0_1_0_0__22 [label = <>, weight = 100]
+P0_0__17 [label = "", style = invisible]
+P0_0__16 -> P0_0__17 [label = <>, weight = 100, style = invisible]
+P__16 -> P__17 [label = <>, weight = 100]
+{rank = same; P__17 P0_0__17 P0_1_0_0__22 P0_1_0_1__22 P0_1_0_2__22 P0_1_0_3__22 P0_1_0_4__23}
+P0_1_0_5__18 -> P0_1_0_5__19 [label = <>, weight = 100]
+P0_1_0_5__19 [shape = plaintext, label = <<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"> <TR><TD>Beginning of process <FONT COLOR="darkgreen">AuthRP</FONT>(https_90, uname_361,<br/>
+appid_1441, aaid_901, keyid_1, spk(skAU_541), <br/>
+cntr_90, tr_990, empty)</TD></TR><TR><TD><FONT COLOR="darkgreen">{265}</FONT><FONT COLOR="blue">new </FONT>sdata_541</TD></TR><TR><TD><FONT COLOR="darkgreen">{266}</FONT><FONT COLOR="blue">new </FONT>chlg_541</TD></TR></TABLE>>]
+P0_1_0_5__19 -> P0_1_0_5__20 [label = <>, weight = 100]
+P0_1_0_5__20 -> P0_1_0_5__21 [label = <>, weight = 100]
+P0_1_0_4__23 -> P0_1_0_4__24 [label = <>, weight = 100]
+P0_1_0_3__22 -> P0_1_0_3__23 [label = <>, weight = 100]
+P0_1_0_2__22 -> P0_1_0_2__23 [label = <>, weight = 100]
+P0_1_0_1__22 -> P0_1_0_1__23 [label = <>, weight = 100]
+P0_1_0_0__22 -> P0_1_0_0__23 [label = <>, weight = 100]
+P0_0__18 [label = "", style = invisible]
+P0_0__17 -> P0_0__18 [label = <>, weight = 100, style = invisible]
+P__17 -> P__18 [label = <>, weight = 100]
+{rank = same; P__18 P0_0__18 P0_1_0_0__23 P0_1_0_1__23 P0_1_0_2__23 P0_1_0_3__23 P0_1_0_4__24 P0_1_0_5__21}
+P0_1_0_5__21 -> P0_1_0_5__22 [label = <>, weight = 100]
+P__18 -> P__19 [label = <>, weight = 100]
+{rank = same; P__19 P0_1_0_5__22}
+P0_1_0_5__22 -> P__19 [label = <AuthRPreq_em(~M_17,~M_18,~M_19) = AuthRPreq_em(<br/>
+appid_1441,sdata_541,chlg_541)>, arrowhead = normal]
+P0_1_0_5__22 -> P0_1_0_5__23 [label = <>, weight = 100]
+P0_1_0_4__24 -> P0_1_0_4__25 [label = <>, weight = 100]
+P0_1_0_3__23 -> P0_1_0_3__24 [label = <>, weight = 100]
+P0_1_0_2__23 -> P0_1_0_2__24 [label = <>, weight = 100]
+P0_1_0_1__23 -> P0_1_0_1__24 [label = <>, weight = 100]
+P0_1_0_0__23 -> P0_1_0_0__24 [label = <>, weight = 100]
+P0_0__19 [label = "", style = invisible]
+P0_0__18 -> P0_0__19 [label = <>, weight = 100, style = invisible]
+P__19 -> P__20 [label = <>, weight = 100]
+{rank = same; P__20 P0_0__19 P0_1_0_0__24 P0_1_0_1__24 P0_1_0_2__24 P0_1_0_3__24 P0_1_0_4__25 P0_1_0_5__23}
+P0_1_0_3__24 -> P0_1_0_3__25 [label = <>, weight = 100]
+P0_1_0_2__24 -> P0_1_0_2__25 [label = <>, weight = 100]
+P0_1_0_1__24 -> P0_1_0_1__25 [label = <>, weight = 100]
+P0_1_0_0__24 -> P0_1_0_0__25 [label = <>, weight = 100]
+P0_0__20 [label = "", style = invisible]
+P0_0__19 -> P0_0__20 [label = <>, weight = 100, style = invisible]
+P__20 -> P__21 [label = <>, weight = 100]
+{rank = same; P__21 P0_0__20 P0_1_0_0__25 P0_1_0_1__25 P0_1_0_2__25 P0_1_0_3__25}
+P0_1_0_3__25 -> P0_1_0_3__26 [label = <>, weight = 100]
+P__21 -> P__22 [label = <>, weight = 100]
+{rank = same; P__22 P0_1_0_3__26}
+P0_1_0_3__26 -> P__22 [label = <AuthRPreq_em(~M_8,~M_18,~M_19) = AuthRPreq_em(<br/>
+appid_1441,sdata_541,chlg_541)>, dir = back, arrowhead = normal]
+P0_1_0_3__26 -> P0_1_0_3__27 [label = <>, weight = 100]
+P0_1_0_2__25 -> P0_1_0_2__26 [label = <>, weight = 100]
+P0_1_0_1__25 -> P0_1_0_1__26 [label = <>, weight = 100]
+P0_1_0_0__25 -> P0_1_0_0__26 [label = <>, weight = 100]
+P0_0__21 [label = "", style = invisible]
+P0_0__20 -> P0_0__21 [label = <>, weight = 100, style = invisible]
+P__22 -> P__23 [label = <>, weight = 100]
+{rank = same; P__23 P0_0__21 P0_1_0_0__26 P0_1_0_1__26 P0_1_0_2__26 P0_1_0_3__27}
+P0_1_0_3__27 -> P0_1_0_3__28 [label = <>, weight = 100]
+P0_1_0_3__28 [shape = plaintext, label = <<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"> <TR><TD><FONT COLOR="darkgreen">{320}</FONT><FONT COLOR="blue">event</FONT> UA_launch_auth(uname_361,appid_1441)<br/>
+</TD></TR></TABLE>>]
+P0_1_0_3__28 -> P0_1_0_3__29 [label = <>, weight = 100]
+P0_1_0_3__29 -> P0_1_0_3__30 [label = <>, weight = 100]
+P0_1_0_2__26 -> P0_1_0_2__27 [label = <>, weight = 100]
+{rank = same; P0_1_0_2__27 P0_1_0_3__30}
+P0_1_0_3__30 -> P0_1_0_3__31 [label = <>, weight = 100]
+P0_1_0_2__27 -> P0_1_0_2__28 [label = <>, weight = 100]
+{rank = same; P0_1_0_2__28 P0_1_0_3__31}
+P0_1_0_3__31 -> P0_1_0_2__28 [label = <AuthCUreq_em(appid_1441,sdata_541,chlg_541,GetTLSdata(<br/>
+https_90))>, arrowhead = normal]
+P0_1_0_3__31 -> P0_1_0_3__32 [label = <>, weight = 100]
+P0_1_0_2__28 -> P0_1_0_2__29 [label = <>, weight = 100]
+{rank = same; P0_1_0_2__29 P0_1_0_3__32}
+P0_1_0_2__29 -> P0_1_0_2__30 [label = <>, weight = 100]
+P0_1_0_2__30 [shape = plaintext, label = <<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"> <TR><TD><FONT COLOR="darkgreen">{341}</FONT><FONT COLOR="blue">get </FONT>AuthAppList(appid_1441,facetid_721)</TD></TR></TABLE>>]
+P0_1_0_2__30 -> P0_1_0_2__31 [label = <>, weight = 100]
+P__23 -> P__24 [label = <>, weight = 100]
+{rank = same; P__24 P0_1_0_2__30}
+P0_1_0_2__31 -> P0_1_0_2__32 [label = <>, weight = 100]
+P0_1_0_1__26 -> P0_1_0_1__27 [label = <>, weight = 100]
+{rank = same; P0_1_0_1__27 P0_1_0_2__32}
+P0_1_0_2__32 -> P0_1_0_2__33 [label = <>, weight = 100]
+P0_1_0_1__27 -> P0_1_0_1__28 [label = <>, weight = 100]
+{rank = same; P0_1_0_1__28 P0_1_0_2__33}
+P0_1_0_2__33 -> P0_1_0_1__28 [label = <AuthCMreq_em(appid_1441,FCParams(appid_1441,facetid_721,<br/>
+chlg_541,GetTLSdata(https_90)))>, arrowhead = normal]
+P0_1_0_2__33 -> P0_1_0_2__34 [label = <>, weight = 100]
+P0_1_0_1__28 -> P0_1_0_1__29 [label = <>, weight = 100]
+{rank = same; P0_1_0_1__29 P0_1_0_2__34}
+P0_1_0_1__29 -> P0_1_0_1__30 [label = <>, weight = 100]
+P0_1_0_1__30 [shape = plaintext, label = <<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"> <TR><TD><FONT COLOR="darkgreen">{359}</FONT><FONT COLOR="blue">get </FONT>ASMDB(appid2_91,keyid2_1,<FONT COLOR="blue">choice</FONT>[senc(<br/>
+(skAU2_1,f1(To_12b_token(appid2_91,token_1,callerid_1),<br/>
+appid2_91),uname_361,keyid2_1),wrapkey_1),senc(<br/>
+(skAU2_1,f1(To_12b_token(appid2_91,token2_1,callerid_1),<br/>
+appid2_91),uname_361,keyid2_1),wrapkey2_1)])</TD></TR></TABLE>>]
+P0_1_0_1__30 -> P0_1_0_1__31 [label = <>, weight = 100]
+P__24 -> P__25 [label = <>, weight = 100]
+{rank = same; P__25 P0_1_0_1__30}
+P0_1_0_1__31 -> P0_1_0_1__32 [label = <>, weight = 100]
+P0_1_0_0__26 -> P0_1_0_0__27 [label = <>, weight = 100]
+{rank = same; P0_1_0_0__27 P0_1_0_1__32}
+P0_1_0_1__32 -> P0_1_0_1__33 [label = <>, weight = 100]
+P0_1_0_0__27 -> P0_1_0_0__28 [label = <>, weight = 100]
+{rank = same; P0_1_0_0__28 P0_1_0_1__33}
+P0_1_0_1__33 -> P0_1_0_0__28 [label = <~X_1>, arrowhead = normal]
+P0_1_0_1__33 -> P0_1_0_1__34 [label = <>, weight = 100]
+P0_1_0_0__28 -> P0_1_0_0__29 [label = <>, weight = 100]
+{rank = same; P0_1_0_0__29 P0_1_0_1__34}
+P0_1_0_0__29 -> P0_1_0_0__30 [label = <>, weight = 100]
+P0_1_0_0__30 [color = red, shape = plaintext, label = <<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"> <TR><TD><FONT COLOR="darkgreen">{409}</FONT><FONT COLOR="blue">let</FONT> (skAU_7: sskey,aka_6: Token,uname_5: Uname,<br/>
+kid_32: KeyID) = sdec(<FONT COLOR="blue">choice</FONT>[senc((skAU2_1,f1(<br/>
+To_12b_token(appid2_91,token_1,callerid_1),appid2_91),<br/>
+uname_361,keyid2_1),wrapkey_1),senc((skAU2_1,f1(<br/>
+To_12b_token(appid2_91,token2_1,callerid_1),appid2_91),<br/>
+uname_361,keyid2_1),wrapkey2_1)],wrapkey_1)<br/>
+This process performs a test that may succeed on<br/>
+one side and not on the other.</TD></TR></TABLE>>]
+P0_1_0_0__30 -> P0_1_0_0__31 [label = <>, weight = 100]
+Abbrev [shape = plaintext, label = <<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"><TR> <TD> Abbreviations </TD></TR><TR><TD>~X_1 = AuthAMreq_1bem(To_12b_token(appid_1441,token_1,<br/>
+callerid_1),ToFc(hash(FCParams(appid_1441,facetid_721,<br/>
+chlg_541,GetTLSdata(https_90)))),appid_1441,<FONT<br/>
+COLOR="blue">choice</FONT>[<br/>
+senc((skAU2_1,f1(To_12b_token(appid2_91,token_1,<br/>
+callerid_1),appid2_91),uname_361,keyid2_1),wrapkey_1),<br/>
+senc((skAU2_1,f1(To_12b_token(appid2_91,token2_1,<br/>
+callerid_1),appid2_91),uname_361,keyid2_1),wrapkey2_1)])</TD></TR></TABLE>>]Abbrev -> P__0 [style = invisible, weight =100]}
