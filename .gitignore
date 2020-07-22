@@ -1,0 +1,5 @@
+*.pdf
+*.dot
+*.log
+result/
+script/.ida/
