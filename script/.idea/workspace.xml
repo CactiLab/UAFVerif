@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="ffc4c34a-fcf5-47c2-94a4-3ae6ad067daf" name="Default Changelist" comment="" />
+    <list default="true" id="ffc4c34a-fcf5-47c2-94a4-3ae6ad067daf" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../FIDO.pvl" beforeDir="false" afterPath="$PROJECT_DIR$/../FIDO.pvl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth.pv" beforeDir="false" afterPath="$PROJECT_DIR$/../auth.pv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../query.pv" beforeDir="false" afterPath="$PROJECT_DIR$/../query.pv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../reg.pv" beforeDir="false" afterPath="$PROJECT_DIR$/../reg.pv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/script.py" beforeDir="false" afterPath="$PROJECT_DIR$/script.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../testing.pv" beforeDir="false" afterPath="$PROJECT_DIR$/../testing.pv" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -13,11 +21,10 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/script.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="291">
-              <caret line="172" column="30" lean-forward="true" selection-start-line="172" selection-start-column="30" selection-end-line="172" selection-end-column="30" />
+            <state relative-caret-position="229">
+              <caret line="66" column="39" lean-forward="true" selection-start-line="66" selection-start-column="39" selection-end-line="66" selection-end-column="39" />
               <folding>
                 <element signature="e#0#16#0" expanded="true" />
-                <element signature="e#186#557#0" />
               </folding>
             </state>
           </provider>
@@ -32,37 +39,30 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
+        <option value="$PROJECT_DIR$/../testing.pv" />
+        <option value="$PROJECT_DIR$/script2.py" />
+        <option value="$PROJECT_DIR$/../result/reg/autr_2b/S-ak/1    false type-autr_2b  query-S-ak     malie-1  compf-1" />
         <option value="$PROJECT_DIR$/script.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-9" />
-    <option name="y" value="-9" />
-    <option name="width" value="978" />
-    <option name="height" value="1048" />
+    <option name="x" value="-8" />
+    <option name="width" value="977" />
+    <option name="height" value="1038" />
   </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes>
-      <pane id="Scope" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="script" type="b2602c69:ProjectViewProjectNode" />
-              <item name="script" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-    </panes>
+    <panes />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -118,16 +118,15 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="782" height="838" extended-state="0" />
-    <editor active="true" />
+    <frame x="-6" y="0" width="781" height="830" extended-state="0" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.24966443" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32531825" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.39886847" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3252149" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3982808" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -140,6 +139,17 @@
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout>
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/script.py</url>
+          <line>321</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/../result/autr_1b/RS-ak/12false" />
     <entry file="file://$PROJECT_DIR$/../result/autr_1b/RS-ak/37false" />
@@ -147,54 +157,14 @@
     <entry file="file://$PROJECT_DIR$/../result/autr_1b/Rauth/128false" />
     <entry file="file://$PROJECT_DIR$/../result/autr_1b/Rauth/133ture" />
     <entry file="file://$PROJECT_DIR$/../result/autr_1b/Rauth/139ture" />
-    <entry file="file://$PROJECT_DIR$/../result/auth/autr_1be/Aauth-2br/451false">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../result/auth/autr_1be/Aauth-2br/452false">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../result/auth/autr_1be/Aauth-1br/361ture">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="266">
-          <caret line="32" column="25" selection-start-line="32" selection-start-column="25" selection-end-line="32" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../result/auth/autr_1be/Aauth-1br/392false">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="37" column="38" selection-start-line="37" selection-start-column="38" selection-end-line="37" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../result/auth/autr_1be/Aauth-1br/393ture">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="28" column="13" selection-start-line="28" selection-start-column="13" selection-end-line="28" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../result/auth/autr_1be/Aauth-1br/394ture">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="37" column="42" selection-start-line="37" selection-start-column="42" selection-end-line="37" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../result/auth/autr_1be/Aauth-1br/395ture">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="34" column="24" selection-start-line="34" selection-start-column="24" selection-end-line="34" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../result/auth/autr_1be/Aauth-1br/396false">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="361">
-          <caret line="37" column="8" lean-forward="true" selection-start-line="37" selection-start-column="8" selection-end-line="37" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/../result/auth/autr_1be/Aauth-2br/451false" />
+    <entry file="file://$PROJECT_DIR$/../result/auth/autr_1be/Aauth-2br/452false" />
+    <entry file="file://$PROJECT_DIR$/../result/auth/autr_1be/Aauth-1br/361ture" />
+    <entry file="file://$PROJECT_DIR$/../result/auth/autr_1be/Aauth-1br/392false" />
+    <entry file="file://$PROJECT_DIR$/../result/auth/autr_1be/Aauth-1br/393ture" />
+    <entry file="file://$PROJECT_DIR$/../result/auth/autr_1be/Aauth-1br/394ture" />
+    <entry file="file://$PROJECT_DIR$/../result/auth/autr_1be/Aauth-1br/395ture" />
+    <entry file="file://$PROJECT_DIR$/../result/auth/autr_1be/Aauth-1br/396false" />
     <entry file="file://$PROJECT_DIR$/../script.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1767" />
@@ -214,97 +184,122 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://D:/Program Files/python/Lib/codecs.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="124">
-          <caret line="332" selection-start-line="332" selection-end-line="332" />
-        </state>
-      </provider>
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/1what-type-autr_1bquery-RS-akc_nums-0e_nums-0" />
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/1    turee type-autr_1b  query-RS-ak" />
+    <entry file="file://$PROJECT_DIR$/../result/auth_1br/autr_1b_em/12   whatt type-autr_1b_em query-auth-tr" />
+    <entry file="file://$PROJECT_DIR$/../result/auth_1br/autr_1b_em/14   whatt type-autr_1b_em query-AS-cntr" />
+    <entry file="file://$PROJECT_DIR$/../result/auth_1br/autr_1b_em/6    whatt type-autr_1b_em query-auth-tr" />
+    <entry file="file://$PROJECT_DIR$/../result/auth_1br/autr_1b_em/8    whatt type-autr_1b_em query-AS-cntr" />
+    <entry file="file://$PROJECT_DIR$/../result/auth_1br/autr_1b_em/2    whatt type-autr_1b_em query-AS-cntr" />
+    <entry file="file://$PROJECT_DIR$/../result/auth_1br/autr_1b_em/4    whatt type-autr_1b_em query-AS-tr" />
+    <entry file="file://$PROJECT_DIR$/../result/auth_1br/autr_1b_em/245  whatt type-autr_1b_em query-Aauth-1br" />
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/10   false type-autr_1b  query-RS-cntr" />
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/Rauth/14   false type-autr_1b  query-Rauth" />
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/Rauth/15   false type-autr_1b  query-Rauth" />
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/Rauth/14   false type-autr_1b  query-Rauth    compf-0        malie-2" />
+    <entry file="file://$PROJECT_DIR$/../result/auth_2br/autr_2b/AS-ak/90   whatt type-autr_2b  query-AS-ak    compf-0  malie-0" />
+    <entry file="file://$PROJECT_DIR$/../result/auth_2br/autr_2b/auth-tr/1    whatt type-autr_2b  query-auth-tr  compf-1  malie-0" />
+    <entry file="file://$PROJECT_DIR$/../result/auth_1br/autr_1r_em/AS-ak/1248 whatt type-autr_1r_em query-AS-ak    malie-0  compf-0">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/1what-type-autr_1bquery-RS-akc_nums-0e_nums-0">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-459">
-          <caret line="4" column="9" selection-start-line="4" selection-start-column="4" selection-end-line="4" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/1    turee type-autr_1b  query-RS-ak">
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/Rauth/16   false type-autr_1b  query-Rauth    malie-2  compf-0">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="171">
-          <caret line="9" column="18" lean-forward="true" selection-start-line="9" selection-start-column="18" selection-end-line="9" selection-end-column="18" />
+          <caret line="27" column="14" selection-start-line="27" selection-start-column="13" selection-end-line="27" selection-end-column="14" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../result/auth_1br/autr_1b_em/12   whatt type-autr_1b_em query-auth-tr">
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/RS-ak/52   false type-autr_1b  query-RS-ak    malie-0  compf-2">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/../result/auth_1br/autr_1b_em/14   whatt type-autr_1b_em query-AS-cntr">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../result/auth_1br/autr_1b_em/6    whatt type-autr_1b_em query-auth-tr">
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/RS-ak/62   false type-autr_1b  query-RS-ak    malie-1  compf-2">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="779">
-          <caret line="41" column="42" lean-forward="true" selection-start-line="41" selection-start-column="42" selection-end-line="41" selection-end-column="42" />
+        <state relative-caret-position="-57" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/RS-ak/82   false type-autr_1b  query-RS-ak    malie-4  compf-1">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-171" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/RS-ak/90   false type-autr_1b  query-RS-ak    malie-5  compf-1">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="399">
+          <caret line="21" column="32" selection-end-line="57" selection-end-column="1" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../result/auth_1br/autr_1b_em/8    whatt type-autr_1b_em query-AS-cntr">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../result/auth_1br/autr_1b_em/2    whatt type-autr_1b_em query-AS-cntr">
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/RS-ak/94   false type-autr_1b  query-RS-ak    malie-5  compf-2">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="570">
-          <caret line="30" column="16" selection-start-line="30" selection-start-column="12" selection-end-line="30" selection-end-column="16" />
+        <state relative-caret-position="266">
+          <caret line="26" column="13" selection-start-line="26" selection-start-column="13" selection-end-line="26" selection-end-column="13" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../result/auth_1br/autr_1b_em/4    whatt type-autr_1b_em query-AS-tr">
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/RS-ak/50   false type-autr_1b  query-RS-ak    malie-0  compf-1">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/../result/auth_1br/autr_1b_em/245  whatt type-autr_1b_em query-Aauth-1br">
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/RS-ak/58   false type-autr_1b  query-RS-ak    malie-1  compf-1">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3" />
+        <state relative-caret-position="190">
+          <caret line="19" column="42" lean-forward="true" selection-start-line="19" selection-start-column="42" selection-end-line="19" selection-end-column="42" />
+        </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/10   false type-autr_1b  query-RS-cntr">
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/RS-ak/66   false type-autr_1b  query-RS-ak    malie-2  compf-1">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-228" />
+        <state relative-caret-position="-171" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/Rauth/14   false type-autr_1b  query-Rauth">
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/RS-ak/79   false type-autr_1b  query-RS-ak    malie-3  compf-3">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/RS-ak/87   false type-autr_1b  query-RS-ak    malie-4  compf-3">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://D:/Program Files/python/Lib/codecs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-114" />
+        <state relative-caret-position="806">
+          <caret line="320" selection-start-line="320" selection-end-line="320" />
+        </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/Rauth/15   false type-autr_1b  query-Rauth">
+    <entry file="file://$PROJECT_DIR$/script2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-285" />
+        <state relative-caret-position="361">
+          <caret line="331" column="20" selection-start-line="331" selection-start-column="20" selection-end-line="331" selection-end-column="20" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+          </folding>
+        </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../result/reg/autr_1b/Rauth/14   false type-autr_1b  query-Rauth    compf-0        malie-2">
+    <entry file="file://$PROJECT_DIR$/../testing.pv">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-573" />
+        <state relative-caret-position="437">
+          <caret line="23" column="39" selection-start-line="23" selection-start-column="39" selection-end-line="23" selection-end-column="39" />
+        </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../result/auth_2br/autr_2b/AS-ak/90   whatt type-autr_2b  query-AS-ak    compf-0  malie-0">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3" />
-      </provider>
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_2b/S-ak/7     error type-autr_2b  query-S-ak     malie-6  compf-1">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/../result/auth_2br/autr_2b/auth-tr/1    whatt type-autr_2b  query-auth-tr  compf-1  malie-0">
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_2b/S-ak/4    false type-autr_2b  query-S-ak     malie-3  compf-1">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../result/reg/autr_2b/S-ak/1    false type-autr_2b  query-S-ak     malie-1  compf-1">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="76" selection-start-column="76" selection-end-column="76" />
+        <state relative-caret-position="95">
+          <caret line="5" column="13" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/script.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="291">
-          <caret line="172" column="30" lean-forward="true" selection-start-line="172" selection-start-column="30" selection-end-line="172" selection-end-column="30" />
+        <state relative-caret-position="229">
+          <caret line="66" column="39" lean-forward="true" selection-start-line="66" selection-start-column="39" selection-end-line="66" selection-end-column="39" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
-            <element signature="e#186#557#0" />
           </folding>
         </state>
       </provider>

@@ -5,13 +5,12 @@ process
 	(*let scene = software in *)
 	
 	new appid:Appid;
-	insert TrustAppid(appid);
 	new aaid:AAID;
 	!( (* many user register their accounts *)
 		new wrapkey:key;
 		new token:bitstring;
 		new facetid:Facetid; 
-		new callerid:Callerid; insert TrustCallerid(callerid);
+		new callerid:Callerid; 
 		new skAT:sskey; let pkAT = spk(skAT) in
 		!( (* a user register many times *)
 			new https:channel; new CU:channel; new MC:channel; new AM:channel;
@@ -20,7 +19,9 @@ process
 			new fakefacetid:Facetid;
 			new fakecallerid:Callerid;
 			insert AppList(appid,facetid);			
-			out(c,(uname,appid,facetid,callerid,aaid,pkAT,));
+			out(c,(uname,appid,facetid,callerid,aaid,pkAT));
+			
+			
 			
 			
 			(*out(c,skAT);*)
