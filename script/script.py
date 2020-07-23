@@ -51,7 +51,7 @@ class RUN:
         elif self.phase == "reg_unlink"
             f1 = open(self.setting.regunlinkpath,"r")
         elif self.phase == "auth_unlink"
-            f1
+            f1 = open(self.setting.authunlinkpath, "r")
         f2 = open(self.setting.querypath,"w")
         f1lines = f1.readlines()
         f2.writelines(self.query[1])
