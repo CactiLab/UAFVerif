@@ -1,5 +1,7 @@
 import itertools
 import os
+import sys
+import operator
 import time
 import shutil
 import random
@@ -9,8 +11,8 @@ from multiprocessing import Process
 
 # general setting
 class Setting:
-    #rootpath = "D:/Work/proverif2.01/FIDO/"
-    rootpath = "D:/me/proverif2.01/FIDO/"
+    rootpath = "D:/Work/proverif2.01/FIDO/"
+    #rootpath = "D:/me/proverif2.01/FIDO/"
     querypath = rootpath + "query.pv"
     temppath = rootpath + "temp.pv"
     regpath = rootpath + "reg.pv"
@@ -18,6 +20,21 @@ class Setting:
     logpath = rootpath + "analysis.log"
     libpath = rootpath + "FIDO.pvl"
     resultpath = rootpath + "result/"
+    @classmethod
+    def initiate(cls):
+        if os.path.exists(cls.logpath):
+            os.remove(cls.logpath)
+        if not os.path.exists(cls.libpath):
+            print("FIDO.lib does not exist")
+            sys.exit(1)
+        if not os.path.exists(cls.regpath):
+            print("reg.pv does not exist")
+            sys.exit(1)
+        if not os.path.exists(cls.authpath):
+            print("auth.pv does not exist")
+            sys.exit(1)
+        log = open(cls.logpath,"w")
+        log.close()
 
 class Type:
     def __init__(self,name,write):
@@ -54,7 +71,6 @@ class Case:
         self.query = q
         self.fields = f
         self.entities = e
-
         self.path = path
         self.type_set_row = t_row  # indicate type
         self.insert_row = i_row  # insert line number
@@ -75,14 +91,18 @@ class Case:
             f2.writelines(lines[i])
         f1.close()
         f2.close()
+
     def analyze(self):
         self.write_file(True)
         ret, result = self.proverif()
         if ret == 'false':
+            self.state = ret
             return ret, result
         else:
             self.write_file(False)
-            return self.proverif()
+            ret, result = self.proverif()
+            self.state = ret
+            return ret, result
 
     def proverif(self):
         output = Popen('proverif -lib "' + Setting.libpath + '" ' + Setting.querypath, stdout=PIPE, stderr=PIPE)
@@ -110,11 +130,21 @@ class Case:
         self.result = result
         return ret, result
 
+    def danger_than(self,case2): # whether this case is dangerthan case2
+        if self.type != case2.type:
+            return False
+        if self.query != case2.query:
+            return False
+        if not operator.eq(self.fields.fields,case2.fields.fields):
+            return False
+        if case2.entities.nums > self.entities.nums:
+            return False
+        return True
+
+
 class All_types:
     def __init__(self):
         self.all_types = []
-        self.all_types.append(Type("autr_2b", "let atype = autr_2b in\n let ltype = stepup in"))
-        self.all_types.append(Type("autr_2r", "let atype = autr_2r in\n let ltype = stepup in"))
     def size(self):
         return len(self.all_types)
     def get(self,i):
@@ -133,6 +163,12 @@ class Auth_1br_types(All_types):
         self.all_types.append(Type("autr_1b_st","let atype = autr_1b in\n let ltype = stepup in"))
         self.all_types.append(Type("autr_1r_em","let atype = autr_1r in\n let ltype = empty in"))
         self.all_types.append(Type("autr_1r_st","let atype = autr_1r in\n let ltype = stepup in"))
+
+class Auth_2br_types(All_types):
+    def __init__(self):
+        All_types.__init__(self)
+        self.all_types.append(Type("autr_2b", "let atype = autr_2b in\n let ltype = stepup in"))
+        self.all_types.append(Type("autr_2r", "let atype = autr_2r in\n let ltype = stepup in"))
 
 class All_queries:
     def __init__(self):
@@ -304,20 +340,19 @@ class Assist:
         self.is_set = False
     def append(self,case):
         self.false_case = case
+        self.is_set = True
     def jump(self,case):
-        if not case.state == 'false':
+        if case.state != 'false':
             return False
         if not self.is_set:
-            self.false_case = case
-            self.is_set = True
+            self.append(case)
             return False
         else:
-            if self.same_branch(case):
+            if case.danger_than(self.false_case):
                 return True
             else:
-                self.false_case = case
-    def same_branch(self,case):
-        return False
+                self.append(case)
+                return False
 
             
 
@@ -325,15 +360,20 @@ class Assist:
 
 def analysis(phase):
     gen = Generator(phase)
+    assist = Assist()
     count = 0
     log = open(Setting.logpath, mode='a+', encoding='utf-8')
     while True:
         r, case = gen.generater_case()
+        msg = str(count).ljust(5)
+        msg += phase.ljust(4)
         if r == False:
             break
-        msg = str(count).ljust(4)
-        msg += phase.ljust(4)
         ret, result = case.analyze()
+        if assist.jump(case):
+            msg += "jumped"
+            write_log(msg,log)
+            continue
         if ret == 'false':
             msg += " false"
         elif ret == 'true':
@@ -350,10 +390,8 @@ def analysis(phase):
         msg += str(case.fields.nums).ljust(2)
         msg += " malie-"
         msg += str(case.entities.nums).ljust(2)
-        print(msg,file = log)
+        write_log(msg,log)
         count = count + 1
-        if ret == "true":
-            continue
         if not os.path.exists(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name):
             os.makedirs(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name)
         f = open(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name + "/" + msg, "w")
@@ -364,7 +402,11 @@ def analysis(phase):
         f2.close()
     log.close()
 
+def write_log(msg,log):
+    print(msg,file = log)
 
-analysis("reg")
-analysis("auth_1br")
-analysis("auth_2br")
+if __name__ == "__main__":
+    Setting.initiate()
+    analysis("reg")
+    analysis("auth_1br")
+    analysis("auth_2br")
