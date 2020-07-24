@@ -1,8 +1,10 @@
 (**************************************************************************************)
-(*set traceDisplay = long.*)
+set traceDisplay = none.
+set displayDerivation = false.
+
 (*set reconstructTrace = false.*)
-(*set verboseRules = true.*)
-(*set verboseClauses = explained.*)
+(*set verboseRules = none.*)
+set verboseClauses = none.
 (********************************************************************)
 (*                           Messages Type declaration                                        	    *)
 (********************************************************************)

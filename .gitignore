@@ -1,5 +1,7 @@
 *.pdf
 *.dot
 *.log
+*.json
+script/.vscode
 result/
-script/.ida/
+script/.idea/

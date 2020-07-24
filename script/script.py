@@ -9,8 +9,8 @@ from multiprocessing import Process
 
 # general setting
 class Setting:
-    rootpath = "D:/Work/proverif2.01/FIDO/"
-    #rootpath = "D:/me/proverif2.01/FIDO/"
+    #rootpath = "D:/Work/proverif2.01/FIDO/"
+    rootpath = "D:/me/proverif2.01/FIDO/"
     querypath = rootpath + "query.pv"
     temppath = rootpath + "temp.pv"
     regpath = rootpath + "reg.pv"
@@ -105,6 +105,8 @@ class Case:
             ret = 'true'
         else:
             ret = 'tout'
+        self.state = ret
+        self.result = result
         return ret, result
 
 class All_types:
@@ -169,14 +171,13 @@ class All_entities:
         self.all_entities = []
     def get_all_scenes(self):
         self.entities = []
-        temp_combination = []
-        for i in range(len(self.all_entities)):
-            tmp_str = ""
-            for j in range(i + 1):
+        for i in range(len(self.all_entities) + 1):
+            temp_combination = []
+            for j in range(i):
                 temp_combination.append(self.all_entities[j])
             self.entities.append(Entities(temp_combination))
     def size(self):
-        return len(self.all_entities)
+        return len(self.entities)
     def get(self,i):
         return self.entities[i]
 
@@ -215,7 +216,7 @@ class All_fields:
             for pre in itertools.combinations(self.all_fields, delnum):
                 self.fields.append(Fields(pre))
     def size(self):
-        return len(self.all_fields)
+        return len(self.fields)
     def get(self,i):
         return self.fields[i]
 
@@ -293,6 +294,9 @@ class Generator: #generator cases
         else:
             self.f_cur = self.f_cur + 1
         return True
+
+
+
 
 def analysis(phase):
     gen = Generator(phase)
