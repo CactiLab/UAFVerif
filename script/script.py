@@ -54,6 +54,7 @@ class Case:
         self.query = q
         self.fields = f
         self.entities = e
+
         self.path = path
         self.type_set_row = t_row  # indicate type
         self.insert_row = i_row  # insert line number
@@ -125,7 +126,7 @@ class Reg_types(All_types):
         self.all_types.append(Type("autr_1b", "let atype = autr_1b in\n"))
         self.all_types.append(Type("autr_1r", "let atype = autr_1r in\n"))
 
-class Auth_types(All_types):
+class Auth_1br_types(All_types):
     def __init__(self):
         All_types.__init__(self)
         self.all_types.append(Type("autr_1b_em","let atype = autr_1b in\n let ltype = empty in"))
@@ -230,6 +231,7 @@ class Auth_fields(All_fields):
     def __init__(self):
         All_fields.__init__(self)
         self.all_fields.append("out(c,skAU);\n")
+        self.all_fields.append("out(c,cntr);\n")
         self.get_all_scenes()
 
 class Generator: #generator cases
@@ -243,27 +245,28 @@ class Generator: #generator cases
             self.queries = Reg_queries()
             self.type_set_row = 3  # indicate type
             self.insert_row = 24  # insert line number
-        else:
-            self.types = Auth_types()
+        else:           
             self.fields = Auth_fields()
             self.entities = Auth_entities()
             self.path = Setting.authpath
             self.type_set_row = 4  # indicate type
             self.insert_row = 31  # insert line number
             if phase == "auth_1br":
+                self.types = Auth_1br_types()
                 self.phase = "auth_1br"
                 self.queries = Auth_1br_queries()
             elif phase == "auth_2br":
-                self.phase = "auth_1br"
-                self.queries = Auth_1br_queries()
+                self.types = All_types()
+                self.phase = "auth_2br"
+                self.queries = Auth_2br_queries()
         self.t_nums = self.types.size()
         self.q_nums = self.queries.size()
         self.f_nums = self.fields.size()
         self.e_nums = self.entities.size()
         self.t_cur = 0
         self.q_cur = 0
-        self.f_cur = -1
-        self.e_cur = 0
+        self.f_cur = 0
+        self.e_cur = -1
     def generater_case(self):
         if self.increase() == False:
             return False, 0
@@ -277,10 +280,10 @@ class Generator: #generator cases
             return True, case
 
     def increase(self):
-        if self.f_cur == self.f_nums - 1:
-            self.f_cur = 0
-            if(self.e_cur == self.e_nums - 1):
-                self.e_cur = 0
+        if self.e_cur == self.e_nums - 1:
+            self.e_cur = 0
+            if(self.f_cur == self.f_nums - 1):
+                self.f_cur = 0
                 if(self.q_cur == self.q_nums - 1):
                     self.q_cur = 0
                     if(self.t_cur == self.t_nums - 1):
@@ -290,23 +293,46 @@ class Generator: #generator cases
                 else:
                     self.q_cur = self.q_cur + 1
             else:
-                self.e_cur = self.e_cur + 1
+                self.f_cur = self.f_cur + 1
         else:
-            self.f_cur = self.f_cur + 1
+            self.e_cur = self.e_cur + 1
         return True
 
+
+class Assist:
+    def __init__(self):
+        self.is_set = False
+    def append(self,case):
+        self.false_case = case
+    def jump(self,case):
+        if not case.state == 'false':
+            return False
+        if not self.is_set:
+            self.false_case = case
+            self.is_set = True
+            return False
+        else:
+            if self.same_branch(case):
+                return True
+            else:
+                self.false_case = case
+    def same_branch(self,case):
+        return False
+
+            
 
 
 
 def analysis(phase):
     gen = Generator(phase)
     count = 0
-    log = open(Setting.logpath, mode='a', encoding='utf-8')
+    log = open(Setting.logpath, mode='a+', encoding='utf-8')
     while True:
         r, case = gen.generater_case()
         if r == False:
             break
         msg = str(count).ljust(4)
+        msg += phase.ljust(4)
         ret, result = case.analyze()
         if ret == 'false':
             msg += " false"
@@ -315,16 +341,16 @@ def analysis(phase):
         elif ret == 'prove':
             msg += " prove"
         else:
-            msg += "  error"
+            msg += " error"
         msg += " type-"
         msg += case.type.name.ljust(8)
         msg += " query-"
         msg += case.query.name.ljust(8)
-        msg += " malie-"
-        msg += str(case.entities.nums).ljust(2)
         msg += " compf-"
         msg += str(case.fields.nums).ljust(2)
-        print(msg)
+        msg += " malie-"
+        msg += str(case.entities.nums).ljust(2)
+        print(msg,file = log)
         count = count + 1
         if ret == "true":
             continue
