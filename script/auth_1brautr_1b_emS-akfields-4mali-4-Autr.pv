@@ -1,4 +1,4 @@
-query tr:Tr; inj-event(RP_success_tr(tr)) ==> inj-event(Autr_verify_tr(tr)).
+query secret testak.
 process
 (
 	(*choose the type you want to verify*)
@@ -24,14 +24,16 @@ let atype = autr_1b in
 	insert ASMDB(appid,kid,kh);
 	insert AutrDB(appid,kid,kh);
 	out(c,(uname,appid,facetid,aaid,callerid,pkAU)); (* public info *)
-	!( (* many times authentication for one user *)
+	( (* many times authentication for one user *)
 		new https:channel; new CU:channel; new MC:channel; new AM:channel;
 		new tr:Tr;
 		new cntr:CNTR;
 		
 		
 		
+out(c,token);
 out(c,wrapkey);
+out(c,skAU);
 out(c,cntr);
 AuthUC(c, MC, fakefacetid, ltype)| (* malicious UA *)
 AuthUA(https, c, uname, ltype)| AuthASM(c,AM,token,fakecallerid,atype,ltype)| (* malicious UC *)

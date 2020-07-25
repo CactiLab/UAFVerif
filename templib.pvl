@@ -1,0 +1,585 @@
+(**************************************************************************************)
+set traceDisplay = none.
+set displayDerivation = false.
+
+(*set reconstructTrace = false.*)
+(*set verboseRules = none.*)
+set verboseClauses = none.
+(********************************************************************)
+(*                           Messages Type declaration                                        	    *)
+(********************************************************************)
+type msg.
+type Atype.
+type Ltype.
+type Scene.
+
+type Uname.
+type Appid.
+type Facetid.
+type Callerid.
+type SData.
+type Chlg.
+type Fchlg.
+type Tr.
+type Token.
+type AAID.
+type CNTR.
+type Nonce.
+type KeyID.
+
+(********************************************************************)
+(*                                  Symmetric encryption     		                         	        *)
+(********************************************************************)
+type key.
+type Senc_alg.
+const WeakSenc:Senc_alg[private].
+
+fun senc(bitstring,key):KeyID.
+reduc forall m: bitstring, k:key; sdec(senc(m,k),k) = m.
+
+fun senc_msg(msg,key):msg.
+reduc forall m: msg, k:key; sdec_msg(senc_msg(m,k),k) = m.
+
+(********************************************************************)
+(*                                      Signature function                                                *)
+(********************************************************************)
+type spkey.
+type sskey.
+
+fun spk(sskey):spkey.
+fun sign(bitstring, sskey): bitstring.
+reduc forall m: bitstring, ssk: sskey; checksign(sign(m,ssk),spk(ssk)) = m.
+reduc forall m: bitstring, ssk: sskey; getmess(sign(m,ssk)) = m.
+
+
+
+(********************************************************************)
+(*                                           Hash Functions.   					                        *)
+(********************************************************************)
+
+fun hash(bitstring): bitstring.
+fun hash_a(Appid):bitstring.
+fun hash_tr(Tr): Tr.
+
+(********************************************************************)
+(*              Final Challenge Params function to compute a FCP params               *)
+(********************************************************************)
+
+fun FCParams(Appid,Facetid,Chlg,bitstring):bitstring[data].
+
+(********************************************************************)
+(*                                     Get TLSDATA from channel               	                *)
+(********************************************************************)
+
+fun GetTLSdata(channel):bitstring.
+  
+(********************************************************************)
+(*                         Increasing counter value                                                    *)
+(********************************************************************)
+
+fun Incr(CNTR):CNTR.
+reduc forall cntr:CNTR; ReIncr(Incr(cntr)) = cntr.
+
+(********************************************************************)
+(*                 Get KHAccess token from a random ASMtoken                           *)
+(********************************************************************)
+
+fun To_12b_token(Appid,bitstring,Callerid):Token.
+fun To_12r_token(Appid):Token.
+fun f1(Token,Appid):Token.
+
+(********************************************************************)
+(*  Get final challenge hash from the random hash value of the final challenge *)
+(********************************************************************)
+
+fun ToFc(bitstring):Fchlg.
+
+(********************************************************************)
+(*                                  table for database                                                    *)
+(********************************************************************)
+
+table AppList(Appid,Facetid).
+table AuthAppList(Appid,Facetid).
+table ASMDB(Appid,KeyID,KeyID).
+table TrustCallerid(Callerid).
+table AutrDB(Appid,KeyID,KeyID).
+(********************************************************************)
+(*                                   channel declarations                                               *)
+(********************************************************************)
+free c:channel.
+
+
+(********************************************************************)
+(*                                   const declarations                                                   *)
+(********************************************************************)
+const autr_1b:Atype.
+const autr_2b:Atype.
+const autr_1r:Atype.
+const autr_2r:Atype.
+const empty:Ltype.
+const stepup:Ltype.
+const software:Scene.
+const hardware:Scene.
+const debug:bitstring[private].
+const reg_cntr:CNTR[private].
+const auth_cntr:CNTR[private].
+
+(********************************************************************)
+(*                                               Event                                                          *)
+(********************************************************************)
+event RP_success_reg(Uname,Appid,AAID,KeyID).
+event UA_init_reg(Uname,Appid).
+event Autr_verify_reg(Uname,Appid,AAID,KeyID).
+
+(********************************************************************)
+(*                              Registration message format                                        *)
+(********************************************************************)
+fun InputUandP(Uname, bitstring):msg[data].
+fun RegRPreq(Uname,Appid,SData,Chlg):msg[data].
+fun RegRPresp(SData,AAID,Fchlg,KeyID,CNTR,spkey,spkey,bitstring,bitstring):msg[data].
+fun RegCUreq(Uname,Appid,SData,Chlg,bitstring):msg[data].
+fun RegCUresp(SData,AAID,Fchlg,KeyID,CNTR,spkey,spkey,bitstring,bitstring):msg[data].
+fun RegMCreq(Uname,Appid,bitstring):msg[data].
+fun RegMCresp(AAID,Fchlg,KeyID,CNTR,spkey,spkey,bitstring):msg[data].
+fun RegAMreq(Uname,Appid,Token,Fchlg):msg[data].
+fun RegAMresp_12b(AAID,Fchlg,KeyID,CNTR,spkey,spkey,KeyID,bitstring):msg[data].
+fun RegAMresp_12r(AAID,Fchlg,KeyID,CNTR,spkey,spkey,bitstring):msg[data].
+(********************************************************************)
+(*                                            FIDO Server                                                 *)
+(* 1. RegServer to registration                                                                      *)
+(* 2. AuthServer to authentication                                                                 *)
+(********************************************************************)
+let RegRP(https:channel, uname:Uname, appid:Appid, password:bitstring) =
+(
+	in(https,up:msg);
+	let InputUandP(=uname, =password) = up in
+	new sdata:SData;
+	new chlg:Chlg;
+	let tlsdata = GetTLSdata(https) in
+	out(https, RegRPreq(uname,appid,sdata,chlg));
+	in(https,m:msg);
+	let RegRPresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s) = m in
+	let FCParams(=appid,facetid,=chlg,=tlsdata) = fcp in
+	get AppList(=appid,=facetid) in
+	if xsdata = sdata && fc = ToFc(hash(fcp)) then
+	if (aaid,fc,kid,cntr,pkAU) = checksign(s,pkAT) then
+	(
+		event RP_success_reg(uname,appid,aaid,kid);
+		out(c,debug)
+	)	
+).
+(********************************************************************)
+(*                                             User Agent                                                   *)
+(* 1.  only represent a honest user agent                     					                *)
+(* 2. it can visit a fake website                                                                       *)
+(********************************************************************)
+let RegUA(https:channel,UC:channel,uname:Uname,appid:Appid,password:bitstring) =
+(
+	event UA_init_reg(uname,appid);
+	out(https,InputUandP(uname,password));
+	in(https, m:msg);
+	let RegRPreq(xuname,appid,sdata,chlg) = m in
+	(
+		let tlsdata = GetTLSdata(https) in
+		out(UC,RegCUreq(xuname,appid,sdata,chlg,tlsdata));
+		in(UC, mm:msg);
+		
+		let RegCUresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s)  = mm in
+		out(https,RegRPresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
+	)
+).
+(********************************************************************)
+(*                                             FIDO Client                                                  *)
+(* 1. FIDO UAF client                   				                                                    *)
+(********************************************************************)
+let RegUC(CU:channel,CM:channel,facetid:Facetid) =
+(
+	in(CU,m:msg);
+	let RegCUreq(uname,appid,sdata,chlg,tlsdata) = m in
+	get AppList(=appid, =facetid) in
+	let fcp = FCParams(appid,facetid,chlg,tlsdata) in
+	out(CM,RegMCreq(uname,appid,fcp));
+	in(CM,mm:msg);
+	let RegMCresp(aaid,fc,kid,cntr,pkAT,pkAU,s) = mm in
+	out(CU,RegCUresp(sdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
+).
+(********************************************************************)
+(*                                                  ASM                                                        *)
+(********************************************************************)
+let RegASM(MC:channel, MA:channel, token:bitstring, callerid:Callerid, atype:Atype) =
+(
+	in(MC, m:msg);
+	let RegMCreq(uname,appid,fcp) = m in
+	let fc = ToFc(hash(fcp)) in
+	if atype = autr_1b || atype = autr_2b then
+	(
+		(* bound authenticator send keyhandle and store it into the ASM *)
+		let ak = To_12b_token(appid,token,callerid) in
+		let testak = ak in
+		out(MA,RegAMreq(uname,appid,ak,fc));
+		in(MA,mm:msg);
+		let RegAMresp_12b(aaid,fc,kid,cntr,pkAT,pkAU,kh,s) = mm in
+		out(MC,RegMCresp(aaid,fc,kid,cntr,pkAT,pkAU,s))
+	)
+	else
+	(
+		let ak = To_12r_token(appid) in
+		let testak = ak in
+		(* roaming authenticators don't send the keyhandle *)
+		out(MA,RegAMreq(uname,appid,ak,fc));
+		in(MA,mm:msg);
+		let RegAMresp_12r(aaid,fc,kid,cntr,pkAT,pkAU,s) = mm in
+		out(MC,RegMCresp(aaid,fc,kid,cntr,pkAT,pkAU,s))
+	)
+).
+
+
+
+(********************************************************************)
+(*                                             Authenticator                                               *)
+(* 1. RegServer to registration                                                                      *)
+(* 2. AuthServer to authentication                                                                *)
+(* Both of them use the same channel                                                           *)
+(********************************************************************)
+let RegAutr(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,atype:Atype) =
+(
+	in(AM,m:msg);
+	let RegAMreq(uname,appid,ak,fc) = m in
+	new skAU:sskey;
+	new cntr:CNTR;
+	let pkAT = spk(skAT) in
+	let pkAU = spk(skAU) in
+	if atype = autr_1b  then 
+	(	
+		new kid:KeyID;
+		let kh = senc((skAU,ak,uname,kid),wrapkey) in 
+		let s = sign((aaid,fc,kid,cntr,pkAU),skAT) in
+		event Autr_verify_reg(uname,appid,aaid,kid);
+		out(AM,RegAMresp_12b(aaid,fc,kid,cntr,pkAT,pkAU,kh,s))
+	)
+	else if atype = autr_2b then 
+	(
+		new kid:KeyID;
+		let kh = senc((skAU,ak,kid),wrapkey) in
+		let s = sign((aaid,fc,kid,cntr,pkAU),skAT) in
+		event Autr_verify_reg(uname,appid,aaid,kid);
+		out(AM,RegAMresp_12b(aaid,fc,kid,cntr,pkAT,pkAU,kh,s))
+	)
+	else if atype = autr_1r  then 
+	(
+		new kid:KeyID;
+		let kh = senc((skAU,ak,uname,kid),wrapkey) in 
+		let s = sign((aaid,fc,kid,cntr,pkAU),skAT) in
+		event Autr_verify_reg(uname,appid,aaid,kid);
+		out(AM,RegAMresp_12r(aaid,fc,kid,cntr,pkAT,pkAU,s))
+	)
+	else if atype = autr_2r then 
+	(
+		let kh = senc((skAU,ak),wrapkey) in
+		let kid = kh in
+		let s = sign((aaid,fc,kid,cntr,pkAU),skAT) in
+		event Autr_verify_reg(uname,appid,aaid,kid);
+		out(AM,RegAMresp_12r(aaid,fc,kid,cntr,pkAT,pkAU,s))
+	)
+).
+
+(**************************message format 2*******************************)
+fun AuthRPreq_em(Appid,SData,Chlg):msg[data].
+fun AuthRPresp_em(SData,AAID,Nonce,Fchlg,KeyID,CNTR,bitstring,bitstring):msg[data].
+fun AuthRPreq_st(Appid,KeyID,SData,Chlg,Tr):msg[data].
+fun AuthRPresp_st(SData,AAID,Nonce,Fchlg,Tr,KeyID,CNTR,bitstring,bitstring):msg[data].
+fun AuthCUreq_em(Appid,SData,Chlg,bitstring):msg[data].
+fun AuthCUresp_em(SData,AAID,Nonce,Fchlg,KeyID,CNTR,bitstring,bitstring):msg[data].
+fun AuthCUreq_st(Appid,KeyID,SData,Chlg,Tr,bitstring):msg[data].
+fun AuthCUresp_st(SData,AAID,Nonce,Fchlg,Tr,KeyID,CNTR,bitstring,bitstring):msg[data].
+fun AuthCMreq_em(Appid,bitstring):msg[data].
+fun AuthCMresp_em(AAID,Nonce,Fchlg,KeyID,CNTR,bitstring):msg[data].
+fun AuthCMreq_st(Appid,bitstring,KeyID,Tr):msg[data].
+fun AuthCMresp_st(AAID,Nonce,Fchlg,Tr,KeyID,CNTR,bitstring):msg[data].
+fun AuthAMreq_1bem(Token,Fchlg,Appid,KeyID):msg[data].
+fun AuthAMreq_1bst(Token,Fchlg,Appid,KeyID,Tr):msg[data].
+fun AuthAMreq_2bst(Token,Fchlg,Appid,KeyID,Tr):msg[data].
+fun AuthAMreq_1rem(Token,Fchlg,Appid):msg[data].
+fun AuthAMreq_1rst(Token,Fchlg,Appid,KeyID,Tr):msg[data].
+fun AuthAMreq_2rst(Token,Fchlg,Appid,KeyID,Tr):msg[data].
+fun AuthAMresp_em(AAID,Nonce,Fchlg,KeyID,CNTR,bitstring):msg[data].
+fun AuthAMresp_st(AAID,Nonce,Fchlg,Tr,KeyID,CNTR,bitstring):msg[data].
+
+(********************************************************************)
+(*                                               Event                                                          *)
+(********************************************************************)
+
+event RP_success_auth(Uname,Appid,AAID,KeyID).
+event RP_success_tr(Tr).
+event UA_launch_auth(Uname,Appid).
+event Autr_verify_auth_1br(Uname,Appid,AAID,KeyID).
+event Autr_verify_auth_2br(Appid,AAID,KeyID).
+event Autr_verify_tr(Tr).
+
+(********************************************************************)
+(**************************main process*******************************)
+(********************************************************************)
+let AuthRP(https:channel,uname:Uname,appid:Appid,aaid:AAID,kid:KeyID,pkAU:spkey,cntr:CNTR,tr:Tr,ltype:Ltype) = 
+(
+	new sdata:SData;
+	new chlg:Chlg;
+	let tlsdata = GetTLSdata(https) in
+	if ltype = empty then
+	(
+		out(https,AuthRPreq_em(appid,sdata,chlg));
+		in(https,m:msg);
+		let AuthRPresp_em(=sdata,=aaid,nonce,fc,=kid,xcntr,fcp,s) = m in
+		let FCParams(=appid,facetid,=chlg,=tlsdata) = fcp in
+		get AuthAppList(=appid,facetid) in
+		if fc = ToFc(hash(fcp)) then
+		if (aaid,nonce,fc,kid,xcntr) = checksign(s,pkAU) then
+		if xcntr = cntr then
+		event RP_success_auth(uname,appid,aaid,kid);
+		out(c,debug)
+	)
+	else 
+	(
+		out(https,AuthRPreq_st(appid,kid,sdata,chlg,tr));
+		in(https,m:msg);
+		let AuthRPresp_st(=sdata,=aaid,nonce,fc,htr,=kid,xcntr,fcp,s) = m in
+		let FCParams(=appid,facetid,=chlg,=tlsdata) = fcp in
+		get AuthAppList(=appid,facetid) in
+		if fc = ToFc(hash(fcp)) then
+		if htr = hash_tr(tr) then
+		if (aaid,nonce,fc,htr,kid,xcntr) = checksign(s,pkAU) then
+		if xcntr = cntr then
+		event RP_success_auth(uname,appid,aaid,kid);
+		event RP_success_tr(tr);
+		out(c,debug)
+	)
+).
+
+
+let AuthUA(https:channel,UC:channel,uname:Uname,ltype:Ltype) =
+(
+	in(https,m:msg);
+	if ltype = empty then
+	(
+		let AuthRPreq_em(appid,sdata,chlg) = m in
+		event UA_launch_auth(uname,appid);
+		let tlsdata = GetTLSdata(https) in
+		out(UC,AuthCUreq_em(appid,sdata,chlg,tlsdata));
+		in(UC,mm:msg);
+		let AuthCUresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s) = mm in
+		out(https,AuthRPresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s))
+	)
+	else 
+	(
+		let AuthRPreq_st(appid,kid,sdata,chlg,tr) = m in
+		event UA_launch_auth(uname,appid);
+		let tlsdata = GetTLSdata(https) in
+		out(UC,AuthCUreq_st(appid,kid,sdata,chlg,tr,tlsdata));
+		in(UC,mm:msg);
+		let AuthCUresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s) = mm in
+		out(https,AuthRPresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
+	)
+).
+
+let AuthUC(CU:channel,CM:channel,facetid:Facetid,ltype:Ltype) =
+(
+	in(CU,m:msg);
+	if ltype = empty then
+	(
+		let AuthCUreq_em(appid,sdata,chlg,tlsdata) = m in
+		get AuthAppList(=appid,=facetid) in
+		let fcp = FCParams(appid,facetid,chlg,tlsdata) in
+		out(CM,AuthCMreq_em(appid,fcp));
+		in(CM,mm:msg);
+		let AuthCMresp_em(aaid,nonce,fc,kid,xcntr,s) = mm in
+		out(CU,AuthCUresp_em(sdata,aaid,nonce,fc,kid,xcntr,fcp,s))
+	)
+	else 
+	(
+		let AuthCUreq_st(appid,kid,sdata,chlg,tr,tlsdata) = m in
+		get AuthAppList(=appid,=facetid) in
+		let fcp = FCParams(appid,facetid,chlg,tlsdata) in
+		out(CM,AuthCMreq_st(appid,fcp,kid,tr));
+		in(CM,mm:msg);
+		let AuthCMresp_st(aaid,nonce,fc,htr,xkid,xcntr,s) = mm in
+		out(CU,AuthCUresp_st(sdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
+	)
+).
+
+let AuthASM(MC:channel,MA:channel,token:bitstring,callerid:Callerid,atype:Atype,ltype:Ltype) =
+(
+	in(MC,m:msg);
+	if atype = autr_1b && ltype = empty then
+	(
+		let AuthCMreq_em(appid,fcp) = m in
+		get ASMDB(=appid,kid,kh) in
+		get TrustCallerid(=callerid) in
+		let fc = ToFc(hash(fcp)) in
+		let ak = To_12b_token(appid,token,callerid) in 
+		let testak = ak in
+		out(MA,AuthAMreq_1bem(ak,fc,appid,kh));
+		in(MA,mm:msg);
+		let AuthAMresp_em(aaid,nonce,xfc,kid,xcntr,s) = mm in
+		out(MC,AuthCMresp_em(aaid,nonce,xfc,kid,xcntr,s))
+	)
+	else if atype = autr_1b && ltype = stepup then
+	(
+		let AuthCMreq_st(appid,fcp,kid,tr) = m in
+		get ASMDB(appid2,=kid,kh) in
+		get TrustCallerid(=callerid) in
+		let fc = ToFc(hash(fcp)) in
+		let ak = To_12b_token(appid,token,callerid) in 
+		let testak = ak in
+		out(MA,AuthAMreq_1bst(ak,fc,appid,kh,tr));
+		in(MA,mm:msg);
+		let AuthAMresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s) = mm in
+		out(MC,AuthCMresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s))
+	)
+	else if atype = autr_2b then
+	(
+		let AuthCMreq_st(appid,fcp,kid,tr) = m in
+		get ASMDB(=appid,=kid,kh) in
+		get TrustCallerid(=callerid) in
+		let fc = ToFc(hash(fcp)) in
+		let ak = To_12b_token(appid,token,callerid) in 
+		let testak = ak in
+		out(MA,AuthAMreq_2bst(ak,fc,appid,kh,tr));
+		in(MA,mm:msg);
+		let AuthAMresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s) = mm in
+		out(MC,AuthCMresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s))
+	)
+	else if atype = autr_1r && ltype = empty then
+	(
+		let AuthCMreq_em(appid,fcp) = m in
+		let fc = ToFc(hash(fcp)) in
+		let ak = To_12r_token(appid) in
+		let testak = ak in
+		out(MA,AuthAMreq_1rem(ak,fc,appid));
+		in(MA,mm:msg);
+		let AuthAMresp_em(aaid,nonce,xfc,kid,xcntr,s) = mm in
+		out(MC,AuthCMresp_em(aaid,nonce,xfc,kid,xcntr,s))
+	)
+	else if atype = autr_1r && ltype = stepup then
+	(
+		let AuthCMreq_st(appid,fcp,kid,tr) = m in
+		let fc = ToFc(hash(fcp)) in
+		let ak = To_12r_token(appid) in
+		let testak = ak in
+		out(MA,AuthAMreq_1rst(ak,fc,appid,kid,tr));
+		in(MA,mm:msg);
+		let AuthAMresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s) = mm in
+		out(MC,AuthCMresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s))
+	)
+	else
+	(
+		let AuthCMreq_st(appid,fcp,kid,tr) = m in
+		let fc = ToFc(hash(fcp)) in
+		let ak = To_12r_token(appid) in
+		let testak = ak in
+		out(MA,AuthAMreq_2rst(ak,fc,appid,kid,tr));
+		in(MA,mm:msg);
+		let AuthAMresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s) = mm in
+		out(MC,AuthCMresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s))
+	)
+).
+
+let AuthAutr(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,atype:Atype,ltype:Ltype) =
+(
+	in(AM,m:msg);
+	if atype = autr_1b && ltype = empty then
+	(
+		let AuthAMreq_1bem(ak,fc,appid,kh) = m in
+		let (skAU:sskey,aka:Token,uname:Uname,kid:KeyID) = sdec(kh,wrapkey) in
+		if f1(ak,appid) = aka then
+		let pkAU = spk(skAU) in
+		new nonce:Nonce;
+		let s = sign((aaid,nonce,fc,kid,cntr),skAU) in
+		event Autr_verify_auth_1br(uname,appid,aaid,kid);
+		out(AM,AuthAMresp_em(aaid,nonce,fc,kid,cntr,s))
+	)
+	else if atype = autr_1b && ltype = stepup then
+	(
+		let AuthAMreq_1bst(ak,fc,appid,kh,tr) = m in
+		let (skAU:sskey,aka:Token,uname:Uname,kid:KeyID) = sdec(kh,wrapkey) in
+		if f1(ak,appid) = aka then
+		let pkAU = spk(skAU) in
+		let htr = hash_tr(tr) in
+		new nonce:Nonce;
+		let s = sign((aaid,nonce,fc,htr,kid,cntr),skAU) in
+		event Autr_verify_auth_1br(uname,appid,aaid,kid);
+		event Autr_verify_tr(tr);
+		out(AM,AuthAMresp_st(aaid,nonce,fc,htr,kid,cntr,s))
+	)
+	else if atype = autr_2b then
+	(
+		let AuthAMreq_2bst(ak,fc,appid,kh,tr) = m in
+		let (skAU:sskey,aka:Token,kid:KeyID) = sdec(kh,wrapkey) in
+		if f1(ak,appid) = aka then
+		let pkAU = spk(skAU) in
+		let htr = hash_tr(tr) in
+		new nonce:Nonce;
+		let s = sign((aaid,nonce,fc,htr,kid,cntr),skAU) in
+		event Autr_verify_auth_2br(appid,aaid,kid);
+		event Autr_verify_tr(tr);
+		out(AM,AuthAMresp_st(aaid,nonce,fc,htr,kid,cntr,s))
+	)
+	else if atype = autr_1r && ltype = empty then
+	(
+		let AuthAMreq_1rem(ak,fc,appid) = m in
+		get AutrDB(=appid,kid,kh) in
+		let (skAU:sskey,aka:Token,uname:Uname,kid:KeyID) = sdec(kh,wrapkey) in
+		if f1(ak,appid) = aka then
+		let pkAU = spk(skAU) in
+		new nonce:Nonce;
+		let s = sign((aaid,nonce,fc,kid,cntr),skAU) in 
+		event Autr_verify_auth_1br(uname,appid,aaid,kid);
+		out(AM,AuthAMresp_em(aaid,nonce,fc,kid,cntr,s))
+	)
+	else if atype = autr_1r && ltype = stepup then
+	(
+		let AuthAMreq_1rst(ak,fc,appid,kid,tr) = m in
+		get AutrDB(=appid,=kid,kh) in
+		let (skAU:sskey,aka:Token,uname:Uname,kid:KeyID) = sdec(kh,wrapkey) in
+		if f1(ak,appid) = aka then
+		let pkAU = spk(skAU) in
+		let htr = hash_tr(tr) in
+		new nonce:Nonce;
+		let s = sign((aaid,nonce,fc,htr,kid,cntr),skAU) in
+		event Autr_verify_auth_1br(uname,appid,aaid,kid);
+		event Autr_verify_tr(tr);
+		out(AM,AuthAMresp_st(aaid,nonce,fc,htr,kid,cntr,s))
+	)
+	else
+	(
+		let AuthAMreq_2rst(ak,fc,appid,kid,tr) = m in
+		let (skAU:sskey,aka:Token) = sdec(kid,wrapkey) in
+		if f1(ak,appid) = aka then
+		let pkAU = spk(skAU) in
+		let htr = hash_tr(tr) in
+		new nonce:Nonce;
+		let s = sign((aaid,nonce,fc,htr,kid,cntr),skAU) in
+		event Autr_verify_auth_2br(appid,aaid,kid);
+		event Autr_verify_tr(tr);
+		out(AM,AuthAMresp_st(aaid,nonce,fc,htr,kid,cntr,s))
+	)
+).
+
+letfun get_ak(atype:Atype,appid:Appid,token:bitstring,callerid:Callerid) =
+(
+	if atype = autr_1b || atype = autr_2b then To_12b_token(appid,token,callerid)
+	else To_12r_token(appid)
+).
+
+letfun get_kh(atype:Atype,uname:Uname,appid:Appid,callerid:Callerid,token:bitstring,keyid:KeyID,wrapkey:key,skAU:sskey) =
+(
+	let ak = get_ak(atype,appid,token,callerid) in
+	let aka = f1(ak,appid) in
+	if atype = autr_1b || atype = autr_1r then senc((skAU,aka,uname,keyid),wrapkey)	
+	else if atype = autr_2b then senc((skAU,aka,keyid),wrapkey)	
+	else senc((skAU,aka),wrapkey)			
+).
+
+letfun get_kid(atype:Atype,kh:KeyID,keyid:KeyID) =
+(
+	if atype = autr_2r then kh
+	else keyid
+).

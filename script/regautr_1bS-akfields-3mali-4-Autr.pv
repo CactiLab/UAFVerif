@@ -1,6 +1,6 @@
 query secret testak.
 process
-!( (* many RPs ger registration requests *)
+( (* many RPs ger registration requests *)
 	(*choose the type you want to verify*)
 let atype = autr_1b in
 	(*let atype = autr_1b in 	*)
@@ -8,13 +8,13 @@ let atype = autr_1b in
 	
 	new appid:Appid;
 	new aaid:AAID;
-	!( (* many user register their accounts *)
+	( (* many user register their accounts *)
 		new wrapkey:key;
 		new token:bitstring;
 		new facetid:Facetid; 
 		new callerid:Callerid; 
 		new skAT:sskey; let pkAT = spk(skAT) in
-		!( (* a user register many times *)
+		( (* a user register many times *)
 			new https:channel; new CU:channel; new MC:channel; new AM:channel;
 			new facetappid:Appid;
 			new uname:Uname; new password:bitstring; new password2:bitstring;
@@ -25,10 +25,12 @@ let atype = autr_1b in
 			
 			
 out(c,token);
+out(c,wrapkey);
 out(c,skAT);
 RegUC(c, MC, fakefacetid)| (* malicious UA *)
 RegUA(https, c, uname,appid,password)| RegASM(c, AM, token, fakecallerid, atype)| (* malicious UC *)
 RegUC(CU, c, facetid)| RegAutr(c, aaid, skAT, wrapkey, atype)| (* malicious ASM *)
+RegASM(MC, c, token, callerid, atype)| (* malicious Autr *)
 			
 			
 			(*out(c,skAT);*)

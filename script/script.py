@@ -2,6 +2,7 @@ import itertools
 import os
 import sys
 import operator
+import threading
 import time
 import shutil
 import random
@@ -13,17 +14,23 @@ from multiprocessing import Process
 class Setting:
     rootpath = "D:/Work/proverif2.01/FIDO/"
     #rootpath = "D:/me/proverif2.01/FIDO/"
-    querypath = rootpath + "query.pv"
+    #querypath = rootpath + "query.pv"
     temppath = rootpath + "temp.pv"
     regpath = rootpath + "reg.pv"
     authpath = rootpath + "auth.pv"
-    logpath = rootpath + "analysis.log"
+    logpath1 = rootpath + "analysis1.log"
+    logpath2 = rootpath + "analysis2.log"
+    logpath3 = rootpath + "analysis3.log"
     libpath = rootpath + "FIDO.pvl"
     resultpath = rootpath + "result/"
     @classmethod
     def initiate(cls):
-        if os.path.exists(cls.logpath):
-            os.remove(cls.logpath)
+        if os.path.exists(cls.logpath1):
+            os.remove(cls.logpath1)
+        if os.path.exists(cls.logpath2):
+            os.remove(cls.logpath2)
+        if os.path.exists(cls.logpath3):
+            os.remove(cls.logpath3)
         if not os.path.exists(cls.libpath):
             print("FIDO.lib does not exist")
             sys.exit(1)
@@ -33,8 +40,6 @@ class Setting:
         if not os.path.exists(cls.authpath):
             print("auth.pv does not exist")
             sys.exit(1)
-        log = open(cls.logpath,"w")
-        log.close()
 
 class Type:
     def __init__(self,name,write):
@@ -48,18 +53,21 @@ class Query:
 
 class Fields:
     def __init__(self, fields): # list
-        self.name = "out data fields"
         self.nums = len(fields)
         self.write = ""
+        self.name = "fields-" + str(self.nums)
         for item in fields:
             self.write += item
         self.fields = fields
 
 class Entities:
     def __init__(self, entities):
-        self.name = "malicious entities"
         self.nums = len(entities)
         self.write = ""
+        if self.nums == 0:
+            self.name = "mali-" + str(self.nums) + "-none"
+        else:
+            self.name = "mali-" + str(self.nums) + "-" + entities[len(entities)-1][-7:-3]
         for item in entities:
             self.write += item
         self.entities = entities
@@ -71,12 +79,13 @@ class Case:
         self.query = q
         self.fields = f
         self.entities = e
-        self.path = path
+        self.path = path # indicate reg.pv or auth.pv
         self.type_set_row = t_row  # indicate type
         self.insert_row = i_row  # insert line number
+        self.query_path = Setting.rootpath + p + t.name + q.name + f.name + e.name + ".pv"
     def write_file(self,if_delete_parallel):
         f1 = open(self.path,"r")
-        f2 = open(Setting.querypath,"w")
+        f2 = open(self.query_path,"w")
         lines = f1.readlines()
         if(if_delete_parallel):
             for i in range(len(lines)):
@@ -97,15 +106,23 @@ class Case:
         ret, result = self.proverif()
         if ret == 'false':
             self.state = ret
-            return ret, result
+            f = open(self.query_path)
+            content = f.readlines()
+            f.close()
+            os.remove(self.query_path)
+            return ret, result, content
         else:
             self.write_file(False)
             ret, result = self.proverif()
             self.state = ret
-            return ret, result
+            f = open(self.query_path)
+            content = f.readlines()
+            f.close()
+            os.remove(self.query_path)
+            return ret, result, content
 
     def proverif(self):
-        output = Popen('proverif -lib "' + Setting.libpath + '" ' + Setting.querypath, stdout=PIPE, stderr=PIPE)
+        output = Popen('proverif -lib "' + Setting.libpath + '" ' + self.query_path, stdout=PIPE, stderr=PIPE)
         timer = Timer(20, lambda process: process.kill(), [output])
         try:
             timer.start()
@@ -113,16 +130,18 @@ class Case:
             return_code = output.returncode
         finally:
             timer.cancel()
-        result = stdout
-        if (result[-400:-1].find(b'error') != -1):
+        i = stdout[0:-10].rfind(b'--------------------------------------------------------------')
+        result = stdout[i:-1]
+        #print(result)
+        if (result.find(b'error') != -1):
             ret = 'error'
-        elif (result[-600:-1].find(b'false') != -1):
+        elif (result.find(b'false') != -1):
             ret = 'false'
-        elif (result[-2000:-1].find(b'hypothesis:') != -1):
+        elif (result.find(b'hypothesis:') != -1):
             ret = 'trace'
-        elif (result[-400:-1].find(b'prove') != -1):
+        elif (result.find(b'prove') != -1):
             ret = 'prove'
-        elif (result[-400:-1].find(b'true') != -1):
+        elif (result.find(b'true') != -1):
             ret = 'true'
         else:
             ret = 'tout'
@@ -155,6 +174,8 @@ class Reg_types(All_types):
         All_types.__init__(self)
         self.all_types.append(Type("autr_1b", "let atype = autr_1b in\n"))
         self.all_types.append(Type("autr_1r", "let atype = autr_1r in\n"))
+        self.all_types.append(Type("autr_2b", "let atype = autr_2b in\n let ltype = stepup in"))
+        self.all_types.append(Type("autr_2r", "let atype = autr_2r in\n let ltype = stepup in"))
 
 class Auth_1br_types(All_types):
     def __init__(self):
@@ -206,6 +227,11 @@ class Auth_2br_queries(Auth_queries):
 class All_entities:
     def __init__(self):
         self.all_entities = []
+    def get_all_scenes_reduce_version(self): #a scheme to get all combination of the entities
+        self.entities = []
+        for delnum in range(len(self.all_entities) + 1):
+            for pre in itertools.combinations(self.all_entities, delnum):
+                self.entities.append(Entities(pre))
     def get_all_scenes(self):
         self.entities = []
         for i in range(len(self.all_entities) + 1):
@@ -213,6 +239,8 @@ class All_entities:
             for j in range(i):
                 temp_combination.append(self.all_entities[j])
             self.entities.append(Entities(temp_combination))
+
+
     def size(self):
         return len(self.entities)
     def get(self,i):
@@ -222,24 +250,20 @@ class Reg_entities(All_entities):
     def __init__(self):
         All_entities.__init__(self)
         self.all_entities = []
-        self.all_entities.append("RegUC(c, MC, fakefacetid)|\n")
-        self.all_entities.append("RegUA(https, c, uname,appid,password)|\n")
-        self.all_entities.append("RegASM(c, AM, token, fakecallerid, atype)|\n")
-        self.all_entities.append("RegUC(CU, c, facetid)|\n")
-        self.all_entities.append("RegAutr(c, aaid, skAT, wrapkey, atype)|\n")
-        self.all_entities.append("RegASM(MC, c, token, callerid, atype)|\n")
+        self.all_entities.append("RegUC(c, MC, fakefacetid)| (*malicious-UA*)\n")
+        self.all_entities.append("RegUA(https, c, uname,appid,password)| RegASM(c, AM, token, fakecallerid, atype)| (*malicious-UC*)\n")
+        self.all_entities.append("RegUC(CU, c, facetid)| RegAutr(c, aaid, skAT, wrapkey, atype)| (*malicious-ASM*)\n")
+        self.all_entities.append("RegASM(MC, c, token, callerid, atype)| (*-malicious-Autr*)\n")
         self.get_all_scenes()
 
 class Auth_entities(All_entities):
     def __init__(self):
         All_entities.__init__(self)
         self.all_entities = []
-        self.all_entities.append("AuthUC(c, MC, fakefacetid, ltype)|\n")
-        self.all_entities.append("AuthUA(https, c, uname, ltype)|\n")
-        self.all_entities.append("AuthASM(c,AM,token,fakecallerid,atype,ltype)|\n")
-        self.all_entities.append("AuthUC(CU, c, facetid, ltype)|\n")
-        self.all_entities.append("AuthAutr(c,aaid,wrapkey,cntr,atype,ltype)|\n")
-        self.all_entities.append("AuthASM(MC,c,token,callerid,atype,ltype)|\n")
+        self.all_entities.append("AuthUC(c, MC, fakefacetid, ltype)| (*malicious-UA*)\n")
+        self.all_entities.append("AuthUA(https, c, uname, ltype)| AuthASM(c,AM,token,fakecallerid,atype,ltype)| (*malicious-UC*)\n")
+        self.all_entities.append("AuthUC(CU, c, facetid, ltype)| AuthAutr(c,aaid,wrapkey,cntr,atype,ltype)| (*malicious-ASM*)\n")
+        self.all_entities.append("AuthASM(MC,c,token,callerid,atype,ltype)| (*malicious-Autr*)\n")
         self.get_all_scenes()
 
 class All_fields:
@@ -292,9 +316,10 @@ class Generator: #generator cases
                 self.phase = "auth_1br"
                 self.queries = Auth_1br_queries()
             elif phase == "auth_2br":
-                self.types = All_types()
+                self.types = Auth_2br_types()
                 self.phase = "auth_2br"
                 self.queries = Auth_2br_queries()
+        self.reverse_f_e() #reverse all
         self.t_nums = self.types.size()
         self.q_nums = self.queries.size()
         self.f_nums = self.fields.size()
@@ -316,13 +341,13 @@ class Generator: #generator cases
             return True, case
 
     def increase(self):
-        if self.e_cur == self.e_nums - 1:
+        if self.e_cur >= self.e_nums - 1:
             self.e_cur = 0
-            if(self.f_cur == self.f_nums - 1):
+            if(self.f_cur >= self.f_nums - 1):
                 self.f_cur = 0
-                if(self.q_cur == self.q_nums - 1):
+                if(self.q_cur >= self.q_nums - 1):
                     self.q_cur = 0
-                    if(self.t_cur == self.t_nums - 1):
+                    if(self.t_cur >= self.t_nums - 1):
                         return False
                     else:
                         self.t_cur = self.t_cur + 1
@@ -333,7 +358,13 @@ class Generator: #generator cases
         else:
             self.e_cur = self.e_cur + 1
         return True
+    def set_last_state(self,state): #set last state
+        if state == 'true':
+            self.e_cur = self.e_nums
 
+    def reverse_f_e(self):
+        self.fields.fields.reverse()
+        self.entities.entities.reverse()
 
 class Assist:
     def __init__(self):
@@ -358,22 +389,17 @@ class Assist:
 
 
 
-def analysis(phase):
+def analysis(phase,log):
     gen = Generator(phase)
     assist = Assist()
     count = 0
-    log = open(Setting.logpath, mode='a+', encoding='utf-8')
     while True:
         r, case = gen.generater_case()
         msg = str(count).ljust(5)
         msg += phase.ljust(4)
         if r == False:
             break
-        ret, result = case.analyze()
-        if assist.jump(case):
-            msg += "jumped"
-            write_log(msg,log)
-            continue
+        ret, result, content = case.analyze()
         if ret == 'false':
             msg += " false"
         elif ret == 'true':
@@ -382,31 +408,48 @@ def analysis(phase):
             msg += " prove"
         else:
             msg += " error"
-        msg += " type-"
-        msg += case.type.name.ljust(8)
-        msg += " query-"
-        msg += case.query.name.ljust(8)
-        msg += " compf-"
-        msg += str(case.fields.nums).ljust(2)
-        msg += " malie-"
-        msg += str(case.entities.nums).ljust(2)
+        gen.set_last_state(ret)
+        msg += " type "
+        msg += case.type.name.ljust(4)
+        msg += " query "
+        msg += case.query.name.ljust(4)
+        msg += str(case.fields.name).ljust(9)
+        msg += str(case.entities.name).ljust(8)
         write_log(msg,log)
         count = count + 1
+        if ret == 'false':
+            continue
         if not os.path.exists(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name):
             os.makedirs(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name)
         f = open(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name + "/" + msg, "w")
-        f2 = open(Setting.querypath, "r")
-        f.writelines(f2.readlines())
+        f.writelines(content)
         f.writelines(str(result[-1000:-1]))
         f.close()
-        f2.close()
-    log.close()
 
 def write_log(msg,log):
     print(msg,file = log)
 
+def analyze_reg_thread(log):
+    analysis("reg",log)
+def analyze_auth1br_thread(log):
+    analysis("auth_1br",log)
+def analyze_auth2br_thread(log):
+    analysis("auth_2br",log)
+
 if __name__ == "__main__":
     Setting.initiate()
-    analysis("reg")
-    analysis("auth_1br")
-    analysis("auth_2br")
+    log1 = open(Setting.logpath1, mode='a+', encoding='utf-8')
+    log2 = open(Setting.logpath2, mode='a+', encoding='utf-8')
+    log3 = open(Setting.logpath3, mode='a+', encoding='utf-8')
+    t1 = threading.Thread(target=analyze_reg_thread, args=(log1,))
+    t2 = threading.Thread(target=analyze_auth1br_thread, args=(log2,))
+    t3 = threading.Thread(target=analyze_auth2br_thread, args=(log3,))
+    t1.start()
+    t2.start()
+    t3.start()
+    t1.join()
+    t2.join()
+    t3.join()
+    log1.close()
+    log2.close()
+    log3.close()
