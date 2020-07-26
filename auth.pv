@@ -9,7 +9,7 @@ process
 
 	new appid:Appid;
 	new aaid:AAID;
-	new skAU:sskey; let pkAU = spk(skAU) in
+	new skAU:sskey; let pkAU = spk(skAU) in let testskAU = skAU in
 	new keyid:KeyID;
 	new wrapkey:key;	
 	new token:bitstring;	
@@ -19,13 +19,14 @@ process
 	
 	let kh = get_kh(atype,uname,appid,callerid,token,keyid,wrapkey,skAU) in
 	let kid = get_kid(atype,kh,keyid) in
+	let testkid = kid in
 	insert ASMDB(appid,kid,kh);
 	insert AutrDB(appid,kid,kh);
 	out(c,(uname,appid,facetid,aaid,callerid,pkAU)); (* public info *)
 	!( (* many times authentication for one user *)
 		new https:channel; new CU:channel; new MC:channel; new AM:channel;
-		new tr:Tr;
 		new cntr:CNTR;
+		new tr:Tr;
 		
 		
 		
@@ -37,6 +38,7 @@ process
 		(*out(c,token);*)
 		
 		(* malicious entities situations*)
+		(*AuthUA(c, CU, uname, ltype)|*)
 		(*AuthUA(https, c, uname, ltype)|*)
 		(*AuthUC(c, MC, fakefacetid, ltype)|*)
 		(*AuthUC(CU, c, facetid, ltype)|*)
@@ -45,10 +47,9 @@ process
 		(*AuthAutr(c,aaid,wrapkey,cntr,atype,ltype)|*)
 		(* honest entities *)
 		AuthRP(https, uname, appid, aaid,kid,pkAU,cntr,tr,ltype)|
-		AuthRP(c,uname, appid, aaid,kid,pkAU,cntr,tr,ltype)|
 		AuthUA(https, CU,uname, ltype)|
 		AuthUC(CU, MC, facetid, ltype)|		
 		AuthASM(MC,AM,token,callerid,atype,ltype)|		
-		AuthAutr(AM,aaid,wrapkey,cntr,atype,ltype)	
+		AuthAutr(AM,aaid,wrapkey,cntr,tr,atype,ltype)	
 	)
 )

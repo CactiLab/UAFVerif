@@ -1,57 +1,63 @@
-query secret testak.
+query secret testkid.
 process
-!( (* many RPs ger registration requests *)
+(
 	(*choose the type you want to verify*)
-let atype = autr_1b in
-	(*let atype = autr_1b in 	*)
-	(*let scene = software in *)
 	
+let atype = autr_1b in
+ let ltype = empty in	
+	
+	(*let atype = autr_1b in*)
+	(*let ltype = empty in *)
+
 	new appid:Appid;
 	new aaid:AAID;
-	!( (* many user register their accounts *)
-		new wrapkey:key;
-		new token:bitstring;
-		new facetid:Facetid; 
-		new callerid:Callerid; 
-		new skAT:sskey; let pkAT = spk(skAT) in
-		!( (* a user register many times *)
-			new https:channel; new CU:channel; new MC:channel; new AM:channel;
-			new facetappid:Appid;
-			new uname:Uname; new password:bitstring; new password2:bitstring;
-			new fakefacetid:Facetid;
-			new fakecallerid:Callerid;
-			insert AppList(appid,facetid);			
-			out(c,(uname,appid,facetid,callerid,aaid,pkAT));
-			
-			
-out(c,token);
-out(c,skAT);
-RegUC(c, MC, fakefacetid)| (* malicious UA *)
-RegUA(https, c, uname,appid,password)| RegASM(c, AM, token, fakecallerid, atype)| (* malicious UC *)
-RegUC(CU, c, facetid)| RegAutr(c, aaid, skAT, wrapkey, atype)| (* malicious ASM *)
-			
-			
-			(*out(c,skAT);*)
-			(*out(c,token);*)
-			(*out(c,wrapkey);*)
-			
-			(* malicious entities situations*)
-			
-			(*RegUC(c, MC, fakefacetid)|*)
-			(*RegUA(https, c, uname,appid,password)|*)
-			(*RegUC(CU, c, facetid)|*)
-			(*RegASM(c, AM, token, fakecallerid, atype)|*)
-			(*RegASM(MC, c, token, callerid, atype)|*)
-			(*RegAutr(c, aaid, skAT, wrapkey, atype)|*)
+	new skAU:sskey; let pkAU = spk(skAU) in let testskAU = skAU in
+	new keyid:KeyID;
+	new wrapkey:key;	
+	new token:bitstring;	
+	new uname:Uname;
+	new facetid:Facetid; new fakefacetid:Facetid; insert AuthAppList(appid,facetid);
+	new callerid:Callerid; new fakecallerid:Callerid; insert TrustCallerid(callerid);
+	
+	let kh = get_kh(atype,uname,appid,callerid,token,keyid,wrapkey,skAU) in
+	let kid = get_kid(atype,kh,keyid) in
+	let testkid = kid in
+	insert ASMDB(appid,kid,kh);
+	insert AutrDB(appid,kid,kh);
+	out(c,(uname,appid,facetid,aaid,callerid,pkAU)); (* public info *)
+	( (* many times authentication for one user *)
+		new https:channel; new CU:channel; new MC:channel; new AM:channel;
+		new cntr:CNTR;
+		new tr:Tr;
 		
-			(* honest entities *)
-			RegRP(https, uname, appid, password)|
-			RegRP(c, uname, appid, password)|
-			RegUA(https, CU,uname,appid, password)|
-			(*RegUA(c,CU,uname,facetappid,password2)*)
-			RegUC(CU, MC, facetid)|
-			RegASM(MC, AM, token, callerid, atype)|
-			RegAutr(AM, aaid, skAT, wrapkey, atype)
-		)	
+		
+out(c,token);
+
+out(c,skAU);
+out(c,cntr);
+AuthUC(c, MC, fakefacetid, ltype)| (*malicious-UA*)
+AuthUA(https, c, uname, ltype)| AuthASM(c,AM,token,fakecallerid,atype,ltype)| (*malicious-UC*)
+AuthUC(CU, c, facetid, ltype)| AuthAutr(c,aaid,wrapkey,cntr,tr,atype,ltype)| (*malicious-ASM*)
+AuthRP(c,uname, appid, aaid,kid,pkAU,cntr,tr,ltype)| (*add RP to c for first login*)		
+		AuthASM(MC,c,token,callerid,atype,ltype)|
+		(*out(c,wrapkey);*)
+		(*out(c,skAU);*)
+		(*out(c,cntr);*)
+		(*out(c,token);*)
+		
+		(* malicious entities situations*)
+		(*AuthUA(c, CU, uname, ltype)|*)
+		(*AuthUA(https, c, uname, ltype)|*)
+		(*AuthUC(c, MC, fakefacetid, ltype)|*)
+		(*AuthUC(CU, c, facetid, ltype)|*)
+		(*AuthASM(c,AM,token,fakecallerid,atype,ltype)|*)
+		(*AuthASM(MC,c,token,callerid,atype,ltype)|*)
+		(*AuthAutr(c,aaid,wrapkey,cntr,atype,ltype)|*)
+		(* honest entities *)
+		AuthRP(https, uname, appid, aaid,kid,pkAU,cntr,tr,ltype)|
+		AuthUA(https, CU,uname, ltype)|
+		AuthUC(CU, MC, facetid, ltype)|		
+		AuthASM(MC,AM,token,callerid,atype,ltype)|		
+		AuthAutr(AM,aaid,wrapkey,cntr,tr,atype,ltype)	
 	)
 )

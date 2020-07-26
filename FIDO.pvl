@@ -1,5 +1,5 @@
 (**************************************************************************************)
-set traceDisplay = none.
+
 set displayDerivation = false.
 
 (*set reconstructTrace = false.*)
@@ -247,11 +247,14 @@ let RegAutr(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,atype:Atype) =
 	let RegAMreq(uname,appid,ak,fc) = m in
 	new skAU:sskey;
 	new cntr:CNTR;
+	let testskAU = skAU in
+	let testcntr = cntr in
 	let pkAT = spk(skAT) in
 	let pkAU = spk(skAU) in
 	if atype = autr_1b  then 
 	(	
 		new kid:KeyID;
+		let testkid = kid in
 		let kh = senc((skAU,ak,uname,kid),wrapkey) in 
 		let s = sign((aaid,fc,kid,cntr,pkAU),skAT) in
 		event Autr_verify_reg(uname,appid,aaid,kid);
@@ -260,6 +263,7 @@ let RegAutr(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,atype:Atype) =
 	else if atype = autr_2b then 
 	(
 		new kid:KeyID;
+		let testkid = kid in
 		let kh = senc((skAU,ak,kid),wrapkey) in
 		let s = sign((aaid,fc,kid,cntr,pkAU),skAT) in
 		event Autr_verify_reg(uname,appid,aaid,kid);
@@ -268,6 +272,7 @@ let RegAutr(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,atype:Atype) =
 	else if atype = autr_1r  then 
 	(
 		new kid:KeyID;
+		let testkid = kid in
 		let kh = senc((skAU,ak,uname,kid),wrapkey) in 
 		let s = sign((aaid,fc,kid,cntr,pkAU),skAT) in
 		event Autr_verify_reg(uname,appid,aaid,kid);
@@ -277,6 +282,7 @@ let RegAutr(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,atype:Atype) =
 	(
 		let kh = senc((skAU,ak),wrapkey) in
 		let kid = kh in
+		let testkid = kid in
 		let s = sign((aaid,fc,kid,cntr,pkAU),skAT) in
 		event Autr_verify_reg(uname,appid,aaid,kid);
 		out(AM,RegAMresp_12r(aaid,fc,kid,cntr,pkAT,pkAU,s))
@@ -312,6 +318,7 @@ fun AuthAMresp_st(AAID,Nonce,Fchlg,Tr,KeyID,CNTR,bitstring):msg[data].
 event RP_success_auth(Uname,Appid,AAID,KeyID).
 event RP_success_tr(Tr).
 event UA_launch_auth(Uname,Appid).
+event UA_launch_auth_tr(Tr).
 event Autr_verify_auth_1br(Uname,Appid,AAID,KeyID).
 event Autr_verify_auth_2br(Appid,AAID,KeyID).
 event Autr_verify_tr(Tr).
@@ -370,10 +377,11 @@ let AuthUA(https:channel,UC:channel,uname:Uname,ltype:Ltype) =
 	)
 	else 
 	(
-		let AuthRPreq_st(appid,kid,sdata,chlg,tr) = m in
+		let AuthRPreq_st(appid,kid,sdata,chlg,tr2) = m in
 		event UA_launch_auth(uname,appid);
+		event UA_launch_auth_tr(tr2);
 		let tlsdata = GetTLSdata(https) in
-		out(UC,AuthCUreq_st(appid,kid,sdata,chlg,tr,tlsdata));
+		out(UC,AuthCUreq_st(appid,kid,sdata,chlg,tr2,tlsdata));
 		in(UC,mm:msg);
 		let AuthCUresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s) = mm in
 		out(https,AuthRPresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
@@ -482,8 +490,9 @@ let AuthASM(MC:channel,MA:channel,token:bitstring,callerid:Callerid,atype:Atype,
 	)
 ).
 
-let AuthAutr(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,atype:Atype,ltype:Ltype) =
+let AuthAutr(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,atype:Atype,ltype:Ltype) =
 (
+	let testcntr = cntr in
 	in(AM,m:msg);
 	if atype = autr_1b && ltype = empty then
 	(
@@ -498,7 +507,7 @@ let AuthAutr(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,atype:Atype,ltype:Ltype)
 	)
 	else if atype = autr_1b && ltype = stepup then
 	(
-		let AuthAMreq_1bst(ak,fc,appid,kh,tr) = m in
+		let AuthAMreq_1bst(ak,fc,appid,kh,=tr) = m in
 		let (skAU:sskey,aka:Token,uname:Uname,kid:KeyID) = sdec(kh,wrapkey) in
 		if f1(ak,appid) = aka then
 		let pkAU = spk(skAU) in
@@ -511,7 +520,7 @@ let AuthAutr(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,atype:Atype,ltype:Ltype)
 	)
 	else if atype = autr_2b then
 	(
-		let AuthAMreq_2bst(ak,fc,appid,kh,tr) = m in
+		let AuthAMreq_2bst(ak,fc,appid,kh,=tr) = m in
 		let (skAU:sskey,aka:Token,kid:KeyID) = sdec(kh,wrapkey) in
 		if f1(ak,appid) = aka then
 		let pkAU = spk(skAU) in
@@ -536,7 +545,7 @@ let AuthAutr(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,atype:Atype,ltype:Ltype)
 	)
 	else if atype = autr_1r && ltype = stepup then
 	(
-		let AuthAMreq_1rst(ak,fc,appid,kid,tr) = m in
+		let AuthAMreq_1rst(ak,fc,appid,kid,=tr) = m in
 		get AutrDB(=appid,=kid,kh) in
 		let (skAU:sskey,aka:Token,uname:Uname,kid:KeyID) = sdec(kh,wrapkey) in
 		if f1(ak,appid) = aka then
@@ -550,7 +559,7 @@ let AuthAutr(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,atype:Atype,ltype:Ltype)
 	)
 	else
 	(
-		let AuthAMreq_2rst(ak,fc,appid,kid,tr) = m in
+		let AuthAMreq_2rst(ak,fc,appid,kid,=tr) = m in
 		let (skAU:sskey,aka:Token) = sdec(kid,wrapkey) in
 		if f1(ak,appid) = aka then
 		let pkAU = spk(skAU) in

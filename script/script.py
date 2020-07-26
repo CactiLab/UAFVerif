@@ -21,6 +21,10 @@ class Setting:
     logpath1 = rootpath + "analysis1.log"
     logpath2 = rootpath + "analysis2.log"
     logpath3 = rootpath + "analysis3.log"
+    logpath4 = rootpath + "analysis4.log"
+    logpath5 = rootpath + "analysis5.log"
+    logpath6 = rootpath + "analysis6.log"
+    logpath7 = rootpath + "analysis7.log"
     libpath = rootpath + "FIDO.pvl"
     resultpath = rootpath + "result/"
     @classmethod
@@ -31,6 +35,14 @@ class Setting:
             os.remove(cls.logpath2)
         if os.path.exists(cls.logpath3):
             os.remove(cls.logpath3)
+        if os.path.exists(cls.logpath4):
+            os.remove(cls.logpath4)
+        if os.path.exists(cls.logpath5):
+            os.remove(cls.logpath5)
+        if os.path.exists(cls.logpath6):
+            os.remove(cls.logpath6)
+        if os.path.exists(cls.logpath7):
+            os.remove(cls.logpath7)
         if not os.path.exists(cls.libpath):
             print("FIDO.lib does not exist")
             sys.exit(1)
@@ -72,95 +84,6 @@ class Entities:
             self.write += item
         self.entities = entities
 
-class Case:
-    def __init__(self,p,t,q,f,e,path,t_row,i_row):
-        self.phase = p
-        self.type = t
-        self.query = q
-        self.fields = f
-        self.entities = e
-        self.path = path # indicate reg.pv or auth.pv
-        self.type_set_row = t_row  # indicate type
-        self.insert_row = i_row  # insert line number
-        self.query_path = Setting.rootpath + p + t.name + q.name + f.name + e.name + ".pv"
-    def write_file(self,if_delete_parallel):
-        f1 = open(self.path,"r")
-        f2 = open(self.query_path,"w")
-        lines = f1.readlines()
-        if(if_delete_parallel):
-            for i in range(len(lines)):
-                lines[i] = lines[i].replace('!','')
-        f2.writelines(self.query.write)
-        for i in range(len(lines)):
-            if i == self.type_set_row:
-                f2.writelines(self.type.write)
-            if i == self.insert_row:
-                f2.writelines(self.fields.write)
-                f2.writelines(self.entities.write)
-            f2.writelines(lines[i])
-        f1.close()
-        f2.close()
-
-    def analyze(self):
-        self.write_file(True)
-        ret, result = self.proverif()
-        if ret == 'false':
-            self.state = ret
-            f = open(self.query_path)
-            content = f.readlines()
-            f.close()
-            os.remove(self.query_path)
-            return ret, result, content
-        else:
-            self.write_file(False)
-            ret, result = self.proverif()
-            self.state = ret
-            f = open(self.query_path)
-            content = f.readlines()
-            f.close()
-            os.remove(self.query_path)
-            return ret, result, content
-
-    def proverif(self):
-        output = Popen('proverif -lib "' + Setting.libpath + '" ' + self.query_path, stdout=PIPE, stderr=PIPE)
-        timer = Timer(20, lambda process: process.kill(), [output])
-        try:
-            timer.start()
-            stdout, stderr = output.communicate()
-            return_code = output.returncode
-        finally:
-            timer.cancel()
-        i = stdout[0:-10].rfind(b'--------------------------------------------------------------')
-        result = stdout[i:-1]
-        #print(result)
-        if (result.find(b'error') != -1):
-            ret = 'error'
-        elif (result.find(b'false') != -1):
-            ret = 'false'
-        elif (result.find(b'hypothesis:') != -1):
-            ret = 'trace'
-        elif (result.find(b'prove') != -1):
-            ret = 'prove'
-        elif (result.find(b'true') != -1):
-            ret = 'true'
-        else:
-            ret = 'tout'
-        self.state = ret
-        self.result = result
-        return ret, result
-
-    def danger_than(self,case2): # whether this case is dangerthan case2
-        if self.type != case2.type:
-            return False
-        if self.query != case2.query:
-            return False
-        if not operator.eq(self.fields.fields,case2.fields.fields):
-            return False
-        if case2.entities.nums > self.entities.nums:
-            return False
-        return True
-
-
 class All_types:
     def __init__(self):
         self.all_types = []
@@ -177,26 +100,42 @@ class Reg_types(All_types):
         self.all_types.append(Type("autr_2b", "let atype = autr_2b in\n let ltype = stepup in"))
         self.all_types.append(Type("autr_2r", "let atype = autr_2r in\n let ltype = stepup in"))
 
-class Auth_1br_types(All_types):
+class Auth_1b_em_types(All_types):
     def __init__(self):
         All_types.__init__(self)
         self.all_types.append(Type("autr_1b_em","let atype = autr_1b in\n let ltype = empty in"))
+
+class Auth_1b_st_types(All_types):
+    def __init__(self):
+        All_types.__init__(self)
         self.all_types.append(Type("autr_1b_st","let atype = autr_1b in\n let ltype = stepup in"))
+
+class Auth_1r_em_types(All_types):
+    def __init__(self):
+        All_types.__init__(self)
         self.all_types.append(Type("autr_1r_em","let atype = autr_1r in\n let ltype = empty in"))
+class Auth_1r_st_types(All_types):
+    def __init__(self):
+        All_types.__init__(self)
         self.all_types.append(Type("autr_1r_st","let atype = autr_1r in\n let ltype = stepup in"))
 
-class Auth_2br_types(All_types):
+class Auth_2b_types(All_types):
     def __init__(self):
         All_types.__init__(self)
         self.all_types.append(Type("autr_2b", "let atype = autr_2b in\n let ltype = stepup in"))
+
+class Auth_2r_types(All_types):
+    def __init__(self):
+        All_types.__init__(self)
         self.all_types.append(Type("autr_2r", "let atype = autr_2r in\n let ltype = stepup in"))
 
 class All_queries:
     def __init__(self):
         self.all_queries = []
         self.all_queries.append(Query("S-ak", "query secret testak.\n"))
-        self.all_queries.append(Query("S-cntr","query secret cntr.\n"))
-        self.all_queries.append(Query("S-skau", "query secret skAU.\n"))
+        self.all_queries.append(Query("S-cntr","query secret testcntr.\n"))
+        self.all_queries.append(Query("S-skau", "query secret testskAU.\n"))
+        self.all_queries.append(Query("S-kid", "query secret testkid.\n"))
     def size(self):
         return len(self.all_queries)
     def get(self,i):
@@ -208,21 +147,42 @@ class Reg_queries(All_queries):
         self.all_queries.append(Query("S-skat", "query secret skAT.\n"))
         self.all_queries.append(Query("Rauth","query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_reg(u,a,aa,kid)) ==> (inj-event(Autr_verify_reg(u,a,aa,kid))==> inj-event(UA_init_reg(u,a))).\n"))
 
-class Auth_queries(All_queries):
+class Auth_stepup_queries(All_queries):
     def __init__(self):
         All_queries.__init__(self)
         self.all_queries.append(Query("S-tr","query secret tr.\n"))
-        self.all_queries.append(Query("auth-tr", "query tr:Tr; inj-event(RP_success_tr(tr)) ==> inj-event(Autr_verify_tr(tr)).\n"))
+        self.all_queries.append(Query("Aauth-tr", "query tr:Tr; inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr))).\n"))
 
-class Auth_1br_queries(Auth_queries):
+class Auth_1b_em_queries(All_queries):
     def __init__(self):
-        Auth_queries.__init__(self)
-        self.all_queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> inj-event(Autr_verify_auth_1br(u,a,aa,kid)).\n"))
+        All_queries.__init__(self)
+        self.all_queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
 
-class Auth_2br_queries(Auth_queries):
+class Auth_1b_st_queries(Auth_stepup_queries):
     def __init__(self):
-        Auth_queries.__init__(self)
-        self.all_queries.append(Query("Aauth-2br","query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> inj-event(Autr_verify_auth_2br(a,aa,kid)).\n"))
+        Auth_stepup_queries.__init__(self)
+        self.all_queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
+
+
+class Auth_2b_queries(Auth_stepup_queries):
+    def __init__(self):
+        Auth_stepup_queries.__init__(self)
+        self.all_queries.append(Query("Aauth-2br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
+
+class Auth_1r_em_queries(All_queries):
+    def __init__(self):
+        All_queries.__init__(self)
+        self.all_queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
+
+class Auth_1r_st_queries(Auth_stepup_queries):
+    def __init__(self):
+        Auth_stepup_queries.__init__(self)
+        self.all_queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
+
+class Auth_2r_queries(Auth_stepup_queries):
+    def __init__(self):
+        Auth_stepup_queries.__init__(self)
+        self.all_queries.append(Query("Aauth-2br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
 
 class All_entities:
     def __init__(self):
@@ -262,7 +222,7 @@ class Auth_entities(All_entities):
         self.all_entities = []
         self.all_entities.append("AuthUC(c, MC, fakefacetid, ltype)| (*malicious-UA*)\n")
         self.all_entities.append("AuthUA(https, c, uname, ltype)| AuthASM(c,AM,token,fakecallerid,atype,ltype)| (*malicious-UC*)\n")
-        self.all_entities.append("AuthUC(CU, c, facetid, ltype)| AuthAutr(c,aaid,wrapkey,cntr,atype,ltype)| (*malicious-ASM*)\n")
+        self.all_entities.append("AuthUC(CU, c, facetid, ltype)| AuthAutr(c,aaid,wrapkey,cntr,tr,atype,ltype)| (*malicious-ASM*)\n")
         self.all_entities.append("AuthASM(MC,c,token,callerid,atype,ltype)| (*malicious-Autr*)\n")
         self.get_all_scenes()
 
@@ -292,13 +252,104 @@ class Auth_fields(All_fields):
         All_fields.__init__(self)
         self.all_fields.append("out(c,skAU);\n")
         self.all_fields.append("out(c,cntr);\n")
+        self.all_fields.append("out(c,kid);\n")
         self.get_all_scenes()
+
+class Case:
+    def __init__(self,p,t,q,f,e,lines,t_row,i_row):
+        self.phase = p
+        self.type = t
+        self.query = q
+        self.fields = f
+        self.entities = e
+        self.lines = lines # all lines in reg.pv or auth.pv
+        self.type_set_row = t_row  # indicate type
+        self.insert_row = i_row  # insert line number
+        self.query_path = "TEMP-" + str(hash(Setting.rootpath + p + t.name + q.name + f.name + e.name)) + ".pv"
+    def write_file(self,if_delete_parallel):
+        f2 = open(self.query_path,"w")
+        if(if_delete_parallel):
+            for i in range(len(self.lines)):
+                self.lines[i] = self.lines[i].replace('!','')
+        f2.writelines(self.query.write)
+        for i in range(len(self.lines)):
+            if i == self.type_set_row:
+                f2.writelines(self.type.write)
+            if i == self.insert_row:
+                f2.writelines(self.fields.write)
+                f2.writelines(self.entities.write)
+            f2.writelines(self.lines[i])
+        f2.close()
+
+    def analyze(self):
+        self.write_file(True)
+        ret, result = self.proverif()
+        if ret == 'false':
+            self.state = ret
+            f = open(self.query_path)
+            content = f.readlines()
+            f.close()
+            os.remove(self.query_path)
+            return ret, result, content
+        else:
+            self.write_file(False)
+            ret, result = self.proverif()
+            self.state = ret
+            f = open(self.query_path)
+            content = f.readlines()
+            f.close()
+            os.remove(self.query_path)
+            return ret, result, content
+
+    def proverif(self):
+        output = Popen('proverif -lib "' + Setting.libpath + '" ' + self.query_path, stdout=PIPE, stderr=PIPE)
+        timer = Timer(20, lambda process: process.kill(), [output])
+        try:
+            timer.start()
+            stdout, stderr = output.communicate()
+            return_code = output.returncode
+        finally:
+            timer.cancel()
+        i = stdout[0:-10].rfind(b'--------------------------------------------------------------')
+        result = stdout[i:-1]
+        #print(result)
+        if result == b"" or len(result) == 0:
+            result = stdout[-1000:-1]
+            ret = 'tout'
+        elif (result.find(b'error') != -1):
+            ret = 'error'
+        elif (result.find(b'false') != -1):
+            ret = 'false'
+        elif (result.find(b'hypothesis:') != -1):
+            ret = 'trace'
+        elif (result.find(b'prove') != -1):
+            ret = 'prove'
+        elif (result.find(b'true') != -1):
+            ret = 'true'
+        else:
+            ret = 'tout'
+        self.state = ret
+        self.result = result
+        return ret, result
+
+    def danger_than(self,case2): # whether this case is dangerthan case2
+        if self.type != case2.type:
+            return False
+        if self.query != case2.query:
+            return False
+        if not operator.eq(self.fields.fields,case2.fields.fields):
+            return False
+        if case2.entities.nums > self.entities.nums:
+            return False
+        return True
+
+
 
 class Generator: #generator cases
     def __init__(self,phase):
         if phase == "reg":
             self.phase = "reg"
-            self.path = Setting.regpath
+            self.lines = self.read_file(phase)
             self.types = Reg_types()
             self.fields = Reg_fields()
             self.entities = Reg_entities()
@@ -308,17 +359,38 @@ class Generator: #generator cases
         else:           
             self.fields = Auth_fields()
             self.entities = Auth_entities()
-            self.path = Setting.authpath
             self.type_set_row = 4  # indicate type
             self.insert_row = 31  # insert line number
-            if phase == "auth_1br":
-                self.types = Auth_1br_types()
-                self.phase = "auth_1br"
-                self.queries = Auth_1br_queries()
-            elif phase == "auth_2br":
-                self.types = Auth_2br_types()
-                self.phase = "auth_2br"
-                self.queries = Auth_2br_queries()
+            if phase == "auth_1b_em":
+                self.types = Auth_1b_em_types()
+                self.phase = phase
+                self.queries = Auth_1b_em_queries()
+                self.lines = self.read_file(phase)
+            elif phase == "auth_1b_st":
+                self.types = Auth_1b_st_types()
+                self.phase = phase
+                self.queries = Auth_1b_st_queries()
+                self.lines = self.read_file(phase)
+            elif phase == "auth_1r_em":
+                self.types = Auth_1r_em_types()
+                self.phase = phase
+                self.queries = Auth_1r_em_queries()
+                self.lines = self.read_file(phase)
+            elif phase == "auth_1r_st":
+                self.types = Auth_1r_st_types()
+                self.phase = phase
+                self.queries = Auth_1r_st_queries()
+                self.lines = self.read_file(phase)
+            elif phase == "auth_2b":
+                self.types = Auth_2b_types()
+                self.phase = phase
+                self.queries = Auth_2b_queries()
+                self.lines = self.read_file(phase)
+            elif phase == "auth_2r":
+                self.types = Auth_2r_types()
+                self.phase = phase
+                self.queries = Auth_2r_queries()
+                self.lines = self.read_file(phase)
         self.reverse_f_e() #reverse all
         self.t_nums = self.types.size()
         self.q_nums = self.queries.size()
@@ -328,6 +400,26 @@ class Generator: #generator cases
         self.q_cur = 0
         self.f_cur = 0
         self.e_cur = -1
+    def read_file(self,phase):
+        if phase == "reg":
+            f = open(Setting.regpath)
+            lns = f.readlines()
+        elif phase == "auth_1r_em" or phase == "auth_1b_em":
+            f = open(Setting.authpath)
+            lns = []
+            tttt = f.readlines()
+            for i in range(len(tttt)):
+                if i == self.insert_row:
+                    lns.append("AuthRP(c,uname, appid, aaid,kid,pkAU,cntr,tr,ltype)| (*add RP to c for first login*)")
+                else:
+                    lns.append(tttt[i])
+        else:
+            f = open(Setting.authpath)
+            lns = f.readlines()
+        f.close()
+        return lns
+
+
     def generater_case(self):
         if self.increase() == False:
             return False, 0
@@ -337,7 +429,7 @@ class Generator: #generator cases
             q = self.queries.get(self.q_cur)
             f = self.fields.get(self.f_cur)
             e = self.entities.get(self.e_cur)
-            case = Case(p,t,q,f,e,self.path,self.type_set_row,self.insert_row)
+            case = Case(p,t,q,f,e,self.lines,self.type_set_row,self.insert_row)
             return True, case
 
     def increase(self):
@@ -406,6 +498,8 @@ def analysis(phase,log):
             msg += "  true"
         elif ret == 'prove':
             msg += " prove"
+        elif ret == 'tout':
+            msg += "  tout"
         else:
             msg += " error"
         gen.set_last_state(ret)
@@ -414,6 +508,7 @@ def analysis(phase,log):
         msg += " query "
         msg += case.query.name.ljust(4)
         msg += str(case.fields.name).ljust(9)
+        msg += " "
         msg += str(case.entities.name).ljust(8)
         write_log(msg,log)
         count = count + 1
@@ -427,29 +522,32 @@ def analysis(phase,log):
         f.close()
 
 def write_log(msg,log):
-    print(msg,file = log)
-
-def analyze_reg_thread(log):
-    analysis("reg",log)
-def analyze_auth1br_thread(log):
-    analysis("auth_1br",log)
-def analyze_auth2br_thread(log):
-    analysis("auth_2br",log)
+    print(msg, file = log)
 
 if __name__ == "__main__":
     Setting.initiate()
     log1 = open(Setting.logpath1, mode='a+', encoding='utf-8')
     log2 = open(Setting.logpath2, mode='a+', encoding='utf-8')
     log3 = open(Setting.logpath3, mode='a+', encoding='utf-8')
-    t1 = threading.Thread(target=analyze_reg_thread, args=(log1,))
-    t2 = threading.Thread(target=analyze_auth1br_thread, args=(log2,))
-    t3 = threading.Thread(target=analyze_auth2br_thread, args=(log3,))
-    t1.start()
-    t2.start()
-    t3.start()
-    t1.join()
-    t2.join()
-    t3.join()
+    log4 = open(Setting.logpath4, mode='a+', encoding='utf-8')
+    log5 = open(Setting.logpath5, mode='a+', encoding='utf-8')
+    log6 = open(Setting.logpath6, mode='a+', encoding='utf-8')
+    log7 = open(Setting.logpath7, mode='a+', encoding='utf-8')
+    t1 = threading.Thread(target=analysis, args=("reg", log1))
+    t2 = threading.Thread(target=analysis, args=("auth_1b_em", log2))
+    t3 = threading.Thread(target=analysis, args=("auth_1b_st", log3))
+    t4 = threading.Thread(target=analysis, args=("auth_1r_em", log4))
+    t5 = threading.Thread(target=analysis, args=("auth_1r_st", log5))
+    t6 = threading.Thread(target=analysis, args=("auth_2b", log6))
+    t7 = threading.Thread(target=analysis, args=("auth_2r", log7))
+    tlist = [t1]
+
+    for t in tlist:
+        t.start()
+    for t in tlist:
+        t.join()
     log1.close()
     log2.close()
     log3.close()
+    log4.close()
+    log5.close()
