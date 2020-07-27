@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:latexdraw="http://latexdraw.sourceforge.net/namespaces/latexdraw" version="1.1" baseProfile="full">
+    <g>
+        <g latexdraw:type="joinedLines" id="id1073190882">
+            <polyline points="1124.9757267270797,70.70122816923225 1124.9757267270797,1174.685515413751 1124.9757267270797,1174.685515413751 " stroke-width="2.0" stroke="black" fill="none" latexdraw:rotationAngle="0.0"/>
+        </g>
+        <g latexdraw:type="joinedLines" id="id2092326">
+            <polyline points="572.7250170338408,65.78330530993688 572.4272857655146,1172.45106626426 572.4272857655146,1172.45106626426 " stroke-width="2.0" stroke="black" fill="none" latexdraw:rotationAngle="0.0"/>
+        </g>
+        <g latexdraw:type="joinedLines" id="id481815069">
+            <polyline points="22.104360796482613,65.18054867271711 21.81532865969848,1173.9626811392816 21.81532865969848,1173.9626811392816 " stroke-width="2.0" stroke="black" fill="none" latexdraw:rotationAngle="0.0"/>
+        </g>
+        <g latexdraw:type="rectangle" id="id467310832">
+            <rect x="-50.66666666666674" y="39.88888888888914" width="145.2222222222224" height="32.4444444444448" latexdraw:borderPos="outer" stroke-width="2.0" stroke="#e8e8e8" fill="#e5e5e5"/>
+        </g>
+        <g latexdraw:type="text" id="id490021123" fill="black" latexdraw:position="bl">
+            <text x="-43.760683760684074" y="66.1111111111104">\emph{AAID, $sk_{AT}$, $k_{W}$}</text>
+        </g>
+        <g latexdraw:type="rectangle" id="id1553805642">
+            <rect x="529.3333333333333" y="39.88888888888914" width="95.2222222222224" height="32.4444444444448" latexdraw:borderPos="outer" stroke-width="2.0" stroke="#e8e8e8" fill="#e5e5e5"/>
+        </g>
+        <g latexdraw:type="text" id="id1713238455" fill="black" latexdraw:position="bl">
+            <text x="547.7777777777779" y="61.111111111110404">\emph{FacetID}</text>
+        </g>
+        <g latexdraw:type="rectangle" id="id1396677471">
+            <rect x="1034.627450980392" y="41.45751633986947" width="180.41830065359522" height="32.4444444444448" latexdraw:borderPos="outer" stroke-width="2.0" stroke="#e8e8e8" fill="#e5e5e5"/>
+        </g>
+        <g latexdraw:type="text" id="id169961246" fill="black" latexdraw:position="bl">
+            <text x="1041.699346405229" y="66.11111111111063">\emph{UName, AppID, $pk_{AT}$}</text>
+        </g>
+        <g latexdraw:type="text" id="id900251424" fill="black" latexdraw:position="tl">
+            <text x="-38.88888888888886" y="15.722222222222172">\textbf{Authenticator}</text>
+        </g>
+        <g latexdraw:type="text" id="id1916429289" fill="black" latexdraw:position="tl">
+            <text x="806.1111111111112" y="12.722222222222172">\textbf{User Agent}</text>
+        </g>
+        <g latexdraw:type="text" id="id2022292114" fill="black" latexdraw:position="tl">
+            <text x="1061.1111111111113" y="12.222222222222172">\textbf{Relying Party}</text>
+        </g>
+        <g latexdraw:type="rectangle" id="id483904596">
+            <rect x="1034.4737274220029" y="136.75342090859317" width="181.22222222222263" height="48.44444444444525" latexdraw:borderPos="outer" stroke-width="1.0" stroke="black" fill="white"/>
+        </g>
+        <g latexdraw:type="text" id="id1114745440" fill="black" latexdraw:position="bl">
+            <text x="1050.6403940886703" y="179.03119868637145">\texttt{new random} \emph{Chlg}</text>
+        </g>
+        <g latexdraw:type="rectangle" id="id1617328918">
+            <rect x="391.07471264367905" y="225.94061302682007" width="366.2222222222217" height="123.44444444444389" latexdraw:borderPos="outer" stroke-width="1.0" stroke="black" fill="white"/>
+        </g>
+        <g latexdraw:type="text" id="id894077434" fill="black" latexdraw:position="bl">
+            <text x="407.37547892720414" y="341.55172413793116">\emph{fcp} $\leftarrow$ $\langle$\emph{AppID, FacetID, Chlg, TLSData}$\rangle$
+</text>
+        </g>
+        <g latexdraw:type="joinedLines" id="id1515955458">
+            <polyline points="1124.6247464503044,209.65517241379322 849.0365111561863,209.65517241379322 " stroke-width="1.0" stroke="black" latexdraw:rotationAngle="0.0" marker-end="url(#arrow1-1515955458)"/>
+        </g>
+        <g latexdraw:type="text" id="id6824847" fill="black" latexdraw:position="bl">
+            <text x="877.3927203065135" y="208.54406130268228"> \emph{UName, AppID, SData, Chlg} 
+</text>
+        </g>
+        <g latexdraw:type="text" id="id965766464" fill="black" latexdraw:position="bl">
+            <text x="75.26085313793249" y="463.05555555555543"> \emph{ UName, AppID, ak, fc } 
+</text>
+        </g>
+        <g latexdraw:type="text" id="id592785251" fill="black" latexdraw:position="bl">
+            <text x="92.65224711100245" y="671.6887914586121"> \emph{AAID, fc, KeyID} 
+</text>
+        </g>
+        <g latexdraw:type="text" id="id2034261052" fill="black" latexdraw:position="bl">
+            <text x="1050.6403940886703" y="154.03119868637145">\texttt{new random} \emph{SData}</text>
+        </g>
+        <g latexdraw:type="joinedLines" id="id463835307">
+            <polyline points="297.2558045670978,464.70638965897456 22.744195432902416,464.73805478546933 " stroke-width="1.0" stroke="black" latexdraw:rotationAngle="0.0" marker-end="url(#arrow1-463835307)"/>
+        </g>
+        <g latexdraw:type="joinedLines" id="id1415530497">
+            <polyline points="23.234976687488683,673.780497721161 298.3378031175797,673.9855861997539 " stroke-width="1.0" stroke="black" latexdraw:rotationAngle="0.0" marker-end="url(#arrow1-1415530497)"/>
+        </g>
+        <g latexdraw:type="joinedLines" id="id412263049">
+            <polyline points="574.2258548655332,773.326594652806 848.0876452471562,773.1320807713872 " stroke-width="1.0" stroke="black" latexdraw:rotationAngle="0.0" marker-end="url(#arrow1-412263049)"/>
+        </g>
+        <g latexdraw:type="text" id="id781422144" fill="black" latexdraw:position="bl">
+            <text x="407.8882994400244" y="295.5004420866493">\texttt{get} \emph{TLSData} \texttt{from TLS channel}</text>
+        </g>
+        <g latexdraw:type="rectangle" id="id597227505">
+            <rect x="-185.33333333333377" y="474.3888888888887" width="419.555555555556" height="174.27777777777828" latexdraw:borderPos="outer" stroke-width="1.0" stroke="black" fill="white"/>
+        </g>
+        <g latexdraw:type="text" id="id899761075" fill="black" latexdraw:position="bl">
+            <text x="-171.11111111111111" y="542.7777777777774">\texttt{new} $\langle$\emph{$sk_{AU}$, $pk_{AU}$}$\rangle$
+</text>
+        </g>
+        <g latexdraw:type="text" id="id603971930" fill="black" latexdraw:position="bl">
+            <text x="-172.28758169934625" y="593.3986928104571">\emph{h} $\leftarrow$ ${\texttt{E}}_{k_{W}}$(\emph{$sk_{AU}$, ak}, \emph{UName}, \emph{KeyID})</text>
+        </g>
+        <g latexdraw:type="text" id="id184301253" fill="black" latexdraw:position="bl">
+            <text x="-171.11111111111111" y="616.944444444445">\texttt{new sign counter} \emph{$CNTR_{A}$}</text>
+        </g>
+        <g latexdraw:type="text" id="id387592539" fill="black" latexdraw:position="bl">
+            <text x="-169.7222222222224" y="645.1111111111114">\emph{S} $\leftarrow$ ${\texttt{sign}}_{sk_{AT}}$ (\emph{$AAID, fc, KeyID, CNTR_{A}, pk_{AU}$})</text>
+        </g>
+        <g latexdraw:type="text" id="id867433508" fill="black" latexdraw:position="bl">
+            <text x="-171.11111111111111" y="497.7777777777774">\emph{ak} $\leftarrow$ \texttt{hash}(\emph{ak, AppID})</text>
+        </g>
+        <g latexdraw:type="text" id="id568361628" fill="black" latexdraw:position="bl">
+            <text x="-171.11111111111111" y="517.7777777777774">\texttt{verify the user}</text>
+        </g>
+        <g latexdraw:type="text" id="id1079923562" fill="black" latexdraw:position="bl">
+            <text x="408.14470969643463" y="314.02608311229017">\emph{xSData} $\leftarrow$ \emph{SData}</text>
+        </g>
+        <g latexdraw:type="joinedLines" id="id268891150">
+            <polyline points="298.5093307593314,65.18054867271711 298.30769558710097,1172.672199316033 298.7521400315454,1172.672199316033 " stroke-width="2.0" stroke="black" fill="none" latexdraw:rotationAngle="0.0"/>
+        </g>
+        <g latexdraw:type="rectangle" id="id1604171308">
+            <rect x="229.33333333333303" y="39.88888888888914" width="135.22222222222263" height="32.4444444444448" latexdraw:borderPos="outer" stroke-width="2.0" stroke="#e8e8e8" fill="#e5e5e5"/>
+        </g>
+        <g latexdraw:type="text" id="id1144389084" fill="black" latexdraw:position="bl">
+            <text x="247.77777777777794" y="66.1111111111104">\emph{Tok, CallerID}</text>
+        </g>
+        <g latexdraw:type="rectangle" id="id1982533536">
+            <rect x="157.65686274509812" y="382.918300653595" width="286.2222222222224" height="53.44444444444389" latexdraw:borderPos="outer" stroke-width="1.0" stroke="black" fill="white"/>
+        </g>
+        <g latexdraw:type="text" id="id869116431" fill="black" latexdraw:position="bl">
+            <text x="169.44444444444463" y="405.0000000000002">\emph{fc} $\leftarrow$ \texttt{hash}(\emph{fcp})
+</text>
+        </g>
+        <g latexdraw:type="text" id="id1176768842" fill="black" latexdraw:position="bl">
+            <text x="168.69532428355956" y="430.3670186023131">\emph{ak} $\leftarrow$ \texttt{hash}(\emph{AppID, Tok, CallerID})
+</text>
+        </g>
+        <g latexdraw:type="joinedLines" id="id1968448944">
+            <polyline points="848.9544817927177,63.43137254901938 848.7521400315454,1176.9449640423984 848.7521400315454,1176.9449640423984 " stroke-width="2.0" stroke="black" fill="none" latexdraw:rotationAngle="0.0"/>
+        </g>
+        <g latexdraw:type="rectangle" id="id431933265">
+            <rect x="789.3333333333333" y="39.88888888888914" width="125.2222222222224" height="32.4444444444448" latexdraw:borderPos="outer" stroke-width="2.0" stroke="#e8e8e8" fill="#e5e5e5"/>
+        </g>
+        <g latexdraw:type="joinedLines" id="id727443590">
+            <polyline points="847.8329952670725,218.3045977011493 572.6369168356999,218.3045977011494 " stroke-width="1.0" stroke="black" latexdraw:rotationAngle="0.0" marker-end="url(#arrow1-727443590)"/>
+        </g>
+        <g latexdraw:type="text" id="id443689131" fill="black" latexdraw:position="bl">
+            <text x="598.4865900383141" y="216.3601532567053"> \emph{UName, AppID, SData, Chlg} 
+</text>
+        </g>
+        <g latexdraw:type="text" id="id26163246" fill="black" latexdraw:position="tl">
+            <text x="526.1111111111112" y="15.722222222222172">\textbf{UAF Client}</text>
+        </g>
+        <g latexdraw:type="text" id="id1419571539" fill="black" latexdraw:position="bl">
+            <text x="408.3215443560278" y="249.85411140583597">\texttt{get trusted FacetIDs list from} \emph{AppID}</text>
+        </g>
+        <g latexdraw:type="joinedLines" id="id1967235919">
+            <polyline points="572.96218487395,373.66946778711485 299.1030048382993,373.66946778711485 " stroke-width="1.0" stroke="black" latexdraw:rotationAngle="0.0" marker-end="url(#arrow1-1967235919)"/>
+        </g>
+        <g latexdraw:type="text" id="id1690552664" fill="black" latexdraw:position="bl">
+            <text x="383.76984126984223" y="370.89169000933737"> \emph{UName, fcp} 
+</text>
+        </g>
+        <g latexdraw:type="text" id="id746311402" fill="black" latexdraw:position="tl">
+            <text x="276.1111111111112" y="15.722222222222172">\textbf{ASM}</text>
+        </g>
+        <g latexdraw:type="joinedLines" id="id1310430647">
+            <polyline points="299.26612141291116,764.0655109089636 571.409870689057,763.8709970275448 " stroke-width="1.0" stroke="black" latexdraw:rotationAngle="0.0" marker-end="url(#arrow1-1310430647)"/>
+        </g>
+        <g latexdraw:type="rectangle" id="id708588809">
+            <rect x="891.4045477261366" y="814.4463601532561" width="466.2222222222222" height="338.4444444444448" latexdraw:borderPos="outer" stroke-width="1.0" stroke="black" fill="white"/>
+        </g>
+        <g latexdraw:type="text" id="id1050380021" fill="black" latexdraw:position="bl">
+            <text x="920.3489921705814" y="861.7241379310342">\emph{xfc} $\leftarrow$ \texttt{hash}(\emph{AppID, Chlg, TLSData})
+</text>
+        </g>
+        <g latexdraw:type="text" id="id945477538" fill="black" latexdraw:position="bl">
+            <text x="903.1267699483592" y="878.3908045977009">\texttt{check}:</text>
+        </g>
+        <g latexdraw:type="text" id="id563891154" fill="black" latexdraw:position="bl">
+            <text x="919.7934366150258" y="905.6130268199231"> \emph{xSData} == \emph{SData}</text>
+        </g>
+        <g latexdraw:type="text" id="id423993303" fill="black" latexdraw:position="bl">
+            <text x="919.2378810594703" y="1052.8352490421453">\emph{xfc} == \emph{fc}
+</text>
+        </g>
+        <g latexdraw:type="text" id="id264772693" fill="black" latexdraw:position="bl">
+            <text x="903.1267699483592" y="1101.7241379310342">\texttt{if right then}:</text>
+        </g>
+        <g latexdraw:type="text" id="id680701277" fill="black" latexdraw:position="bl">
+            <text x="922.0156588372481" y="1148.9463601532564">\texttt{store} \emph{$pk_{AU}$, KeyID, AAID, $CNTR_{S}$}</text>
+        </g>
+        <g latexdraw:type="text" id="id1675409480" fill="black" latexdraw:position="bl">
+            <text x="922.0156588372481" y="1126.9463601532564">$CNTR_{S} \leftarrow CNTR_{A}$</text>
+        </g>
+        <g latexdraw:type="text" id="id577328130" fill="black" latexdraw:position="bl">
+            <text x="920.3489921705814" y="836.7241379310342">\texttt{get} \emph{TLSData} \texttt{from TLS channel}</text>
+        </g>
+        <g latexdraw:type="text" id="id1102372343" fill="black" latexdraw:position="bl">
+            <text x="919.2378810594703" y="1077.8352490421453"> ${\texttt{CheckSign}}_{pk_{AT}}$(\emph{S}, $\langle$\emph{$AAID, fc, KeyID, CNTR_{A}, pk_{AU}$}$\rangle$)
+</text>
+        </g>
+        <g latexdraw:type="text" id="id1368798812" fill="black" latexdraw:position="bl">
+            <text x="608.40673828125" y="771.3140208607181"> \emph{xSData, AAID, fc, KeyID } 
+</text>
+        </g>
+        <g latexdraw:type="joinedLines" id="id1996599023">
+            <polyline points="849.7536791886655,782.9325059828549 1124.5802812820793,782.7379921014361 " stroke-width="1.0" stroke="black" latexdraw:rotationAngle="0.0" marker-end="url(#arrow1-1996599023)"/>
+        </g>
+        <g latexdraw:type="text" id="id1949005421" fill="black" latexdraw:position="bl">
+            <text x="884.4169616699219" y="780.919932190767"> \emph{xSData, AAID, fc, KeyID } 
+</text>
+        </g>
+        <g latexdraw:type="rectangle" id="id237488337">
+            <rect x="11.311338503189177" y="1169.595968704451" width="21.684210526315837" height="7.729229585560461" latexdraw:borderPos="outer" stroke-width="2.0" stroke="black" fill="black"/>
+        </g>
+        <g latexdraw:type="rectangle" id="id447144592">
+            <rect x="288.1901528013584" y="1169.5959724461613" width="21.684210526315837" height="7.729229582122116" latexdraw:borderPos="outer" stroke-width="2.0" stroke="black" fill="black"/>
+        </g>
+        <g latexdraw:type="rectangle" id="id88101012">
+            <rect x="562.867572156197" y="1169.5959516251537" width="21.684210526315837" height="7.7297839079772075" latexdraw:borderPos="outer" stroke-width="2.0" stroke="black" fill="black"/>
+        </g>
+        <g latexdraw:type="rectangle" id="id1226518326">
+            <rect x="838.1901528013582" y="1169.5480194374572" width="21.684210526315837" height="7.775549143884291" latexdraw:borderPos="outer" stroke-width="2.0" stroke="black" fill="black"/>
+        </g>
+        <g latexdraw:type="rectangle" id="id1883926504">
+            <rect x="1113.7657378740969" y="1169.5480541185368" width="21.684210526315837" height="6.463416009259163" latexdraw:borderPos="outer" stroke-width="2.0" stroke="black" fill="black"/>
+        </g>
+        <g latexdraw:type="text" id="id511335553" fill="black" latexdraw:position="bl">
+            <text x="52.98558044433594" y="694.6342305037954"> \emph{ $CNTR_{A}$, $pk_{AU}$, S, $Cert_{AT}$} 
+</text>
+        </g>
+        <g latexdraw:type="text" id="id856833758" fill="black" latexdraw:position="bl">
+            <text x="365.8380061558314" y="762.2703284212237"> \emph{AAID, fc, KeyID} 
+</text>
+        </g>
+        <g latexdraw:type="text" id="id1981126323" fill="black" latexdraw:position="bl">
+            <text x="408.3215443560278" y="269.85411140583597">\texttt{check if} \emph{FacetID} \texttt{in the facet list}</text>
+        </g>
+        <g latexdraw:type="polygon" id="id1361605103">
+            <polygon points="790.5966386554621,88.33333333333348 775.0,106.66666666666674 790.5966386554621,125.0 1194.2376470588233,125.0 1210.0,105.0 1196.109243697479,88.33333333333348 " stroke-width="1.0" stroke="black" fill="white" latexdraw:rotationAngle="0.0"/>
+        </g>
+        <g latexdraw:type="text" id="id1606046580" fill="black" latexdraw:position="bl">
+            <text x="796.9323671497568" y="114.57004830917799">\texttt{login by the original authentication method}
+</text>
+        </g>
+        <g latexdraw:type="text" id="id1918640293" fill="black" latexdraw:position="bl">
+            <text x="327.8380061558314" y="784.2140624365691"> \emph{ $CNTR_{A}$, $pk_{AU}$, S, $Cert_{AT}$} 
+</text>
+        </g>
+        <g latexdraw:type="text" id="id438647036" fill="black" latexdraw:position="bl">
+            <text x="586.40673828125" y="793.3737263021151"> \emph{ $CNTR_{A}$, $pk_{AU}$, S, fcp, $Cert_{AT}$} 
+</text>
+        </g>
+        <g latexdraw:type="text" id="id1004637611" fill="black" latexdraw:position="bl">
+            <text x="862.4169616699219" y="802.778488206877"> \emph{ $CNTR_{A}$, $pk_{AU}$, S, fcp, $Cert_{AT}$} 
+</text>
+        </g>
+        <g latexdraw:type="text" id="id1353009471" fill="black" latexdraw:position="bl">
+            <text x="919.7934366150258" y="930.6130268199231"> \emph{fcp.AppID} == \emph{AppID}</text>
+        </g>
+        <g latexdraw:type="text" id="id285949137" fill="black" latexdraw:position="bl">
+            <text x="919.7934366150258" y="955.6130268199231"> \emph{fcp.FacetID} == \emph{TLSData}</text>
+        </g>
+        <g latexdraw:type="text" id="id726835556" fill="black" latexdraw:position="bl">
+            <text x="919.7934366150258" y="980.6130268199231"> \texttt{if} \emph{fcp.FacetID} \texttt{in the trusted FacetIDs list}</text>
+        </g>
+        <g latexdraw:type="text" id="id1189740146" fill="black" latexdraw:position="bl">
+            <text x="919.7934366150258" y="1005.6130268199231"> \emph{fcp.TLSData} == \emph{TLSData}</text>
+        </g>
+        <g latexdraw:type="text" id="id235551971" fill="black" latexdraw:position="bl">
+            <text x="919.7934366150258" y="1030.613026819923"> \emph{fcp.Chlg} == \emph{Chlg}</text>
+        </g>
+        <g latexdraw:type="text" id="id1820911877" fill="black" latexdraw:position="bl">
+            <text x="-172.28758169934625" y="568.3986928104571">\texttt{generate random} \emph{KeyID}</text>
+        </g>
+        <g latexdraw:type="rectangle" id="id858436517">
+            <rect x="152.65686274509812" y="702.918300653595" width="286.2222222222224" height="38.44444444444389" latexdraw:borderPos="outer" stroke-width="1.0" stroke="black" fill="white"/>
+        </g>
+        <g latexdraw:type="text" id="id2119970061" fill="black" latexdraw:position="bl">
+            <text x="164.44444444444463" y="730.0000000000002">\texttt{store} \emph{CallerID}, \emph{AppID}, \emph{h}, \emph{KeyID}
+</text>
+        </g>
+    </g>
+    <defs>
+        <marker overflow="visible" orient="auto" id="arrow1-1515955458">
+            <path d="M 0.0 0.0 L -14.4 4.0 L -14.4 0.0 L -14.4 -4.0 z " latexdraw:arrSizeNum="4.0" fill="black"/>
+        </marker>
+        <marker overflow="visible" orient="auto" id="arrow1-463835307">
+            <path d="M 0.0 0.0 L -14.4 4.0 L -14.4 0.0 L -14.4 -4.0 z " latexdraw:arrSizeNum="4.0" fill="black"/>
+        </marker>
+        <marker overflow="visible" orient="auto" id="arrow1-1415530497">
+            <path d="M 0.0 0.0 L -14.4 4.0 L -14.4 0.0 L -14.4 -4.0 z " latexdraw:arrSizeNum="4.0" fill="black"/>
+        </marker>
+        <marker overflow="visible" orient="auto" id="arrow1-412263049">
+            <path d="M 0.0 0.0 L -14.4 4.0 L -14.4 0.0 L -14.4 -4.0 z " latexdraw:arrSizeNum="4.0" fill="black"/>
+        </marker>
+        <marker overflow="visible" orient="auto" id="arrow1-727443590">
+            <path d="M 0.0 0.0 L -14.4 4.0 L -14.4 0.0 L -14.4 -4.0 z " latexdraw:arrSizeNum="4.0" fill="black"/>
+        </marker>
+        <marker overflow="visible" orient="auto" id="arrow1-1967235919">
+            <path d="M 0.0 0.0 L -14.4 4.0 L -14.4 0.0 L -14.4 -4.0 z " latexdraw:arrSizeNum="4.0" fill="black"/>
+        </marker>
+        <marker overflow="visible" orient="auto" id="arrow1-1310430647">
+            <path d="M 0.0 0.0 L -14.4 4.0 L -14.4 0.0 L -14.4 -4.0 z " latexdraw:arrSizeNum="4.0" fill="black"/>
+        </marker>
+        <marker overflow="visible" orient="auto" id="arrow1-1996599023">
+            <path d="M 0.0 0.0 L -14.4 4.0 L -14.4 0.0 L -14.4 -4.0 z " latexdraw:arrSizeNum="4.0" fill="black"/>
+        </marker>
+    </defs>
+    <metadata>
+        <latexdraw:metadata>
+            <latexdraw:latexIncludes>\usepackage{verbatim}
+\usepackage{cprotect}
+\usepackage{xcolor,listings}&#13;
+\usepackage{multicol}
+\usepackage{tikz}</latexdraw:latexIncludes>
+            <latexdraw:displayXScale>false</latexdraw:displayXScale>
+            <latexdraw:displayYScale>false</latexdraw:displayYScale>
+            <latexdraw:unit>CM</latexdraw:unit>
+            <latexdraw:zoom>0.900000000000003</latexdraw:zoom>
+            <latexdraw:magneticGridStyle>STANDARD</latexdraw:magneticGridStyle>
+            <latexdraw:gridGap>10</latexdraw:gridGap>
+            <latexdraw:magneticGrid>true</latexdraw:magneticGrid>
+            <latexdraw:version>3.3.8</latexdraw:version>
+            <latexdraw:size>
+                <latexdraw:width>1616</latexdraw:width>
+                <latexdraw:height>876</latexdraw:height>
+            </latexdraw:size>
+            <latexdraw:position>
+                <latexdraw:x>328.0</latexdraw:x>
+                <latexdraw:y>60.0</latexdraw:y>
+            </latexdraw:position>
+        </latexdraw:metadata>
+    </metadata>
+</svg>
