@@ -17,7 +17,7 @@ let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstr
 	
 
 	out(c,(uname,appid,facetid,aaid,callerid,pkAU)); (* public info *)
-	!( 
+	( 
 		new https:channel; new CU:channel; new MC:channel; new AM:channel;
 		new fakecallerid:Callerid; new fakefacetid:Facetid;
 		new tr:Tr;
@@ -59,7 +59,7 @@ process
 	new cntr:CNTR;
 	new facetid:Facetid; insert AuthAppList(appid,facetid);
 	new callerid:Callerid; insert TrustCallerid(callerid);
-	system(appid,aaid,skAU,keyid,wrapkey,token,uname,facetid,callerid,cntr)|
+	!system(appid,aaid,skAU,keyid,wrapkey,token,uname,facetid,callerid,cntr)|
 	!(
 		new skAU2:sskey;
 		new keyid2:KeyID;

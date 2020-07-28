@@ -12,8 +12,8 @@ from multiprocessing import Process
 
 # general setting
 class Setting:
-   # rootpath = "D:/Work/proverif2.01/FIDO/"
-    rootpath = "D:/me/proverif2.01/FIDO/"
+    rootpath = "D:/Work/proverif2.01/FIDO/"
+    #rootpath = "D:/me/proverif2.01/FIDO/"
     #querypath = rootpath + "query.pv"
     reg_set_type_row = 13
     reg_insert_row = 17
@@ -32,20 +32,6 @@ class Setting:
     resultpath = rootpath + "result/"
     @classmethod
     def initiate(cls):
-        if os.path.exists(cls.logpath1):
-            os.remove(cls.logpath1)
-        if os.path.exists(cls.logpath2):
-            os.remove(cls.logpath2)
-        if os.path.exists(cls.logpath3):
-            os.remove(cls.logpath3)
-        if os.path.exists(cls.logpath4):
-            os.remove(cls.logpath4)
-        if os.path.exists(cls.logpath5):
-            os.remove(cls.logpath5)
-        if os.path.exists(cls.logpath6):
-            os.remove(cls.logpath6)
-        if os.path.exists(cls.logpath7):
-            os.remove(cls.logpath7)
         if not os.path.exists(cls.libpath):
             print("FIDO.lib does not exist")
             sys.exit(1)
@@ -529,13 +515,13 @@ def write_log(msg,log):
 
 if __name__ == "__main__":
     Setting.initiate()
-    log1 = open(Setting.logpath1, mode='a+', encoding='utf-8')
-    log2 = open(Setting.logpath2, mode='a+', encoding='utf-8')
-    log3 = open(Setting.logpath3, mode='a+', encoding='utf-8')
-    log4 = open(Setting.logpath4, mode='a+', encoding='utf-8')
-    log5 = open(Setting.logpath5, mode='a+', encoding='utf-8')
-    log6 = open(Setting.logpath6, mode='a+', encoding='utf-8')
-    log7 = open(Setting.logpath7, mode='a+', encoding='utf-8')
+    log1 = open(Setting.logpath1, mode='w+', encoding='utf-8')
+    log2 = open(Setting.logpath2, mode='w+', encoding='utf-8')
+    log3 = open(Setting.logpath3, mode='w+', encoding='utf-8')
+    log4 = open(Setting.logpath4, mode='w+', encoding='utf-8')
+    log5 = open(Setting.logpath5, mode='w+', encoding='utf-8')
+    log6 = open(Setting.logpath6, mode='w+', encoding='utf-8')
+    log7 = open(Setting.logpath7, mode='w+', encoding='utf-8')
     t1 = threading.Thread(target=analysis, args=("reg", log1))
     t2 = threading.Thread(target=analysis, args=("auth_1b_em", log2))
     t3 = threading.Thread(target=analysis, args=("auth_1b_st", log3))
@@ -543,8 +529,8 @@ if __name__ == "__main__":
     t5 = threading.Thread(target=analysis, args=("auth_1r_st", log5))
     t6 = threading.Thread(target=analysis, args=("auth_2b", log6))
     t7 = threading.Thread(target=analysis, args=("auth_2r", log7))
-    tlist = [t1,t2,t3,t4,t5,t6,t7]
-    #tlist = [t1]
+    #tlist = [t1,t2,t3,t4,t5,t6,t7]
+    tlist = [t1]
     for t in tlist:
         t.start()
     for t in tlist:

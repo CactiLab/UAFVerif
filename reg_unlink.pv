@@ -1,3 +1,6 @@
+table User_side(bitstring,key).
+table RP_side(Appid).
+
 let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facetid:Facetid,callerid:Callerid,token:bitstring,wrapkey:key)=
 (
 	(*one user one RP registration once*)
@@ -40,31 +43,42 @@ let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facet
 	RegAutr(AM, aaid, skAT, wrapkey, atype)
 ).
 
-process
-( 
-	(         (* a RP  *)
+let insert_user() =
+!(
+		new token:bitstring;
+		new wrapkey:key;
+		insert User_side(token,wrapkey)
+).
+
+let insert_RP() =
+!(
 		new appid:Appid;
+		insert RP_side(appid)
+).
+
+equivalence
+	insert_RP()|
+	insert_user()|
+	!(       
 		new aaid:AAID;
 		new facetid:Facetid; 
 		new callerid:Callerid; 
 		new skAT:sskey; 
-		new wrapkey:key;
-		new token:bitstring;
-		new uname:Uname; new password:bitstring;
-		system(appid,aaid,skAT,uname,password,facetid,callerid,token,wrapkey)|
-		!(
-			new uname2:Uname;
-			new password2:bitstring;
-			new token2:bitstring;
-			new wrapkey2:key;
-			system(appid,aaid,skAT,uname2,password2,facetid,callerid,choice[token,token2],choice[wrapkey,wrapkey2])
-		)|
-		!(
-			new appid2:Appid;
-			new uname3:Uname;
-			new password3:bitstring;
-			system(appid2,aaid,skAT,uname3,password3,facetid,callerid,token,wrapkey)
-		)
+		new uname:Uname; 
+		new password:bitstring;
+		get User_side(token,wrapkey) in
+		get RP_side(appid) in
+		system(appid,aaid,skAT,uname,password,facetid,callerid,token,wrapkey)
 	)
-)
+		!(       
+		new aaid:AAID;
+		new facetid:Facetid; 
+		new callerid:Callerid; 
+		new skAT:sskey; 
+		new uname:Uname; 
+		new password:bitstring;
+		get User_side(token,wrapkey) in
+		get RP_side(appid) in
+		system(appid,aaid,skAT,uname,password,facetid,callerid,token,wrapkey)
+	)
 
