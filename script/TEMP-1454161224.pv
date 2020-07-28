@@ -2,9 +2,11 @@ query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) 
 let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstring,uname:Uname,facetid:Facetid,callerid:Callerid,cntr:CNTR) =
 ((* one RP authenticate one user many times *)
 	(*choose the type you want to verify*)
-	out(c,skAU);
+	(*let atype = autr_1b in*)
+	(*let ltype = empty in *)
 
-let atype = autr_1b in
+
+let atype = autr_1r in
  let ltype = empty in	
 	
 	let pkAU = spk(skAU) in let testskAU = skAU in
@@ -23,8 +25,7 @@ let atype = autr_1b in
 		new tr:Tr;
 		
 out(c,token);
-out(c,wrapkey);
-out(c,cntr);
+out(c,skAU);
 out(c,kid);
 AuthUC(c, MC, fakefacetid, ltype)| (*malicious-UA*)
 AuthUA(https, c, uname, ltype)| AuthASM(c,AM,token,fakecallerid,atype,ltype)| (*malicious-UC*)

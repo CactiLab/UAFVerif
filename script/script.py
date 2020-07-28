@@ -12,10 +12,13 @@ from multiprocessing import Process
 
 # general setting
 class Setting:
-    rootpath = "D:/Work/proverif2.01/FIDO/"
-    #rootpath = "D:/me/proverif2.01/FIDO/"
+   # rootpath = "D:/Work/proverif2.01/FIDO/"
+    rootpath = "D:/me/proverif2.01/FIDO/"
     #querypath = rootpath + "query.pv"
-    temppath = rootpath + "temp.pv"
+    reg_set_type_row = 13
+    reg_insert_row = 17
+    auth_set_type_row = 7
+    auth_insert_row = 24
     regpath = rootpath + "reg.pv"
     authpath = rootpath + "auth.pv"
     logpath1 = rootpath + "analysis1.log"
@@ -354,13 +357,13 @@ class Generator: #generator cases
             self.fields = Reg_fields()
             self.entities = Reg_entities()
             self.queries = Reg_queries()
-            self.type_set_row = 3  # indicate type
-            self.insert_row = 24  # insert line number
+            self.type_set_row = Setting.reg_set_type_row  # indicate type
+            self.insert_row = Setting.reg_insert_row  # insert line number
         else:           
             self.fields = Auth_fields()
             self.entities = Auth_entities()
-            self.type_set_row = 4  # indicate type
-            self.insert_row = 31  # insert line number
+            self.type_set_row = Setting.auth_set_type_row  # indicate type
+            self.insert_row = Setting.auth_insert_row  # insert line number
             if phase == "auth_1b_em":
                 self.types = Auth_1b_em_types()
                 self.phase = phase
@@ -540,8 +543,8 @@ if __name__ == "__main__":
     t5 = threading.Thread(target=analysis, args=("auth_1r_st", log5))
     t6 = threading.Thread(target=analysis, args=("auth_2b", log6))
     t7 = threading.Thread(target=analysis, args=("auth_2r", log7))
-    tlist = [t1]
-
+    tlist = [t1,t2,t3,t4,t5,t6,t7]
+    #tlist = [t1]
     for t in tlist:
         t.start()
     for t in tlist:

@@ -178,10 +178,10 @@ let RegUA(https:channel,UC:channel,uname:Uname,appid:Appid,password:bitstring) =
 	event UA_init_reg(uname,appid);
 	out(https,InputUandP(uname,password));
 	in(https, m:msg);
-	let RegRPreq(xuname,appid,sdata,chlg) = m in
+	let RegRPreq(xuname,appid2,sdata,chlg) = m in
 	(
 		let tlsdata = GetTLSdata(https) in
-		out(UC,RegCUreq(xuname,appid,sdata,chlg,tlsdata));
+		out(UC,RegCUreq(xuname,appid2,sdata,chlg,tlsdata));
 		in(UC, mm:msg);
 		
 		let RegCUresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s)  = mm in
@@ -218,8 +218,8 @@ let RegASM(MC:channel, MA:channel, token:bitstring, callerid:Callerid, atype:Aty
 		let testak = ak in
 		out(MA,RegAMreq(uname,appid,ak,fc));
 		in(MA,mm:msg);
-		let RegAMresp_12b(aaid,fc,kid,cntr,pkAT,pkAU,kh,s) = mm in
-		out(MC,RegMCresp(aaid,fc,kid,cntr,pkAT,pkAU,s))
+		let RegAMresp_12b(aaid,fc2,kid,cntr,pkAT,pkAU,kh,s) = mm in
+		out(MC,RegMCresp(aaid,fc2,kid,cntr,pkAT,pkAU,s))
 	)
 	else
 	(
@@ -228,8 +228,8 @@ let RegASM(MC:channel, MA:channel, token:bitstring, callerid:Callerid, atype:Aty
 		(* roaming authenticators don't send the keyhandle *)
 		out(MA,RegAMreq(uname,appid,ak,fc));
 		in(MA,mm:msg);
-		let RegAMresp_12r(aaid,fc,kid,cntr,pkAT,pkAU,s) = mm in
-		out(MC,RegMCresp(aaid,fc,kid,cntr,pkAT,pkAU,s))
+		let RegAMresp_12r(aaid,fc2,kid,cntr,pkAT,pkAU,s) = mm in
+		out(MC,RegMCresp(aaid,fc2,kid,cntr,pkAT,pkAU,s))
 	)
 ).
 
@@ -337,7 +337,7 @@ let AuthRP(https:channel,uname:Uname,appid:Appid,aaid:AAID,kid:KeyID,pkAU:spkey,
 		in(https,m:msg);
 		let AuthRPresp_em(=sdata,=aaid,nonce,fc,=kid,xcntr,fcp,s) = m in
 		let FCParams(=appid,facetid,=chlg,=tlsdata) = fcp in
-		get AuthAppList(=appid,facetid) in
+		get AuthAppList(=appid,=facetid) in
 		if fc = ToFc(hash(fcp)) then
 		if (aaid,nonce,fc,kid,xcntr) = checksign(s,pkAU) then
 		if xcntr = cntr then
@@ -350,7 +350,7 @@ let AuthRP(https:channel,uname:Uname,appid:Appid,aaid:AAID,kid:KeyID,pkAU:spkey,
 		in(https,m:msg);
 		let AuthRPresp_st(=sdata,=aaid,nonce,fc,htr,=kid,xcntr,fcp,s) = m in
 		let FCParams(=appid,facetid,=chlg,=tlsdata) = fcp in
-		get AuthAppList(=appid,facetid) in
+		get AuthAppList(=appid,=facetid) in
 		if fc = ToFc(hash(fcp)) then
 		if htr = hash_tr(tr) then
 		if (aaid,nonce,fc,htr,kid,xcntr) = checksign(s,pkAU) then
@@ -426,8 +426,8 @@ let AuthASM(MC:channel,MA:channel,token:bitstring,callerid:Callerid,atype:Atype,
 		let testak = ak in
 		out(MA,AuthAMreq_1bem(ak,fc,appid,kh));
 		in(MA,mm:msg);
-		let AuthAMresp_em(aaid,nonce,xfc,kid,xcntr,s) = mm in
-		out(MC,AuthCMresp_em(aaid,nonce,xfc,kid,xcntr,s))
+		let AuthAMresp_em(aaid,nonce,xfc,xkid,xcntr,s) = mm in
+		out(MC,AuthCMresp_em(aaid,nonce,xfc,xkid,xcntr,s))
 	)
 	else if atype = autr_1b && ltype = stepup then
 	(
@@ -534,7 +534,7 @@ let AuthAutr(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,atype:Atype,ltype:
 	else if atype = autr_1r && ltype = empty then
 	(
 		let AuthAMreq_1rem(ak,fc,appid) = m in
-		get AutrDB(=appid,kid,kh) in
+		get AutrDB(=appid,xkid,kh) in
 		let (skAU:sskey,aka:Token,uname:Uname,kid:KeyID) = sdec(kh,wrapkey) in
 		if f1(ak,appid) = aka then
 		let pkAU = spk(skAU) in
@@ -547,7 +547,7 @@ let AuthAutr(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,atype:Atype,ltype:
 	(
 		let AuthAMreq_1rst(ak,fc,appid,kid,=tr) = m in
 		get AutrDB(=appid,=kid,kh) in
-		let (skAU:sskey,aka:Token,uname:Uname,kid:KeyID) = sdec(kh,wrapkey) in
+		let (skAU:sskey,aka:Token,uname:Uname,xkid:KeyID) = sdec(kh,wrapkey) in
 		if f1(ak,appid) = aka then
 		let pkAU = spk(skAU) in
 		let htr = hash_tr(tr) in

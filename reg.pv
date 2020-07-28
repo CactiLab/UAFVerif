@@ -1,16 +1,17 @@
-let one_registration(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facetid:Facetid,callerid:Callerid,token:bitstring,wrapkey:key)=
+let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facetid:Facetid,callerid:Callerid,token:bitstring,wrapkey:key)=
 (
 	(*one user one RP registration once*)
 	(* some fields initial public *)
 	new https:channel; new CU:channel; new MC:channel; new AM:channel;
+	let pkAT = spk(skAT) in
 	new fakefacetid:Facetid; new fakecallerid:Callerid;
 	out(c,(uname,appid,facetid,callerid,fakefacetid,fakecallerid,aaid,pkAT));
 	insert AppList(appid,facetid);	
 	
 	
-	
-	(*let atype = autr_1b in 	*)
+	(*let atype = autr_1b in *)
 	(*let scene = software in *)
+	
 	
 	
 			
@@ -37,7 +38,7 @@ let one_registration(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitst
 	RegUC(CU, MC, facetid)|
 	RegASM(MC, AM, token, callerid, atype)|
 	RegAutr(AM, aaid, skAT, wrapkey, atype)
-)
+).
 
 process
 ( 
@@ -46,24 +47,23 @@ process
 		new aaid:AAID;
 		new facetid:Facetid; 
 		new callerid:Callerid; 
-		new skAT:sskey; let pkAT = spk(skAT) in
-		!(
-			new wrapkey:key;
-			new token:bitstring;
-			new uname:Uname; new password:bitstring;
-			system(appid,aaid,skAT,uname,password,facetid,callerid,token,wrapkey)
-		)
-	)|
-	(
+		new skAT:sskey; 
 		new wrapkey:key;
 		new token:bitstring;
-		(
-		
+		new uname:Uname; new password:bitstring;
+		system(appid,aaid,skAT,uname,password,facetid,callerid,token,wrapkey)|
+		!(
+			new uname2:Uname;
+			new password2:bitstring;
+			new token2:bitstring;
+			new wrapkey2:key;
+			system(appid,aaid,skAT,uname2,password2,facetid,callerid,token2,wrapkey2)
+		)|
+		!(
+			new appid2:Appid;
+			new uname3:Uname;
+			new password3:bitstring;
+			system(appid2,aaid,skAT,uname3,password3,facetid,callerid,token,wrapkey)
 		)
 	)
-	
-	system(appid,aaid,skAT,uname,password,facetid,callerid,token,wrapkey)|
-	system(appid,aaid,skAT,uname,password,facetid,callerid,token,wrapkey)|
-	
-	
 )

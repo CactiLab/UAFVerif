@@ -1,28 +1,27 @@
-let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstring,uname:Uname,facetid:Facetid,callerid:Callerid) =
-(
+set attacker = passive.
+let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstring,uname:Uname,facetid:Facetid,callerid:Callerid,cntr:CNTR) =
+((* one RP authenticate one user many times *)
 	(*choose the type you want to verify*)
-	
-	
-	
 	let atype = autr_1b in
 	let ltype = empty in 
 
-	let pkAU = spk(skAU) in
-	new fakefacetid:Facetid;
-	new fakecallerid:Callerid;
+
 	
+	
+	let pkAU = spk(skAU) in let testskAU = skAU in
 	let kh = get_kh(atype,uname,appid,callerid,token,keyid,wrapkey,skAU) in
 	let kid = get_kid(atype,kh,keyid) in
-	insert AuthAppList(appid,facetid);
+	let testkid = kid in
 	insert ASMDB(appid,kid,kh);
 	insert AutrDB(appid,kid,kh);
-	out(c,(uname,appid,facetid,aaid,callerid,pkAU)); (* public info *)
 	
-	!( (* many times authentication for one user *)
+	
+
+	out(c,(uname,appid,facetid,aaid,callerid,pkAU)); (* public info *)
+	!( 
 		new https:channel; new CU:channel; new MC:channel; new AM:channel; out(c,https);
+		new fakecallerid:Callerid; new fakefacetid:Facetid;
 		new tr:Tr;
-		new cntr:CNTR;
-		
 		
 		
 		
@@ -33,6 +32,7 @@ let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstr
 		(*out(c,token);*)
 		
 		(* malicious entities situations*)
+		(*AuthUA(c, CU, uname, ltype)|*)
 		(*AuthUA(https, c, uname, ltype)|*)
 		(*AuthUC(c, MC, fakefacetid, ltype)|*)
 		(*AuthUC(CU, c, facetid, ltype)|*)
@@ -41,24 +41,41 @@ let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstr
 		(*AuthAutr(c,aaid,wrapkey,cntr,atype,ltype)|*)
 		(* honest entities *)
 		AuthRP(https, uname, appid, aaid,kid,pkAU,cntr,tr,ltype)|
-		AuthRP(c,uname, appid, aaid,kid,pkAU,cntr,tr,ltype)|
 		AuthUA(https, CU,uname, ltype)|
 		AuthUC(CU, MC, facetid, ltype)|		
 		AuthASM(MC,AM,token,callerid,atype,ltype)|		
-		AuthAutr(AM,aaid,wrapkey,cntr,atype,ltype)	
+		AuthAutr(AM,aaid,wrapkey,cntr,tr,atype,ltype)	
 	)
 ).
+
 process
 (
-	new appid:Appid;new appid2:Appid;
-	new aaid:AAID;new aaid2:AAID;
-	new skAU:sskey; new skAU2:sskey; 
-	new keyid:KeyID;new keyid2:KeyID;
-	new wrapkey:key;	new wrapkey2:key;	
-	new token:bitstring;	new token2:bitstring;	
-	new uname:Uname;new uname2:Uname;
-	new facetid:Facetid; new facetid2:Facetid;
-	new callerid:Callerid; new callerid2:Callerid; out(c,facetid2);
-	system(appid,aaid,skAU,keyid,wrapkey,token,uname,facetid,callerid) |
-	system(appid2,aaid,skAU2,keyid2,choice[wrapkey,wrapkey2],choice[token,token2],uname,facetid,callerid) 
+	new appid:Appid;
+	new aaid:AAID;
+	new skAU:sskey; 
+	new keyid:KeyID;
+	new wrapkey:key;	
+	new token:bitstring;	
+	new uname:Uname;
+	new cntr:CNTR;
+	new facetid:Facetid; insert AuthAppList(appid,facetid);
+	new callerid:Callerid; insert TrustCallerid(callerid);
+	system(appid,aaid,skAU,keyid,wrapkey,token,uname,facetid,callerid,cntr)|
+	!(
+		new skAU2:sskey;
+		new keyid2:KeyID;
+		new wrapkey2:key;
+		new token2:bitstring;
+		new uname2:Uname;
+		new cntr2:CNTR;
+		system(appid,aaid,skAU2,keyid2,choice[wrapkey2,wrapkey],choice[token,token2],uname2,facetid,callerid,cntr2)
+	)|
+	!(
+		new appid2:Appid;
+		new skAU3:sskey;
+		new keyid3:KeyID;
+		new uname3:Uname;
+		new cntr3:CNTR;
+		system(appid2,aaid,skAU3,keyid3,wrapkey,token,uname3,facetid,callerid,cntr3)
+	)
 )
