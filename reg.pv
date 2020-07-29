@@ -1,5 +1,9 @@
 let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facetid:Facetid,callerid:Callerid,token:bitstring,wrapkey:key)=
 (
+	(*let atype = autr_1b in *)
+	
+	
+	
 	(*one user one RP registration once*)
 	(* some fields initial public *)
 	new https:channel; new CU:channel; new MC:channel; new AM:channel;
@@ -7,10 +11,6 @@ let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facet
 	new fakefacetid:Facetid; new fakecallerid:Callerid;
 	out(c,(uname,appid,facetid,callerid,fakefacetid,fakecallerid,aaid,pkAT));
 	insert AppList(appid,facetid);	
-	
-	
-	(*let atype = autr_1b in *)
-	(*let scene = software in *)
 	
 	
 	

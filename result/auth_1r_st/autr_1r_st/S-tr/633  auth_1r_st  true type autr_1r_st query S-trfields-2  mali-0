@@ -1,0 +1,84 @@
+query secret tr.
+let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstring,uname:Uname,facetid:Facetid,callerid:Callerid,cntr:CNTR) =
+((* one RP authenticate one user many times *)
+	(*choose the type you want to verify*)
+	(*let atype = autr_1b in*)
+	(*let ltype = empty in *)
+
+
+let atype = autr_1r in
+ let ltype = stepup in	
+	
+	let pkAU = spk(skAU) in let testskAU = skAU in
+	let kh = get_kh(atype,uname,appid,callerid,token,keyid,wrapkey,skAU) in
+	let kid = get_kid(atype,kh,keyid) in let testkid = kid in
+	
+	insert ASMDB(appid,kid,kh);
+	insert AutrDB(appid,kid,kh);
+	
+	
+
+	out(c,(uname,appid,facetid,aaid,callerid,pkAU)); (* public info *)
+	( 
+		new https:channel; new CU:channel; new MC:channel; new AM:channel;
+		new fakecallerid:Callerid; new fakefacetid:Facetid;
+		new tr:Tr;   let testtr = tr in
+		 
+out(c,skAU);
+out(c,kid);
+		
+		
+		
+		(*out(c,wrapkey);*)
+		(*out(c,skAU);*)
+		(*out(c,cntr);*)
+		(*out(c,token);*)
+		
+		(* malicious entities situations*)
+		(*AuthUA(c, CU, uname, ltype)|*)
+		(*AuthUA(https, c, uname, ltype)|*)
+		(*AuthUC(c, MC, fakefacetid, ltype)|*)
+		(*AuthUC(CU, c, facetid, ltype)|*)
+		(*AuthASM(c,AM,token,fakecallerid,atype,ltype)|*)
+		(*AuthASM(MC,c,token,callerid,atype,ltype)|*)
+		(*AuthAutr(c,aaid,wrapkey,cntr,atype,ltype)|*)
+		(* honest entities *)
+		AuthRP(https, uname, appid, aaid,kid,pkAU,cntr,tr,ltype)|
+		AuthUA(https, CU,uname, ltype)|
+		AuthUC(CU, MC, facetid, ltype)|		
+		AuthASM(MC,AM,token,callerid,atype,ltype)|		
+		AuthAutr(AM,aaid,wrapkey,cntr,tr,atype,ltype)	
+	)
+).
+
+process
+(
+	new appid:Appid;
+	new aaid:AAID;
+	new skAU:sskey; 
+	new keyid:KeyID;
+	new wrapkey:key;	
+	new token:bitstring;	
+	new uname:Uname;
+	new cntr:CNTR;
+	new facetid:Facetid; insert AuthAppList(appid,facetid);
+	new callerid:Callerid; insert TrustCallerid(callerid);
+	system(appid,aaid,skAU,keyid,wrapkey,token,uname,facetid,callerid,cntr)|
+	(
+		new skAU2:sskey;
+		new keyid2:KeyID;
+		new wrapkey2:key;
+		new token2:bitstring;
+		new uname2:Uname;
+		new cntr2:CNTR;
+		system(appid,aaid,skAU2,keyid2,wrapkey2,token2,uname2,facetid,callerid,cntr2)
+	)|
+	(
+		new appid2:Appid;
+		new skAU3:sskey;
+		new keyid3:KeyID;
+		new uname3:Uname;
+		new cntr3:CNTR;
+		system(appid2,aaid,skAU3,keyid3,wrapkey,token,uname3,facetid,callerid,cntr3)
+	)
+)b'r_147,tr_146,tr_145,tr_144,tr_143,tr_142,tr_141,tr_140,tr_139,tr_138,tr_137,tr_136,tr_135,tr_134,tr_133,tr_132,tr_131,tr_130,tr_129,tr_128,tr_127,tr_126,tr_125,tr_124,tr_123,tr_122,tr_121,tr_120,tr_119,tr_118,tr_117,tr_116,tr_115,tr_114,tr_113,tr_112,tr_111,tr_110,tr_109,tr_108,tr_107,tr_106,tr_105,tr_104,tr_103,tr_102,tr_101,tr_100,tr_99,tr_98,tr_97,tr_96,tr_95,tr_94,tr_93,tr_92,tr_91,tr_90,tr_89,tr_88,tr_87,tr_86,tr_85,tr_84,tr_83,tr_82,tr_81,tr_80,tr_79,tr_78,tr_77,tr_76,tr_75,tr_74,tr_73,tr_72,tr_71,tr_70,tr_69,tr_68,tr_67,tr_66,tr_65,tr_64,tr_63,tr_62,tr_61,tr_60,tr_59,tr_58,tr_57,tr_56,tr_55,tr_54,tr_53,tr_52,tr_51,tr_50,tr_49,tr_48,tr_47,tr_46,tr_45,tr_44,tr_43,tr_42,tr_41,tr_40,tr_39,tr_38,tr_37,tr_36,tr_35,tr_34,tr_33,tr_32,tr_31,tr_30,tr_29,tr_28,tr_27,tr_26,tr_25,tr_24,tr_23,tr_22,tr_21,tr_20,tr_19,tr_18,tr_17,tr_16,tr_15,tr_14,tr_13,tr_12,tr_11,tr_10,tr_9,tr_8,tr_7,tr_6,tr_5,tr_4,tr_3,tr_2,tr_1,tr is true.\r\n\r\n--------------------------------------------------------------\r\n'

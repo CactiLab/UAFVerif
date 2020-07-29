@@ -3,5 +3,4 @@
 *.log
 *.json
 script/.vscode
-result/
 script/.idea/

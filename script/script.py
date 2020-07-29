@@ -12,11 +12,11 @@ from multiprocessing import Process
 
 # general setting
 class Setting:
-    rootpath = "D:/Work/proverif2.01/FIDO/"
-    #rootpath = "D:/me/proverif2.01/FIDO/"
+    #rootpath = "D:/Work/proverif2.01/FIDO/"
+    rootpath = "D:/me/proverif2.01/FIDO/"
     #querypath = rootpath + "query.pv"
-    reg_set_type_row = 13
-    reg_insert_row = 17
+    reg_set_type_row = 4
+    reg_insert_row = 16
     auth_set_type_row = 7
     auth_insert_row = 24
     regpath = rootpath + "reg.pv"
@@ -66,9 +66,9 @@ class Entities:
         self.nums = len(entities)
         self.write = ""
         if self.nums == 0:
-            self.name = "mali-" + str(self.nums) + "-none"
+            self.name = "mali-" + str(self.nums)
         else:
-            self.name = "mali-" + str(self.nums) + "-" + entities[len(entities)-1][-7:-3]
+            self.name = "mali-" + str(self.nums)
         for item in entities:
             self.write += item
         self.entities = entities
@@ -176,11 +176,12 @@ class Auth_2r_queries(Auth_stepup_queries):
 class All_entities:
     def __init__(self):
         self.all_entities = []
-    def get_all_scenes_reduce_version(self): #a scheme to get all combination of the entities
+    def get_all_scenes_version2(self): #a scheme to get all combination of the entities
         self.entities = []
         for delnum in range(len(self.all_entities) + 1):
             for pre in itertools.combinations(self.all_entities, delnum):
                 self.entities.append(Entities(pre))
+
     def get_all_scenes(self):
         self.entities = []
         for i in range(len(self.all_entities) + 1):
@@ -203,6 +204,34 @@ class Reg_entities(All_entities):
         self.all_entities.append("RegUA(https, c, uname,appid,password)| RegASM(c, AM, token, fakecallerid, atype)| (*malicious-UC*)\n")
         self.all_entities.append("RegUC(CU, c, facetid)| RegAutr(c, aaid, skAT, wrapkey, atype)| (*malicious-ASM*)\n")
         self.all_entities.append("RegASM(MC, c, token, callerid, atype)| (*-malicious-Autr*)\n")
+        self.get_all_scenes()
+
+class Reg_entities_version2(All_entities):
+    def __init__(self):
+        All_entities.__init__(self)
+        self.all_entities = []
+        self.all_entities.append("RegUA(https, c, uname,appid,password)|\n")
+        self.all_entities.append("RegUC(c, MC, fakefacetid)|\n")
+        self.all_entities.append("RegUC(CU, c, facetid)|\n")
+        self.all_entities.append("RegUC(c, c, fakefacetid)|\n")
+        self.all_entities.append("RegASM(c, AM, token, fakecallerid, atype)|\n")
+        self.all_entities.append("RegASM(MC, c, token, callerid, atype)|\n")
+        self.all_entities.append("RegASM(c, c, token, fakecallerid, atype)|\n")
+        self.all_entities.append("RegAutr(c, aaid, skAT, wrapkey, atype)|\n")
+        self.get_all_scenes()
+
+class Auth_entities_version2(All_entities):
+    def __init__(self):
+        All_entities.__init__(self)
+        self.all_entities = []
+        self.all_entities.append("AuthUA(https, c, uname, ltype)|\n")
+        self.all_entities.append("AuthUC(c, MC, fakefacetid, ltype)|\n")
+        self.all_entities.append("AuthUC(CU, c, facetid, ltype)|\n")
+        self.all_entities.append("AuthUC(c, c, fakefacetid, ltype)|\n")
+        self.all_entities.append("AuthASM(c,AM,token,fakecallerid,atype,ltype)|\n")
+        self.all_entities.append("AuthASM(MC,c,token,callerid,atype,ltype)|\n")
+        self.all_entities.append("AuthASM(c,c,token,fakecallerid,atype,ltype)|\n")
+        self.all_entities.append("AuthAutr(c,aaid,wrapkey,cntr,tr,atype,ltype)| \n")
         self.get_all_scenes()
 
 class Auth_entities(All_entities):
@@ -320,17 +349,6 @@ class Case:
         self.state = ret
         self.result = result
         return ret, result
-
-    def danger_than(self,case2): # whether this case is dangerthan case2
-        if self.type != case2.type:
-            return False
-        if self.query != case2.query:
-            return False
-        if not operator.eq(self.fields.fields,case2.fields.fields):
-            return False
-        if case2.entities.nums > self.entities.nums:
-            return False
-        return True
 
 
 
@@ -466,9 +484,6 @@ class Assist:
                 self.append(case)
                 return False
 
-            
-
-
 
 def analysis(phase,log):
     gen = Generator(phase)
@@ -529,8 +544,8 @@ if __name__ == "__main__":
     t5 = threading.Thread(target=analysis, args=("auth_1r_st", log5))
     t6 = threading.Thread(target=analysis, args=("auth_2b", log6))
     t7 = threading.Thread(target=analysis, args=("auth_2r", log7))
-    #tlist = [t1,t2,t3,t4,t5,t6,t7]
-    tlist = [t1]
+    tlist = [t1,t2,t3,t4,t5,t6,t7]
+    #tlist = [t1]
     for t in tlist:
         t.start()
     for t in tlist:
