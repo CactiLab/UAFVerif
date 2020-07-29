@@ -2,5 +2,6 @@
 *.dot
 *.log
 *.json
+result/
 script/.vscode
 script/.idea/

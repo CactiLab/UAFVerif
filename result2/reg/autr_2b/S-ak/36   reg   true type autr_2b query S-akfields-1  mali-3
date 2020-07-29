@@ -1,19 +1,24 @@
+query secret testak.
 let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facetid:Facetid,callerid:Callerid,token:bitstring,wrapkey:key)=
 (
 	(*let atype = autr_1b in *)
 	
-	
+let atype = autr_2b in
+ let ltype = stepup in	
 	
 	(*one user one RP registration once*)
 	(* some fields initial public *)
 	new https:channel; new CU:channel; new MC:channel; new AM:channel;
 	let pkAT = spk(skAT) in
 	new fakefacetid:Facetid; new fakecallerid:Callerid;
-	out(c,(uname,appid,facetid,callerid,fakefacetid,fakecallerid,aaid,skAT));
+	out(c,(uname,appid,facetid,callerid,fakefacetid,fakecallerid,aaid,pkAT));
 	insert AppList(appid,facetid);	
 	
 	
 	
+(* no fields being compromised *)RegUC(c, MC, fakefacetid)| (*malicious-UA*)
+RegUA(https, c, uname,appid,password)| RegASM(c, AM, token, fakecallerid, atype)| (*malicious-UC*)
+RegUC(CU, c, facetid)| RegAutr(c, aaid, skAT, wrapkey, atype)| (*malicious-ASM*)
 			
 	
 	
@@ -52,14 +57,14 @@ process
 		new token:bitstring;
 		new uname:Uname; new password:bitstring;
 		system(appid,aaid,skAT,uname,password,facetid,callerid,token,wrapkey)|
-		!(
+		(
 			new uname2:Uname;
 			new password2:bitstring;
 			new token2:bitstring;
 			new wrapkey2:key;
 			system(appid,aaid,skAT,uname2,password2,facetid,callerid,token2,wrapkey2)
 		)|
-		!(
+		(
 			new appid2:Appid;
 			new uname3:Uname;
 			new password3:bitstring;
@@ -67,3 +72,4 @@ process
 		)
 	)
 )
+b'--------------------------------------------------------------\r\nVerification summary:\r\n\r\nQuery secret testak_11,testak_10,testak_9,testak_8,testak_7,testak_6,testak_5,testak_4,testak_3,testak_2,testak_1,testak is true.\r\n\r\n--------------------------------------------------------------\r\n'

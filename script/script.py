@@ -12,8 +12,8 @@ from multiprocessing import Process
 
 # general setting
 class Setting:
-    #rootpath = "D:/Work/proverif2.01/FIDO/"
-    rootpath = "D:/me/proverif2.01/FIDO/"
+    rootpath = "D:/Work/proverif2.01/FIDO/"
+    #rootpath = "D:/me/proverif2.01/FIDO/"
     #querypath = rootpath + "query.pv"
     reg_set_type_row = 4
     reg_insert_row = 16
@@ -62,16 +62,19 @@ class Fields:
         self.fields = fields
 
 class Entities:
-    def __init__(self, entities):
+    def __init__(self, entities, row_numbers):
         self.nums = len(entities)
         self.write = ""
         if self.nums == 0:
             self.name = "mali-" + str(self.nums)
         else:
-            self.name = "mali-" + str(self.nums)
+            self.name = "mali-" + str(self.nums) + " "
+            for i in row_numbers:
+                self.name += "," + str(i)
         for item in entities:
             self.write += item
         self.entities = entities
+        self.row_numbers = row_numbers
 
 class All_types:
     def __init__(self):
@@ -176,16 +179,20 @@ class Auth_2r_queries(Auth_stepup_queries):
 class All_entities:
     def __init__(self):
         self.all_entities = []
-    def get_all_scenes_version2(self): #a scheme to get all combination of the entities
+    def get_all_scenes(self): #a scheme to get all combination of the entities
         self.entities = []
         for delnum in range(len(self.all_entities) + 1):
-            for pre in itertools.combinations(self.all_entities, delnum):
-                self.entities.append(Entities(pre))
+            for row_numbers in itertools.combinations(range(len(self.all_entities)), delnum):
+                temp = []
+                for i in row_numbers:
+                    temp.append(self.all_entities[i])
+                self.entities.append(Entities(temp,row_numbers))
 
-    def get_all_scenes(self):
+    def get_all_scenes_version2(self):
         self.entities = []
         for i in range(len(self.all_entities) + 1):
             temp_combination = []
+            row_numbers = []
             for j in range(i):
                 temp_combination.append(self.all_entities[j])
             self.entities.append(Entities(temp_combination))
@@ -196,7 +203,7 @@ class All_entities:
     def get(self,i):
         return self.entities[i]
 
-class Reg_entities(All_entities):
+class Reg_entities_version2(All_entities):
     def __init__(self):
         All_entities.__init__(self)
         self.all_entities = []
@@ -206,7 +213,7 @@ class Reg_entities(All_entities):
         self.all_entities.append("RegASM(MC, c, token, callerid, atype)| (*-malicious-Autr*)\n")
         self.get_all_scenes()
 
-class Reg_entities_version2(All_entities):
+class Reg_entities(All_entities):
     def __init__(self):
         All_entities.__init__(self)
         self.all_entities = []
@@ -220,7 +227,7 @@ class Reg_entities_version2(All_entities):
         self.all_entities.append("RegAutr(c, aaid, skAT, wrapkey, atype)|\n")
         self.get_all_scenes()
 
-class Auth_entities_version2(All_entities):
+class Auth_entities(All_entities):
     def __init__(self):
         All_entities.__init__(self)
         self.all_entities = []
@@ -234,7 +241,7 @@ class Auth_entities_version2(All_entities):
         self.all_entities.append("AuthAutr(c,aaid,wrapkey,cntr,tr,atype,ltype)| \n")
         self.get_all_scenes()
 
-class Auth_entities(All_entities):
+class Auth_entities_version2(All_entities):
     def __init__(self):
         All_entities.__init__(self)
         self.all_entities = []
@@ -249,7 +256,9 @@ class All_fields:
         self.all_fields = []
         self.all_fields.append("out(c,token);\n")
         self.all_fields.append("out(c,wrapkey);\n")
-    def get_all_scenes(self):
+    def get_all_scenes(self): #a version that no fields will be compromised.
+        self.fields = [Fields(["(* no fields being compromised *)\n"])]
+    def get_all_scenes_oldversion(self):
         self.fields = []
         for delnum in range(len(self.all_fields)+ 1) :
             for pre in itertools.combinations(self.all_fields, delnum):
@@ -457,6 +466,7 @@ class Generator: #generator cases
         else:
             self.e_cur = self.e_cur + 1
         return True
+
     def set_last_state(self,state): #set last state
         if state == 'true':
             self.e_cur = self.e_nums
@@ -467,22 +477,16 @@ class Generator: #generator cases
 
 class Assist:
     def __init__(self):
-        self.is_set = False
-    def append(self,case):
-        self.false_case = case
-        self.is_set = True
-    def jump(self,case):
-        if case.state != 'false':
-            return False
-        if not self.is_set:
-            self.append(case)
-            return False
-        else:
-            if case.danger_than(self.false_case):
+        self.secure_sets = []
+    def append_if_secure(self,case):
+        if case.state == 'true':
+            self.secure_sets.append(case.entities.row_numbers)
+    def jump_if_secure(self,case):
+        for secur_case in self.secure_sets:
+            if(set(case.entities.row_numbers).issubset(set(secur_case))):
                 return True
-            else:
-                self.append(case)
-                return False
+        return False
+
 
 
 def analysis(phase,log):
@@ -491,14 +495,17 @@ def analysis(phase,log):
     count = 0
     while True:
         r, case = gen.generater_case()
-        msg = str(count).ljust(5)
-        msg += phase.ljust(4)
         if r == False:
             break
+        if(assist.jump_if_secure(case)):
+            continue
+        msg = str(count).ljust(5)
+        msg += phase.ljust(4)
         ret, result, content = case.analyze()
         if ret == 'false':
             msg += " false"
         elif ret == 'true':
+            assist.append_if_secure(case)
             msg += "  true"
         elif ret == 'prove':
             msg += " prove"
@@ -506,7 +513,7 @@ def analysis(phase,log):
             msg += "  tout"
         else:
             msg += " error"
-        gen.set_last_state(ret)
+        #gen.set_last_state(ret)
         msg += " type "
         msg += case.type.name.ljust(4)
         msg += " query "
@@ -544,8 +551,8 @@ if __name__ == "__main__":
     t5 = threading.Thread(target=analysis, args=("auth_1r_st", log5))
     t6 = threading.Thread(target=analysis, args=("auth_2b", log6))
     t7 = threading.Thread(target=analysis, args=("auth_2r", log7))
-    tlist = [t1,t2,t3,t4,t5,t6,t7]
-    #tlist = [t1]
+    #tlist = [t1,t2,t3,t4,t5,t6,t7]
+    tlist = [t1]
     for t in tlist:
         t.start()
     for t in tlist:

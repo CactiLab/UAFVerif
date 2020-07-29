@@ -1,7 +1,9 @@
+query secret testcntr.
 let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facetid:Facetid,callerid:Callerid,token:bitstring,wrapkey:key)=
 (
 	(*let atype = autr_1b in *)
 	
+let atype = autr_1b in
 	
 	
 	(*one user one RP registration once*)
@@ -14,6 +16,10 @@ let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facet
 	
 	
 	
+(* no fields being compromised *)
+RegUC(c, MC, fakefacetid)|
+RegASM(c, c, token, fakecallerid, atype)|
+RegAutr(c, aaid, skAT, wrapkey, atype)|
 			
 	
 	
@@ -52,14 +58,14 @@ process
 		new token:bitstring;
 		new uname:Uname; new password:bitstring;
 		system(appid,aaid,skAT,uname,password,facetid,callerid,token,wrapkey)|
-		!(
+		(
 			new uname2:Uname;
 			new password2:bitstring;
 			new token2:bitstring;
 			new wrapkey2:key;
 			system(appid,aaid,skAT,uname2,password2,facetid,callerid,token2,wrapkey2)
 		)|
-		!(
+		(
 			new appid2:Appid;
 			new uname3:Uname;
 			new password3:bitstring;
