@@ -363,6 +363,8 @@ class Case:
 
 class Generator: #generator cases
     def __init__(self,phase):
+        self.secure_sets = []
+        self.noprove_sets = []
         if phase == "reg":
             self.phase = "reg"
             self.lines = self.read_file(phase)
@@ -451,6 +453,7 @@ class Generator: #generator cases
     def increase(self):
         if self.e_cur >= self.e_nums - 1:
             self.e_cur = 0
+            self.secure_sets.clear()
             if(self.f_cur >= self.f_nums - 1):
                 self.f_cur = 0
                 if(self.q_cur >= self.q_nums - 1):
@@ -466,71 +469,71 @@ class Generator: #generator cases
         else:
             self.e_cur = self.e_cur + 1
         return True
-
-    def set_last_state(self,state): #set last state
-        if state == 'true':
-            self.e_cur = self.e_nums
-
     def reverse_f_e(self):
         self.fields.fields.reverse()
         self.entities.entities.reverse()
-
-class Assist:
-    def __init__(self):
-        self.secure_sets = []
-    def append_if_secure(self,case):
-        if case.state == 'true':
-            self.secure_sets.append(case.entities.row_numbers)
-    def jump_if_secure(self,case):
+    def this_case_is_secure(self):#add a secure sets
+        self.secure_sets.append(self.entities.get(self.e_cur).row_numbers)
+    def jump_if_its_secure(self):
         for secur_case in self.secure_sets:
-            if(set(case.entities.row_numbers).issubset(set(secur_case))):
+            cur_case = self.entities.get(self.e_cur).row_numbers
+            if(set(cur_case).issubset(set(secur_case))):
+                return True
+        return False
+    def this_case_is_noprove(self):
+        self.noprove_sets.append(self.entities.get(self.e_cur).row_numbers)
+    def jump_if_its_noprove(self):
+        for noprove_case in self.noprove_sets:
+            cur_case = self.entities.get(self.e_cur).row_numbers
+            if(set(cur_case).issubset(set(noprove_case))):
                 return True
         return False
 
-
-
 def analysis(phase,log):
     gen = Generator(phase)
-    assist = Assist()
     count = 0
     while True:
         r, case = gen.generater_case()
         if r == False:
             break
-        if(assist.jump_if_secure(case)):
-            continue
-        msg = str(count).ljust(5)
-        msg += phase.ljust(4)
-        ret, result, content = case.analyze()
-        if ret == 'false':
-            msg += " false"
-        elif ret == 'true':
-            assist.append_if_secure(case)
-            msg += "  true"
-        elif ret == 'prove':
-            msg += " prove"
-        elif ret == 'tout':
-            msg += "  tout"
+        if(gen.jump_if_its_secure()):
+            msg = str(count).ljust(5) + phase.ljust(4) + "skipping for secure sets"
+        elif(gen.jump_if_its_noprove()):
+            msg = str(count).ljust(5) + phase.ljust(4) + "skipping for noprove sets"
         else:
-            msg += " error"
-        #gen.set_last_state(ret)
-        msg += " type "
-        msg += case.type.name.ljust(4)
-        msg += " query "
-        msg += case.query.name.ljust(4)
-        msg += str(case.fields.name).ljust(9)
-        msg += " "
-        msg += str(case.entities.name).ljust(8)
-        write_log(msg,log)
+            msg = str(count).ljust(5) + phase.ljust(4)
+            ret, result, content = case.analyze()
+            if ret == 'false':
+                msg += " false"
+            elif ret == 'true':
+                gen.this_case_is_secure()
+                msg += "  true"
+            elif ret == 'prove':
+                msg += " prove!!"
+            elif ret == 'error':
+                msg += " error"
+            elif ret == 'tout':
+                msg += "  tout!!"
+            else:
+                msg += " error!!"
+            #gen.set_last_state(ret)
+            msg += " type "
+            msg += case.type.name.ljust(4)
+            msg += " query "
+            msg += case.query.name.ljust(4)
+            msg += str(case.fields.name).ljust(9)
+            msg += " "
+            msg += str(case.entities.name).ljust(8)
+            if ret != 'false': #if false then do not write the analysis file
+                if not os.path.exists(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name):
+                    os.makedirs(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name)
+                f = open(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name + "/" + msg, "w")
+                f.writelines(content)
+                f.writelines(str(result[-1000:-1]))
+                f.close()
         count = count + 1
-        if ret == 'false':
-            continue
-        if not os.path.exists(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name):
-            os.makedirs(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name)
-        f = open(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name + "/" + msg, "w")
-        f.writelines(content)
-        f.writelines(str(result[-1000:-1]))
-        f.close()
+        write_log(msg, log)
+        log.flush()
 
 def write_log(msg,log):
     print(msg, file = log)
@@ -551,8 +554,8 @@ if __name__ == "__main__":
     t5 = threading.Thread(target=analysis, args=("auth_1r_st", log5))
     t6 = threading.Thread(target=analysis, args=("auth_2b", log6))
     t7 = threading.Thread(target=analysis, args=("auth_2r", log7))
-    #tlist = [t1,t2,t3,t4,t5,t6,t7]
-    tlist = [t1]
+    tlist = [t1,t2,t3,t4,t5,t6,t7]
+    #tlist = [t1]
     for t in tlist:
         t.start()
     for t in tlist:
