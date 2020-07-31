@@ -12,7 +12,8 @@ from multiprocessing import Process
 
 # general setting
 class Setting:
-    rootpath = "D:/Work/proverif2.01/FIDO/"
+    #rootpath = "C:/proverif/FIDO-UAF-Verification/"
+    #rootpath = "D:/Work/proverif2.01/FIDO/"
     #rootpath = "D:/me/proverif2.01/FIDO/"
     #querypath = rootpath + "query.pv"
     reg_set_type_row = 4
