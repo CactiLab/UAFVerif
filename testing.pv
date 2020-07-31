@@ -1,78 +1,91 @@
-query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_reg(u,a,aa,kid)) ==> (inj-event(Autr_verify_reg(u,a,aa,kid))==> inj-event(UA_init_reg(u,a))).
-let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facetid:Facetid,callerid:Callerid,token:bitstring,wrapkey:key)=
-(
-	(*one user one RP registration once*)
-	(* some fields initial public *)
-	new https:channel; new CU:channel; new MC:channel; new AM:channel;
-	let pkAT = spk(skAT) in
-	new fakefacetid:Facetid; new fakecallerid:Callerid;
-	out(c,(uname,appid,facetid,callerid,fakefacetid,fakecallerid,aaid,pkAT));
-	insert AppList(appid,facetid);	
+query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).
+let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstring,uname:Uname,facetid:Facetid,callerid:Callerid,cntr:CNTR) =
+((* one RP authenticate one user many times *)
+	(*choose the type you want to verify*)
+	(*let atype = autr_1b in*)
+	(*let ltype = empty in *)
+
+
+let atype = autr_1b in
+ let ltype = empty in	
+	
+	let pkAU = spk(skAU) in let testskAU = skAU in
+	let kh = get_kh(atype,uname,appid,callerid,token,keyid,wrapkey,skAU) in
+	let kid = get_kid(atype,kh,keyid) in let testkid = kid in	
+	insert ASMDB(appid,kid,kh);
+	insert AutrDB(appid,kid,kh);
 	
 	
-	let atype = autr_1b in 
-	(*let scene = software in *)
-let atype = autr_2b in
- let ltype = stepup in	
-	
-	
-			
+
+	out(c,(uname,appid,facetid,aaid,callerid,pkAU)); (* public info *)
+	( 
+		new https:channel; new CU:channel; new MC:channel; new AM:channel;
+		new fakecallerid:Callerid; new fakefacetid:Facetid;
+		new tr:Tr;   let testtr = tr in
+
 out(c,token);
-out(c,wrapkey);
-out(c,skAT);
-out(c,CU);
-	
-	(*                                                 some fields may leaked                                  *)
-	(*out(c,skAT);*)
-	(*out(c,token);*)
-	(*out(c,wrapkey);*)
-	
-	(*                                           malicious entities situations                                *)
-	(*RegUC(c, MC, fakefacetid)|*)
-	(*RegUA(https, c, uname,appid,password)|*)
-	(*RegUC(CU, c, facetid)|*)
-	(*RegASM(c, AM, token, fakecallerid, atype)|*)
-	(*RegASM(MC, c, token, callerid, atype)|*)
-	(*RegAutr(c, aaid, skAT, wrapkey, atype)|*)
-
-	(* honest entities *)
-	RegRP(https, uname, appid, password)|
-	RegRP(c, uname, appid, password)|
-	RegUA(https, CU,uname,appid, password)|
-	(*RegUA(c,CU,uname,facetappid,password2)*)
-	RegUC(CU, MC, facetid)|
-	RegASM(MC, AM, token, callerid, atype)|
-	RegAutr(AM, aaid, skAT, wrapkey, atype)
+out(c,kid);		
+		
+(* no fields being compromised *)
+AuthUA(https, c, uname, ltype)|
+AuthUC(c, MC, fakefacetid, ltype)|
+AuthUC(CU, c, facetid, ltype)|
+AuthUC(c, c, fakefacetid, ltype)|
+AuthASM(c,AM,token,fakecallerid,atype,ltype)|
+AuthASM(c,c,token,fakecallerid,atype,ltype)|
+AuthASM(MC,c,token,callerid,atype,ltype)|
+AuthAutr(c,aaid,wrapkey,cntr,tr,atype,ltype)| 
+AuthRP(c,uname, appid, aaid,kid,pkAU,cntr,tr,ltype)| (*add RP to c for first login*)		
+		(*out(c,wrapkey);*)
+		(*out(c,skAU);*)
+		(*out(c,cntr);*)
+		(*out(c,token);*)
+		
+		(* malicious entities situations*)
+		(*AuthUA(c, CU, uname, ltype)|*)
+		(*AuthUA(https, c, uname, ltype)|*)
+		(*AuthUC(c, MC, fakefacetid, ltype)|*)
+		(*AuthUC(CU, c, facetid, ltype)|*)
+		(*AuthASM(c,AM,token,fakecallerid,atype,ltype)|*)
+		(*AuthASM(MC,c,token,callerid,atype,ltype)|*)
+		(*AuthAutr(c,aaid,wrapkey,cntr,atype,ltype)|*)
+		(* honest entities *)
+		AuthRP(https, uname, appid, aaid,kid,pkAU,cntr,tr,ltype)|
+		AuthUA(https, CU,uname, ltype)|
+		AuthUC(CU, MC, facetid, ltype)|		
+		AuthASM(MC,AM,token,callerid,atype,ltype)|		
+		AuthAutr(AM,aaid,wrapkey,cntr,tr,atype,ltype)	
+	)
 ).
-
-table User_side(Uname,bitstring,AAID,Callerid,Facetid,bitstring,key,sskey).
-table RP_side(Appid).
-
-let insert_fields() =
-(
-		(
-			new aaid:AAID;
-			new facetid:Facetid; 
-			new callerid:Callerid; 
-			new skAT:sskey; 
-			new wrapkey:key;
-			new token:bitstring;
-			new uname:Uname; new password:bitstring;
-			insert User_side(uname,password,aaid,callerid,facetid,token,wrapkey,skAT)
-		)|	
-		(
-			new appid:Appid;
-			insert RP_side(appid)
-		)
-).
-
 
 process
-( 
-	insert_fields()|
-	(
-		get User_side(uname,password,aaid,callerid,facetid,token,wrapkey,skAT) in
-		get RP_side(appid) in
-		system(appid,aaid,skAT,uname,password,facetid,callerid,token,wrapkey)
+(
+	new appid:Appid;
+	new aaid:AAID;
+	new skAU:sskey; 
+	new keyid:KeyID;
+	new wrapkey:key;	
+	new token:bitstring;	
+	new uname:Uname;
+	new cntr:CNTR;
+	new facetid:Facetid; insert AuthAppList(appid,facetid);
+	new callerid:Callerid; insert TrustCallerid(callerid);
+	!system(appid,aaid,skAU,keyid,wrapkey,token,uname,facetid,callerid,cntr)|
+	!(
+		new skAU2:sskey;
+		new keyid2:KeyID;
+		new wrapkey2:key;
+		new token2:bitstring;
+		new uname2:Uname;
+		new cntr2:CNTR;
+		system(appid,aaid,skAU2,keyid2,wrapkey2,token2,uname2,facetid,callerid,cntr2)
+	)|
+	!(
+		new appid2:Appid;
+		new skAU3:sskey;
+		new keyid3:KeyID;
+		new uname3:Uname;
+		new cntr3:CNTR;
+		system(appid2,aaid,skAU3,keyid3,wrapkey,token,uname3,facetid,callerid,cntr3)
 	)
 )

@@ -51,7 +51,7 @@ process
 		new wrapkey:key;
 		new token:bitstring;
 		new uname:Uname; new password:bitstring;
-		system(appid,aaid,skAT,uname,password,facetid,callerid,token,wrapkey)|
+		!system(appid,aaid,skAT,uname,password,facetid,callerid,token,wrapkey)|
 		!(
 			new uname2:Uname;
 			new password2:bitstring;

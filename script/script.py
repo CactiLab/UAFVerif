@@ -142,7 +142,7 @@ class Reg_queries(All_queries):
 class Auth_stepup_queries(All_queries):
     def __init__(self):
         All_queries.__init__(self)
-        self.all_queries.append(Query("S-tr","query secret tr.\n"))
+        self.all_queries.append(Query("S-tr","query secret testtr.\n"))
         self.all_queries.append(Query("Aauth-tr", "query tr:Tr; inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr))).\n"))
 
 class Auth_1b_em_queries(All_queries):
@@ -293,19 +293,23 @@ class Case:
         self.type_set_row = t_row  # indicate type
         self.insert_row = i_row  # insert line number
         self.query_path = "TEMP-" + str(hash(Setting.rootpath + p + t.name + q.name + f.name + e.name)) + ".pv"
+
     def write_file(self,if_delete_parallel):
         f2 = open(self.query_path,"w")
+        analyze_lines = []
         if(if_delete_parallel):
             for i in range(len(self.lines)):
-                self.lines[i] = self.lines[i].replace('!','')
+                analyze_lines.append(self.lines[i].replace('!',''))
+        else:
+            analyze_lines = self.lines
         f2.writelines(self.query.write)
-        for i in range(len(self.lines)):
+        for i in range(len(analyze_lines)):
             if i == self.type_set_row:
                 f2.writelines(self.type.write)
             if i == self.insert_row:
                 f2.writelines(self.fields.write)
                 f2.writelines(self.entities.write)
-            f2.writelines(self.lines[i])
+            f2.writelines(analyze_lines[i])
         f2.close()
 
     def analyze(self):
@@ -342,7 +346,12 @@ class Case:
         #print(result)
         if result == b"" or len(result) == 0:
             result = stdout[-1000:-1]
-            ret = 'tout'
+            if result.find(b'a trace has been found.'):
+                ret = 'false'
+            elif result.find(b'trace'):
+                ret = 'mayfalse'
+            else:
+                ret = 'tout'
         elif (result.find(b'error') != -1):
             ret = 'error'
         elif (result.find(b'false') != -1):
@@ -503,19 +512,11 @@ def analysis(phase,log):
         else:
             msg = str(count).ljust(5) + phase.ljust(4)
             ret, result, content = case.analyze()
-            if ret == 'false':
-                msg += " false"
-            elif ret == 'true':
+            if ret == 'true':
                 gen.this_case_is_secure()
                 msg += "  true"
-            elif ret == 'prove':
-                msg += " prove!!"
-            elif ret == 'error':
-                msg += " error"
-            elif ret == 'tout':
-                msg += "  tout!!"
             else:
-                msg += " error!!"
+                msg += "  " + ret
             #gen.set_last_state(ret)
             msg += " type "
             msg += case.type.name.ljust(4)
@@ -556,6 +557,7 @@ if __name__ == "__main__":
     t7 = threading.Thread(target=analysis, args=("auth_2r", log7))
     tlist = [t1,t2,t3,t4,t5,t6,t7]
     #tlist = [t1]
+    #tlist = [t3,t5,t6,t7]
     for t in tlist:
         t.start()
     for t in tlist:
