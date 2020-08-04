@@ -1,8 +1,10 @@
 set attacker = passive.
 let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstring,uname:Uname,facetid:Facetid,callerid:Callerid,cntr:CNTR) =
 ((* one RP authenticate one user many times *)
-	(*choose the type you want to verify*)
+	(*choose the type you want to verify here*)
+	(*  set the type here : atype = "autr_1b" \"autr_2b" \"autr_1r" \"autr_2r *)
 	let atype = autr_1b in
+	(*  set the scene here : ltype = "empty" \"stepup"  , empty means "login"*)
 	let ltype = empty in 
 
 
@@ -62,20 +64,13 @@ process
 	new callerid:Callerid; insert TrustCallerid(callerid);
 	!system(appid,aaid,skAU,keyid,wrapkey,token,uname,facetid,callerid,cntr)|
 	!(
+		new appid2:Appid;
 		new skAU2:sskey;
 		new keyid2:KeyID;
 		new wrapkey2:key;
 		new token2:bitstring;
 		new uname2:Uname;
 		new cntr2:CNTR;
-		system(appid,aaid,skAU2,keyid2,choice[wrapkey2,wrapkey],choice[token,token2],uname2,facetid,callerid,cntr2)
-	)|
-	(
-		new appid2:Appid;
-		new skAU3:sskey;
-		new keyid3:KeyID;
-		new uname3:Uname;
-		new cntr3:CNTR;
-		system(appid2,aaid,skAU3,keyid3,wrapkey,token,uname3,facetid,callerid,cntr3)
+		system(appid2,aaid,skAU2,keyid2,choice[wrapkey2,wrapkey],choice[token,token2],uname2,facetid,callerid,cntr2)
 	)
 )

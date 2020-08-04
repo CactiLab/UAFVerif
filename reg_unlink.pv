@@ -1,19 +1,17 @@
-table User_side(bitstring,key).
-table RP_side(Appid).
-
 let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facetid:Facetid,callerid:Callerid,token:bitstring,wrapkey:key)=
 (
+	(*  set the type here : atype = "autr_1b" \"autr_2b" \"autr_1r" \"autr_2r *)
+	let atype = autr_1b in  
+	
+	
+	
 	(*one user one RP registration once*)
 	(* some fields initial public *)
-	new https:channel; new CU:channel; new MC:channel; new AM:channel;    out(c,https);
+	new https:channel; new CU:channel; new MC:channel; new AM:channel;
 	let pkAT = spk(skAT) in
 	new fakefacetid:Facetid; new fakecallerid:Callerid;
-	out(c,(uname,appid,facetid,callerid,fakefacetid,fakecallerid,aaid,pkAT));
+	out(c,(uname,appid,facetid,callerid,fakefacetid,fakecallerid,aaid,skAT));
 	insert AppList(appid,facetid);	
-	
-	
-	let atype = autr_1b in 
-	(*let scene = software in *)
 	
 	
 	
@@ -43,42 +41,25 @@ let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facet
 	RegAutr(AM, aaid, skAT, wrapkey, atype)
 ).
 
-let insert_user() =
-!(
-		new token:bitstring;
-		new wrapkey:key;
-		insert User_side(token,wrapkey)
-).
-
-let insert_RP() =
-!(
+process
+( 
+	(         (* a RP  *)
 		new appid:Appid;
-		insert RP_side(appid)
-).
-
-equivalence
-	insert_RP()|
-	insert_user()|
-	!(       
 		new aaid:AAID;
 		new facetid:Facetid; 
 		new callerid:Callerid; 
 		new skAT:sskey; 
-		new uname:Uname; 
-		new password:bitstring;
-		get User_side(token,wrapkey) in
-		get RP_side(appid) in
-		system(appid,aaid,skAT,uname,password,facetid,callerid,token,wrapkey)
+		new wrapkey:key;
+		new token:bitstring;
+		new uname:Uname; new password:bitstring;
+		!system(appid,aaid,skAT,uname,password,facetid,callerid,token,wrapkey)|
+		!(
+			new appid2:Appid;
+			new uname2:Uname;
+			new password2:bitstring;
+			new token2:bitstring;
+			new wrapkey2:key;
+			system(appid2,aaid,skAT,uname2,password2,facetid,callerid,choice[token,token2],choice[wrapkey,wrapkey2])
+		)
 	)
-		!(       
-		new aaid:AAID;
-		new facetid:Facetid; 
-		new callerid:Callerid; 
-		new skAT:sskey; 
-		new uname:Uname; 
-		new password:bitstring;
-		get User_side(token,wrapkey) in
-		get RP_side(appid) in
-		system(appid,aaid,skAT,uname,password,facetid,callerid,token,wrapkey)
-	)
-
+)

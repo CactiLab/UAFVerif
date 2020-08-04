@@ -1,21 +1,19 @@
 import itertools
 import os
 import sys
-import operator
 import threading
-import time
-import shutil
-import random
 from threading import Timer
 from subprocess import Popen, PIPE
-from multiprocessing import Process
 
-# general setting
+
 class Setting:
-    #rootpath = "C:/proverif/FIDO-UAF-Verification/"
-    #rootpath = "D:/Work/proverif2.01/FIDO/"
-    #rootpath = "D:/me/proverif2.01/FIDO/"
-    #querypath = rootpath + "query.pv"
+    '''
+    General setting class
+    pleas set the rootpath when you first start
+    rootpath is the directory of the directory where the .pv and .pvl files put
+    You can set it directly to the parent directory of the current directory
+    '''
+    rootpath = "Set the root path when first run"
     reg_set_type_row = 4
     reg_insert_row = 16
     auth_set_type_row = 7
@@ -77,7 +75,12 @@ class Entities:
         self.entities = entities
         self.row_numbers = row_numbers
 
+
 class All_types:
+    '''
+    a parant class for all authenticator types
+    use the specific subclass when analyzing
+    '''
     def __init__(self):
         self.all_types = []
     def size(self):
@@ -123,6 +126,12 @@ class Auth_2r_types(All_types):
         self.all_types.append(Type("autr_2r", "let atype = autr_2r in\n let ltype = stepup in"))
 
 class All_queries:
+    '''
+    a parant class for all queries
+    this class indicate the queries for all types of authenticator and all phases(reg/auth)
+    use the specific subclass when analyzing
+    you can add queries as you wish
+    '''
     def __init__(self):
         self.all_queries = []
         self.all_queries.append(Query("S-ak", "query secret testak.\n"))
@@ -178,6 +187,12 @@ class Auth_2r_queries(Auth_stepup_queries):
         self.all_queries.append(Query("Aauth-2br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
 
 class All_entities:
+    '''
+   a parant class for all possible combinations of malicous entities
+   you can just write all the possible malicous in subclass for each phase(reg/auth)
+   this parant class will generate all the combinations.
+   version2 is a reduce plan
+   '''
     def __init__(self):
         self.all_entities = []
     def get_all_scenes(self): #a scheme to get all combination of the entities
@@ -197,8 +212,6 @@ class All_entities:
             for j in range(i):
                 temp_combination.append(self.all_entities[j])
             self.entities.append(Entities(temp_combination))
-
-
     def size(self):
         return len(self.entities)
     def get(self,i):
@@ -253,13 +266,18 @@ class Auth_entities_version2(All_entities):
         self.get_all_scenes()
 
 class All_fields:
+    '''
+    A parant class for all possible combinations of the compromised fields
+    this file does not consider the compromise of the fields since it lead to too much time to run
+    if you want to analyze the case when there are fields being compormised use "get_all_scenes_version2"
+    '''
     def __init__(self):
         self.all_fields = []
         self.all_fields.append("out(c,token);\n")
         self.all_fields.append("out(c,wrapkey);\n")
     def get_all_scenes(self): #a version that no fields will be compromised.
         self.fields = [Fields(["(* no fields being compromised *)\n"])]
-    def get_all_scenes_oldversion(self):
+    def get_all_scenes_version2(self):
         self.fields = []
         for delnum in range(len(self.all_fields)+ 1) :
             for pre in itertools.combinations(self.all_fields, delnum):
@@ -284,6 +302,14 @@ class Auth_fields(All_fields):
         self.get_all_scenes()
 
 class Case:
+    '''
+    A specific case which
+    phase : registration or authentication
+    type : the type of the authenticator
+    query : a query
+    fields : the fields has been compromised
+    entities: the malicous entities scenes
+    '''
     def __init__(self,p,t,q,f,e,lines,t_row,i_row):
         self.phase = p
         self.type = t
@@ -296,9 +322,12 @@ class Case:
         self.query_path = "TEMP-" + str(hash(Setting.rootpath + p + t.name + q.name + f.name + e.name)) + ".pv"
 
     def write_file(self,if_delete_parallel):
+        '''
+        write the query file for proverif to verify
+        '''
         f2 = open(self.query_path,"w")
         analyze_lines = []
-        if(if_delete_parallel):
+        if(if_delete_parallel):# if true, then remove ! to speed up analyzing
             for i in range(len(self.lines)):
                 analyze_lines.append(self.lines[i].replace('!',''))
         else:
@@ -372,6 +401,10 @@ class Case:
 
 
 class Generator: #generator cases
+    '''
+    giving the all phase, types, fields, entities, queries, this class generate a specific case.
+    besides, this class maintain a secure sets to speed up the case which is subset
+    '''
     def __init__(self,phase):
         self.secure_sets = []
         self.noprove_sets = []
@@ -500,6 +533,9 @@ class Generator: #generator cases
         return False
 
 def analysis(phase,log):
+    '''
+    giving the phase and a log file name, then analyzing
+    '''
     gen = Generator(phase)
     count = 0
     while True:
@@ -556,9 +592,7 @@ if __name__ == "__main__":
     t5 = threading.Thread(target=analysis, args=("auth_1r_st", log5))
     t6 = threading.Thread(target=analysis, args=("auth_2b", log6))
     t7 = threading.Thread(target=analysis, args=("auth_2r", log7))
-    tlist = [t1,t2,t3,t4,t5,t6,t7]
-    #tlist = [t1]
-    #tlist = [t3,t5,t6,t7]
+    tlist = [t1,t2,t3,t4,t5,t6,t7] #run all th phase
     for t in tlist:
         t.start()
     for t in tlist:
