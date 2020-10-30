@@ -2,6 +2,7 @@
 *.dot
 *.log
 *.json
+*.zip
 result/
 script/.vscode
 script/.idea/
