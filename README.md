@@ -6,10 +6,17 @@ This project is a part of work of the paper "A formal analysis of the FIDO UAF p
 
 ### Requirements
 
-1. ProVerif2.01
-2. Python3.0+
+1. ProVerif2.01 (you need to add the ProVerif.exe into the SYSTEM PATH)
+2. Python3.0+ (to batch ProVerif input file)
 
+### File Organization
 
+- script/script.pv : a python script to analyze the UAF protocol in batches and output the results.
+- FIDO.pvl : a lib file which contains all operations of the UAF protocol.
+- reg.pv : registration process to analyze confidentiality and authentication goals.
+- reg_unlink.pv : registration process to analyze unlinkability goals.
+- auth.pv : authentication process to analyze confidentiality and authentication goals.
+- auth_unlink.pv : authentication process to analyze unlinkability goals.
 
 
 Requirements:
