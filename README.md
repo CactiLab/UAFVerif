@@ -1,5 +1,14 @@
-# FIDO-UAF-Verfification
-This is a repo of the source code of the FIDO UAF verification.
+# FIDO UAF verification source code repository
+This README describes the organization of the source code of the FIDO UAF verification and describes how to use this code to verify the UAF protocol.
+This project is a part of work of the paper "A formal analysis of the FIDO UAF protocol", which was published in The Network and Distributed System Security Symposium 2021 (NDSS 2021).
+
+## Instructions
+
+### Requirements
+
+1. ProVerif2.01
+2. Python3.0+
+
 
 
 
