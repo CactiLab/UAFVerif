@@ -1,3 +1,8 @@
+# FIDO-UAF-Verfification
+This is a repo of the source code of the FIDO UAF verification.
+
+
+
 Requirements:
 	1. Windows
 	2. ProVerif2.01: you need to add the ProVerif.exe into the SYSTEM PATH.
