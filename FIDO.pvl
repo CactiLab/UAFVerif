@@ -6,7 +6,7 @@ set displayDerivation = false.
 (*set verboseRules = none.*)
 set verboseClauses = none.
 (********************************************************************)
-(*                           Messages Type declaration                                        	    *)
+(********************Messages Type declaration************************)
 (********************************************************************)
 type msg.
 type Atype.
