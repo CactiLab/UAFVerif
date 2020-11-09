@@ -2,6 +2,7 @@ import itertools
 import os
 import sys
 import threading
+import getopt
 from threading import Timer
 from subprocess import Popen, PIPE
 
@@ -13,7 +14,7 @@ class Setting:
     rootpath is the directory of the directory where the .pv and .pvl files put
     You can set it directly to the parent directory of the current directory
     '''
-    rootpath = "Set the root path when first run"
+    rootpath = os.path.dirname(os.getcwd()) + "/"
     reg_set_type_row = 4
     reg_insert_row = 16
     auth_set_type_row = 7
@@ -32,7 +33,7 @@ class Setting:
     @classmethod
     def initiate(cls):
         if not os.path.exists(cls.libpath):
-            print("FIDO.lib does not exist")
+            print("FIDO.pvl does not exist")
             sys.exit(1)
         if not os.path.exists(cls.regpath):
             print("reg.pv does not exist")
@@ -576,6 +577,8 @@ def analysis(phase,log):
 def write_log(msg,log):
     print(msg, file = log)
 
+			
+	
 if __name__ == "__main__":
     Setting.initiate()
     log1 = open(Setting.logpath1, mode='w+', encoding='utf-8')
@@ -592,7 +595,34 @@ if __name__ == "__main__":
     t5 = threading.Thread(target=analysis, args=("auth_1r_st", log5))
     t6 = threading.Thread(target=analysis, args=("auth_2b", log6))
     t7 = threading.Thread(target=analysis, args=("auth_2r", log7))
-    tlist = [t1,t2,t3,t4,t5,t6,t7] #run all th phase
+    tlist = [t1,t2,t3,t4,t5,t6,t7]#run all th phase
+    
+    try:
+        options, args = getopt.getopt(sys.argv[1:], "ht:", ["help", "target="])
+    except getopt.GetoptError:
+        sys.exit()
+    for option, value in options:
+        if option in ("-h", "-help", "--help"):
+            print("HELP")
+            sys.exit()
+        if option in ("-t","--t","--target","-target"):
+            tlist = []
+            if str(value) == "reg":
+                tlist.append(t1)
+            if str(value) == "auth_1b_em":
+                tlist.append(t2)
+            if str(value) == "auth_1b_st":
+                tlist.append(t3)
+            if str(value) == "auth_1r_em":
+                tlist.append(t4)
+            if str(value) == "auth_1r_st":
+                tlist.append(t5)
+            if str(value) == "auth_2b":
+                tlist.append(t6)
+            if str(value) == "auth_2r":
+                tlist.append(t7)
+            
+    print(tlist)
     for t in tlist:
         t.start()
     for t in tlist:
