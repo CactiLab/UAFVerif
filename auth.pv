@@ -28,7 +28,7 @@ let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstr
 				(*AuthASM(c,AM,token,fakecallerid,atype,ltype)|*)
 				(*AuthASM(MC,c,token,callerid,atype,ltype)|*)
 				(*AuthAutr(c,aaid,wrapkey,cntr,atype,ltype)|*)
-				(* honest entities *)
+		(* honest entities *)
 		AuthRP(https, uname, appid, aaid,kid,pkAU,cntr,tr,ltype)|
 		AuthUA(https, CU,uname, ltype)|
 		AuthUC(CU, MC, facetid, ltype)|		
