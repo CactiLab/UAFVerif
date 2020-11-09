@@ -6,7 +6,7 @@ This project is a part of the work of the paper "A formal analysis of the FIDO U
 
 ### Requirements
 
-1. ProVerif2.01 [https://prosecco.gforge.inria.fr/personal/bblanche/proverif/](https://prosecco.gforge.inria.fr/personal/bblanche/proverif/): you need to add the ProVerif.exe into the SYSTEM PATH
+1. [ProVerif2.01](https://prosecco.gforge.inria.fr/personal/bblanche/proverif/) (you need to add the ProVerif.exe into the SYSTEM PATH)
 2. Python3.0+ (to batch ProVerif input file)
 
 ### File Organization
