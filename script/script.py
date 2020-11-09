@@ -16,18 +16,18 @@ class Setting:
     '''
     rootpath = os.path.dirname(os.getcwd()) + "/"
     reg_set_type_row = 4
-    reg_insert_row = 16
+    reg_insert_row = 21
     auth_set_type_row = 7
-    auth_insert_row = 24
+    auth_insert_row = 31
     regpath = rootpath + "reg.pv"
     authpath = rootpath + "auth.pv"
-    logpath1 = rootpath + "analysis1.log"
-    logpath2 = rootpath + "analysis2.log"
-    logpath3 = rootpath + "analysis3.log"
-    logpath4 = rootpath + "analysis4.log"
-    logpath5 = rootpath + "analysis5.log"
-    logpath6 = rootpath + "analysis6.log"
-    logpath7 = rootpath + "analysis7.log"
+    logpath1 = rootpath + "reg.log"
+    logpath2 = rootpath + "auth_1b_em.log"
+    logpath3 = rootpath + "auth_1b_st.log"
+    logpath4 = rootpath + "auth_1r_em.log"
+    logpath5 = rootpath + "auth_1r_st.log"
+    logpath6 = rootpath + "auth_2b.log"
+    logpath7 = rootpath + "auth_2r.log"
     libpath = rootpath + "FIDO.pvl"
     resultpath = rootpath + "result/"
     @classmethod
@@ -94,37 +94,37 @@ class Reg_types(All_types):
         All_types.__init__(self)
         self.all_types.append(Type("autr_1b", "let atype = autr_1b in\n"))
         self.all_types.append(Type("autr_1r", "let atype = autr_1r in\n"))
-        self.all_types.append(Type("autr_2b", "let atype = autr_2b in\n let ltype = stepup in"))
-        self.all_types.append(Type("autr_2r", "let atype = autr_2r in\n let ltype = stepup in"))
+        self.all_types.append(Type("autr_2b", "let atype = autr_2b in\nlet ltype = stepup in \n"))
+        self.all_types.append(Type("autr_2r", "let atype = autr_2r in\nlet ltype = stepup in \n"))
 
 class Auth_1b_em_types(All_types):
     def __init__(self):
         All_types.__init__(self)
-        self.all_types.append(Type("autr_1b_em","let atype = autr_1b in\n let ltype = empty in"))
+        self.all_types.append(Type("autr_1b_em","let atype = autr_1b in\nlet ltype = empty in \n"))
 
 class Auth_1b_st_types(All_types):
     def __init__(self):
         All_types.__init__(self)
-        self.all_types.append(Type("autr_1b_st","let atype = autr_1b in\n let ltype = stepup in"))
+        self.all_types.append(Type("autr_1b_st","let atype = autr_1b in\nlet ltype = stepup in \n"))
 
 class Auth_1r_em_types(All_types):
     def __init__(self):
         All_types.__init__(self)
-        self.all_types.append(Type("autr_1r_em","let atype = autr_1r in\n let ltype = empty in"))
+        self.all_types.append(Type("autr_1r_em","let atype = autr_1r in\nlet ltype = empty in \n"))
 class Auth_1r_st_types(All_types):
     def __init__(self):
         All_types.__init__(self)
-        self.all_types.append(Type("autr_1r_st","let atype = autr_1r in\n let ltype = stepup in"))
+        self.all_types.append(Type("autr_1r_st","let atype = autr_1r in\nlet ltype = stepup in \n"))
 
 class Auth_2b_types(All_types):
     def __init__(self):
         All_types.__init__(self)
-        self.all_types.append(Type("autr_2b", "let atype = autr_2b in\n let ltype = stepup in"))
+        self.all_types.append(Type("autr_2b", "let atype = autr_2b in\nlet ltype = stepup in \n"))
 
 class Auth_2r_types(All_types):
     def __init__(self):
         All_types.__init__(self)
-        self.all_types.append(Type("autr_2r", "let atype = autr_2r in\n let ltype = stepup in"))
+        self.all_types.append(Type("autr_2r", "let atype = autr_2r in\nlet ltype = stepup in \n"))
 
 class All_queries:
     '''
@@ -472,7 +472,7 @@ class Generator: #generator cases
             tttt = f.readlines()
             for i in range(len(tttt)):
                 if i == self.insert_row:
-                    lns.append("AuthRP(c,uname, appid, aaid,kid,pkAU,cntr,tr,ltype)| (*add RP to c for first login*)")
+                    lns.append("AuthRP(c,uname, appid, aaid,kid,pkAU,cntr,tr,ltype)| (*add RP to c for first login*)\n")
                 else:
                     lns.append(tttt[i])
         else:
