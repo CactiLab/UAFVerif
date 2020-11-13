@@ -4,6 +4,7 @@
 *.json
 *.zip
 result/
-script/.vscode
-script/.idea/
-script/TEMP--*
+.vscode/
+.idea/
+TEMP/TEMP--*
+LOG/
