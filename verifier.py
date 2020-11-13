@@ -14,7 +14,7 @@ class Setting:
     rootpath is the directory of the directory where the .pv and .pvl files put
     You can set it directly to the parent directory of the current directory
     '''
-    rootpath = os.path.dirname(os.getcwd()) + "/"
+    rootpath = os.getcwd() + "/"
     reg_set_type_row = 4
     reg_insert_row = 21
     auth_set_type_row = 7
@@ -22,12 +22,12 @@ class Setting:
     regpath = rootpath + "reg.pv"
     authpath = rootpath + "auth.pv"
     logpath1 = rootpath + "reg.log"
-    logpath2 = rootpath + "auth_1b_em.log"
-    logpath3 = rootpath + "auth_1b_st.log"
-    logpath4 = rootpath + "auth_1r_em.log"
-    logpath5 = rootpath + "auth_1r_st.log"
-    logpath6 = rootpath + "auth_2b.log"
-    logpath7 = rootpath + "auth_2r.log"
+    logpath2 = rootpath + "LOG" + "auth_1b_em.log"
+    logpath3 = rootpath + "LOG" + "auth_1b_st.log"
+    logpath4 = rootpath + "LOG" + "auth_1r_em.log"
+    logpath5 = rootpath + "LOG" + "auth_1r_st.log"
+    logpath6 = rootpath + "LOG" + "auth_2b.log"
+    logpath7 = rootpath + "LOG" + "auth_2r.log"
     libpath = rootpath + "FIDO.pvl"
     resultpath = rootpath + "result/"
     @classmethod
@@ -320,7 +320,7 @@ class Case:
         self.lines = lines # all lines in reg.pv or auth.pv
         self.type_set_row = t_row  # indicate type
         self.insert_row = i_row  # insert line number
-        self.query_path = "TEMP-" + str(hash(Setting.rootpath + p + t.name + q.name + f.name + e.name)) + ".pv"
+        self.query_path = "TEMP/" + "TEMP-" + str(hash(Setting.rootpath + p + t.name + q.name + f.name + e.name)) + ".pv"
 
     def write_file(self,if_delete_parallel):
         '''
@@ -603,7 +603,7 @@ if __name__ == "__main__":
         sys.exit()
     for option, value in options:
         if option in ("-h", "-help", "--help"):
-            print("HELP")
+            print("usage: [-help] [-t]")
             sys.exit()
         if option in ("-t","--t","--target","-target"):
             tlist = []
