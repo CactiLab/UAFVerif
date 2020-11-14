@@ -28,7 +28,7 @@ class Setting:
     logpath5 = rootpath + "LOG" + "auth_1r_st.log"
     logpath6 = rootpath + "LOG" + "auth_2b.log"
     logpath7 = rootpath + "LOG" + "auth_2r.log"
-    libpath = rootpath + "FIDO.pvl"
+    libpath = rootpath + "UAF.pvl"
     resultpath = rootpath + "result/"
     @classmethod
     def initiate(cls):
