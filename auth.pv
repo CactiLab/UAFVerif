@@ -49,7 +49,9 @@ process
 	new cntr:CNTR;
 	new facetid:Facetid; insert AuthAppList(appid,facetid);
 	new callerid:Callerid; insert TrustCallerid(callerid);
+	(* User 1 authenticates in RP 1 *)
 	!system(appid,aaid,skAU,keyid,wrapkey,token,uname,facetid,callerid,cntr)|
+	(* User 2 authenticates in RP 1 *)
 	!(
 		new skAU2:sskey;
 		new keyid2:KeyID;
@@ -59,6 +61,7 @@ process
 		new cntr2:CNTR;
 		system(appid,aaid,skAU2,keyid2,wrapkey2,token2,uname2,facetid,callerid,cntr2)
 	)|
+	(* User 1 authenticates in RP 2 *)
 	!(
 		new appid2:Appid;
 		new skAU3:sskey;

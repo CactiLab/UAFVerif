@@ -34,7 +34,7 @@ let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facet
 
 process
 ( 
-	(         (* a RP  *)
+	(         
 		new appid:Appid;
 		new aaid:AAID;
 		new facetid:Facetid; 
@@ -43,7 +43,9 @@ process
 		new wrapkey:key;
 		new token:bitstring;
 		new uname:Uname; new password:bitstring;
+		(* User 1 registers in RP 1 *)
 		!system(appid,aaid,skAT,uname,password,facetid,callerid,token,wrapkey)|
+		(* User 1 registers in RP 2 *)
 		!(
 			new appid2:Appid;
 			new uname2:Uname;

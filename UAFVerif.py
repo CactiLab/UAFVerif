@@ -10,28 +10,28 @@ from subprocess import Popen, PIPE
 class Setting:
     '''
     General setting class
-    pleas set the rootpath when you first start
-    rootpath is the directory of the directory where the .pv and .pvl files put
-    You can set it directly to the parent directory of the current directory
+    rootpath is the directory where the .pv and .pvl files put
     '''
     rootpath = os.getcwd() + "/"
-    reg_set_type_row = 4
-    reg_insert_row = 21
+    reg_set_type_row = 4 #indicate which row to insert "let atype = xxx"
+    reg_insert_row = 21   #indicate which row to insert malicious entities
     auth_set_type_row = 7
     auth_insert_row = 31
     regpath = rootpath + "reg.pv"
     authpath = rootpath + "auth.pv"
-    logpath1 = rootpath + "reg.log"
-    logpath2 = rootpath + "LOG" + "auth_1b_em.log"
-    logpath3 = rootpath + "LOG" + "auth_1b_st.log"
-    logpath4 = rootpath + "LOG" + "auth_1r_em.log"
-    logpath5 = rootpath + "LOG" + "auth_1r_st.log"
-    logpath6 = rootpath + "LOG" + "auth_2b.log"
-    logpath7 = rootpath + "LOG" + "auth_2r.log"
+    if not os.path.exists(rootpath + "LOG/"):
+        os.makedirs(rootpath + "LOG/")
+    logpath1 = rootpath + "LOG/" + "reg.log"
+    logpath2 = rootpath + "LOG/" + "auth_1b_em.log"
+    logpath3 = rootpath + "LOG/" + "auth_1b_st.log"
+    logpath4 = rootpath + "LOG/" + "auth_1r_em.log"
+    logpath5 = rootpath + "LOG/" + "auth_1r_st.log"
+    logpath6 = rootpath + "LOG/" + "auth_2b.log"
+    logpath7 = rootpath + "LOG/" + "auth_2r.log"
     libpath = rootpath + "UAF.pvl"
     resultpath = rootpath + "result/"
     @classmethod
-    def initiate(cls):
+    def initiate(cls): # judge if the setting is ready for running
         if not os.path.exists(cls.libpath):
             print("FIDO.pvl does not exist")
             sys.exit(1)
@@ -42,29 +42,29 @@ class Setting:
             print("auth.pv does not exist")
             sys.exit(1)
 
-class Type:
+class Type: #indicate the type of the authenticator
     def __init__(self,name,write):
-        self.name = name
-        self.write = write
+        self.name = name #for example "autr_1b“
+        self.write = write # indicate how to write the type in .pv file, for example "let atype = autr_1b"
 
-class Query:
+class Query: # indicate a specific query
     def __init__(self,name,write):
-        self.name = name
-        self.write = write
+        self.name = name #for example, the confidentiality of ak: S-ak
+        self.write = write # indicate how to write the query in .pv file
 
-class Fields:
-    def __init__(self, fields): # list
-        self.nums = len(fields)
-        self.write = ""
-        self.name = "fields-" + str(self.nums)
+class Fields: # indicate a specific combination of compromised fields
+    def __init__(self, fields): # initiate by a list
+        self.nums = len(fields)  # number of the malicious fields
+        self.write = "" # how to write those fields in .pv file
+        self.name = "fields-" + str(self.nums) # give it a name to generate the output files
         for item in fields:
             self.write += item
         self.fields = fields
 
-class Entities:
-    def __init__(self, entities, row_numbers):
-        self.nums = len(entities)
-        self.write = ""
+class Entities: # indicate a specific combination of malicious entities
+    def __init__(self, entities, row_numbers): # initiate by a list and which rows in the list to add
+        self.nums = len(entities) # how many entities
+        self.write = "" # how to write the malicious entities in .pv file
         if self.nums == 0:
             self.name = "mali-" + str(self.nums)
         else:
@@ -79,7 +79,7 @@ class Entities:
 
 class All_types:
     '''
-    a parant class for all authenticator types
+    a parant class for all possible authenticator types
     use the specific subclass when analyzing
     '''
     def __init__(self):
@@ -89,7 +89,7 @@ class All_types:
     def get(self,i):
         return self.all_types[i]
 
-class Reg_types(All_types):
+class Reg_types(All_types): # Reg types
     def __init__(self):
         All_types.__init__(self)
         self.all_types.append(Type("autr_1b", "let atype = autr_1b in\n"))
@@ -97,32 +97,32 @@ class Reg_types(All_types):
         self.all_types.append(Type("autr_2b", "let atype = autr_2b in\nlet ltype = stepup in \n"))
         self.all_types.append(Type("autr_2r", "let atype = autr_2r in\nlet ltype = stepup in \n"))
 
-class Auth_1b_em_types(All_types):
+class Auth_1b_em_types(All_types): # types of 1b login phase 
     def __init__(self):
         All_types.__init__(self)
         self.all_types.append(Type("autr_1b_em","let atype = autr_1b in\nlet ltype = empty in \n"))
 
-class Auth_1b_st_types(All_types):
+class Auth_1b_st_types(All_types):# types of 1b step-up phase 
     def __init__(self):
         All_types.__init__(self)
         self.all_types.append(Type("autr_1b_st","let atype = autr_1b in\nlet ltype = stepup in \n"))
 
-class Auth_1r_em_types(All_types):
+class Auth_1r_em_types(All_types): # types of 1r login phase 
     def __init__(self):
         All_types.__init__(self)
         self.all_types.append(Type("autr_1r_em","let atype = autr_1r in\nlet ltype = empty in \n"))
-class Auth_1r_st_types(All_types):
+class Auth_1r_st_types(All_types): # types of 1r step-up phase 
     def __init__(self):
         All_types.__init__(self)
         self.all_types.append(Type("autr_1r_st","let atype = autr_1r in\nlet ltype = stepup in \n"))
 
-class Auth_2b_types(All_types):
+class Auth_2b_types(All_types): # types of 2b step-up phase 
     def __init__(self):
         All_types.__init__(self)
         self.all_types.append(Type("autr_2b", "let atype = autr_2b in\nlet ltype = stepup in \n"))
 
-class Auth_2r_types(All_types):
-    def __init__(self):
+class Auth_2r_types(All_types): # types of 2r step-up phase 
+    def __init__(self): 
         All_types.__init__(self)
         self.all_types.append(Type("autr_2r", "let atype = autr_2r in\nlet ltype = stepup in \n"))
 
@@ -144,45 +144,45 @@ class All_queries:
     def get(self,i):
         return self.all_queries[i]
 
-class Reg_queries(All_queries):
+class Reg_queries(All_queries): # reg queries
     def __init__(self):
         All_queries.__init__(self)
         self.all_queries.append(Query("S-skat", "query secret skAT.\n"))
         self.all_queries.append(Query("Rauth","query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_reg(u,a,aa,kid)) ==> (inj-event(Autr_verify_reg(u,a,aa,kid))==> inj-event(UA_init_reg(u,a))).\n"))
 
-class Auth_stepup_queries(All_queries):
+class Auth_stepup_queries(All_queries): # query of step-up phase 
     def __init__(self):
         All_queries.__init__(self)
         self.all_queries.append(Query("S-tr","query secret testtr.\n"))
         self.all_queries.append(Query("Aauth-tr", "query tr:Tr; inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr))).\n"))
 
-class Auth_1b_em_queries(All_queries):
+class Auth_1b_em_queries(All_queries): # query of 1b login phase 
     def __init__(self):
         All_queries.__init__(self)
         self.all_queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
 
-class Auth_1b_st_queries(Auth_stepup_queries):
+class Auth_1b_st_queries(Auth_stepup_queries):  # query of 1b step-up phase 
     def __init__(self):
         Auth_stepup_queries.__init__(self)
         self.all_queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
 
 
-class Auth_2b_queries(Auth_stepup_queries):
+class Auth_2b_queries(Auth_stepup_queries):  # query of 2b step-up phase 
     def __init__(self):
         Auth_stepup_queries.__init__(self)
         self.all_queries.append(Query("Aauth-2br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
 
-class Auth_1r_em_queries(All_queries):
+class Auth_1r_em_queries(All_queries):  # query of 1r login phase 
     def __init__(self):
         All_queries.__init__(self)
         self.all_queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
 
-class Auth_1r_st_queries(Auth_stepup_queries):
+class Auth_1r_st_queries(Auth_stepup_queries):  # query of 1r step-up phase 
     def __init__(self):
         Auth_stepup_queries.__init__(self)
         self.all_queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
 
-class Auth_2r_queries(Auth_stepup_queries):
+class Auth_2r_queries(Auth_stepup_queries):  # query of 2r step-up phase 
     def __init__(self):
         Auth_stepup_queries.__init__(self)
         self.all_queries.append(Query("Aauth-2br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
@@ -193,10 +193,10 @@ class All_entities:
    you can just write all the possible malicous in subclass for each phase(reg/auth)
    this parant class will generate all the combinations.
    version2 is a reduce plan
-   '''
+    '''
     def __init__(self):
         self.all_entities = []
-    def get_all_scenes(self): #a scheme to get all combination of the entities
+    def get_all_scenes(self): # a scheme to get all combinations of the entities
         self.entities = []
         for delnum in range(len(self.all_entities) + 1):
             for row_numbers in itertools.combinations(range(len(self.all_entities)), delnum):
@@ -205,7 +205,9 @@ class All_entities:
                     temp.append(self.all_entities[i])
                 self.entities.append(Entities(temp,row_numbers))
 
-    def get_all_scenes_version2(self):
+    def get_all_scenes_version2(self): # another scheme to get less combinations of the entities
+        # the rule is to continually add entities which require more ability of the attacker
+        # we assume if there is a malicious UC, then there is must a malicious UA.
         self.entities = []
         for i in range(len(self.all_entities) + 1):
             temp_combination = []
@@ -213,22 +215,18 @@ class All_entities:
             for j in range(i):
                 temp_combination.append(self.all_entities[j])
             self.entities.append(Entities(temp_combination))
-    def size(self):
+    def size(self): 
         return len(self.entities)
     def get(self,i):
         return self.entities[i]
 
-class Reg_entities_version2(All_entities):
-    def __init__(self):
-        All_entities.__init__(self)
-        self.all_entities = []
-        self.all_entities.append("RegUC(c, MC, fakefacetid)| (*malicious-UA*)\n")
-        self.all_entities.append("RegUA(https, c, uname,appid,password)| RegASM(c, AM, token, fakecallerid, atype)| (*malicious-UC*)\n")
-        self.all_entities.append("RegUC(CU, c, facetid)| RegAutr(c, aaid, skAT, wrapkey, atype)| (*malicious-ASM*)\n")
-        self.all_entities.append("RegASM(MC, c, token, callerid, atype)| (*-malicious-Autr*)\n")
-        self.get_all_scenes()
+
 
 class Reg_entities(All_entities):
+    '''
+	a class record all possible malicious entities
+	use this class, we generate all possible combinations
+	'''
     def __init__(self):
         All_entities.__init__(self)
         self.all_entities = []
@@ -240,6 +238,21 @@ class Reg_entities(All_entities):
         self.all_entities.append("RegASM(MC, c, token, callerid, atype)|\n")
         self.all_entities.append("RegASM(c, c, token, fakecallerid, atype)|\n")
         self.all_entities.append("RegAutr(c, aaid, skAT, wrapkey, atype)|\n")
+        self.get_all_scenes()
+
+class Reg_entities_version2(All_entities): 
+    '''
+	another way to insert malicious entities
+	in this way, we only consider malicious scenario but not consider who to communicate in this way.
+	for example, RegUA | RegASM means there is a malicious UC.
+	'''
+    def __init__(self):
+        All_entities.__init__(self)
+        self.all_entities = []
+        self.all_entities.append("RegUC(c, MC, fakefacetid)| (*malicious-UA*)\n")
+        self.all_entities.append("RegUA(https, c, uname,appid,password)| RegASM(c, AM, token, fakecallerid, atype)| (*malicious-UC*)\n")
+        self.all_entities.append("RegUC(CU, c, facetid)| RegAutr(c, aaid, skAT, wrapkey, atype)| (*malicious-ASM*)\n")
+        self.all_entities.append("RegASM(MC, c, token, callerid, atype)| (*-malicious-Autr*)\n")
         self.get_all_scenes()
 
 class Auth_entities(All_entities):
@@ -270,7 +283,7 @@ class All_fields:
     '''
     A parant class for all possible combinations of the compromised fields
     this file does not consider the compromise of the fields since it lead to too much time to run
-    if you want to analyze the case when there are fields being compormised use "get_all_scenes_version2"
+    if you want to analyze the case when there are fields being compromised use "get_all_scenes_version2"
     '''
     def __init__(self):
         self.all_fields = []
@@ -289,13 +302,13 @@ class All_fields:
         return self.fields[i]
 
 		
-class Reg_fields(All_fields):
+class Reg_fields(All_fields): # particular case in Reg
     def __init__(self):
         All_fields.__init__(self)
         self.all_fields.append("out(c,skAT);\n")
         self.get_all_scenes()
 
-class Auth_fields(All_fields):
+class Auth_fields(All_fields): # paricular case in Auth
     def __init__(self):
         All_fields.__init__(self)
         self.all_fields.append("out(c,skAU);\n")
@@ -305,7 +318,7 @@ class Auth_fields(All_fields):
 
 class Case:
     '''
-    A specific case which
+    A specific case for analyzing
     phase : registration or authentication
     type : the type of the authenticator
     query : a query
@@ -313,20 +326,19 @@ class Case:
     entities: the malicous entities scenes
     '''
     def __init__(self,p,t,q,f,e,lines,t_row,i_row):
-        self.phase = p
-        self.type = t
-        self.query = q
-        self.fields = f
-        self.entities = e
+        self.phase = p # reg or auth
+        self.type = t # which authenticator type
+        self.query = q # which query
+        self.fields = f #which combination of fields
+        self.entities = e # which combination of entities
         self.lines = lines # all lines in reg.pv or auth.pv
         self.type_set_row = t_row  # indicate type
         self.insert_row = i_row  # insert line number
+        if not os.path.exists("TEMP/"):
+            os.makedirs("TEMP/")
         self.query_path = "TEMP/" + "TEMP-" + str(hash(Setting.rootpath + p + t.name + q.name + f.name + e.name)) + ".pv"
 
-    def write_file(self,if_delete_parallel):
-        '''
-        write the query file for proverif to verify
-        '''
+    def write_file(self,if_delete_parallel):  #write the query file into query_path for proverif to verify
         f2 = open(self.query_path,"w")
         analyze_lines = []
         if(if_delete_parallel):# if true, then remove ! to speed up analyzing
@@ -344,7 +356,7 @@ class Case:
             f2.writelines(analyze_lines[i])
         f2.close()
 
-    def analyze(self):
+    def analyze(self): # do analysis and get result of proverif
         self.write_file(True)
         ret, result = self.proverif()
         if ret == 'false':
@@ -364,7 +376,7 @@ class Case:
             os.remove(self.query_path)
             return ret, result, content
 
-    def proverif(self):
+    def proverif(self): # activate proverif and analyze the temp .pv file
         output = Popen('proverif -lib "' + Setting.libpath + '" ' + self.query_path, stdout=PIPE, stderr=PIPE)
         timer = Timer(20, lambda process: process.kill(), [output])
         try:
@@ -373,7 +385,7 @@ class Case:
             return_code = output.returncode
         finally:
             timer.cancel()
-        i = stdout[0:-10].rfind(b'--------------------------------------------------------------')
+        i = stdout[0:-10].rfind(b'--------------------------------------------------------------') # find last results
         result = stdout[i:-1]
         #print(result)
         if result == b"" or len(result) == 0:
@@ -398,7 +410,7 @@ class Case:
             ret = 'tout'
         self.state = ret
         self.result = result
-        return ret, result
+        return ret, result # return the results
 
 
 
@@ -408,7 +420,7 @@ class Generator: #generator cases
     besides, this class maintain a secure sets to speed up the case which is subset
     '''
     def __init__(self,phase):
-        self.secure_sets = []
+        self.secure_sets = [] 
         self.noprove_sets = []
         if phase == "reg":
             self.phase = "reg"
@@ -463,15 +475,16 @@ class Generator: #generator cases
         self.q_cur = 0
         self.f_cur = 0
         self.e_cur = -1
-    def read_file(self,phase):
+    def read_file(self,phase): # read all lines of the reg.pv or auth.pv
         if phase == "reg":
             f = open(Setting.regpath)
             lns = f.readlines()
-        elif phase == "auth_1r_em" or phase == "auth_1b_em":
+        elif phase == "auth_1r_em" or phase == "auth_1b_em": 
             f = open(Setting.authpath)
             lns = []
             tttt = f.readlines()
             for i in range(len(tttt)):
+            # when it is the longin phase, anyone can communicate with RP
                 if i == self.insert_row:
                     lns.append("AuthRP(c,uname, appid, aaid,kid,pkAU,cntr,tr,ltype)| (*add RP to c for first login*)\n")
                 else:
@@ -483,7 +496,7 @@ class Generator: #generator cases
         return lns
 
 
-    def generater_case(self):
+    def generater_case(self): # giving all the input, generate a specific combination as a case
         if self.increase() == False:
             return False, 0
         else:
@@ -495,7 +508,7 @@ class Generator: #generator cases
             case = Case(p,t,q,f,e,self.lines,self.type_set_row,self.insert_row)
             return True, case
 
-    def increase(self):
+    def increase(self): 
         if self.e_cur >= self.e_nums - 1:
             self.e_cur = 0
             self.secure_sets.clear()
@@ -514,12 +527,12 @@ class Generator: #generator cases
         else:
             self.e_cur = self.e_cur + 1
         return True
-    def reverse_f_e(self):
+    def reverse_f_e(self): # reverse the fields and entities
         self.fields.fields.reverse()
         self.entities.entities.reverse()
-    def this_case_is_secure(self):#add a secure sets
+    def this_case_is_secure(self):# add a secure sets
         self.secure_sets.append(self.entities.get(self.e_cur).row_numbers)
-    def jump_if_its_secure(self):
+    def jump_if_its_secure(self): 
         for secur_case in self.secure_sets:
             cur_case = self.entities.get(self.e_cur).row_numbers
             if(set(cur_case).issubset(set(secur_case))):
@@ -538,24 +551,24 @@ def analysis(phase,log):
     '''
     giving the phase and a log file name, then analyzing
     '''
-    gen = Generator(phase)
+    gen = Generator(phase) # instance of the generator to generate a case
     count = 0
     while True:
-        r, case = gen.generater_case()
-        if r == False:
+        r, case = gen.generater_case() # get a case to analyze
+        if r == False: # end mark
             break
-        if(gen.jump_if_its_secure()):
+        if(gen.jump_if_its_secure()): # jump analyzing if it take a secure case as the subset
             msg = str(count).ljust(5) + phase.ljust(4) + "skipping for secure sets"
-        elif(gen.jump_if_its_noprove()):
+        elif(gen.jump_if_its_noprove()): # jump analyzing if it take a un-prove case as the subset
             msg = str(count).ljust(5) + phase.ljust(4) + "skipping for noprove sets"
-        else:
+        else: # no jumping and continually analyze
             msg = str(count).ljust(5) + phase.ljust(4)
-            ret, result, content = case.analyze()
+            ret, result, content = case.analyze() # analyze this case
             if ret == 'true':
                 gen.this_case_is_secure()
                 msg += "  true"
             else:
-                msg += "  " + ret
+                msg += "  " + ret # generate all the message
             #gen.set_last_state(ret)
             msg += " type "
             msg += case.type.name.ljust(4)
@@ -564,7 +577,7 @@ def analysis(phase,log):
             msg += str(case.fields.name).ljust(9)
             msg += " "
             msg += str(case.entities.name).ljust(8)
-            if ret != 'false': #if false then do not write the analysis file
+            if ret != 'false': #if not false then write the analysis file
                 if not os.path.exists(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name):
                     os.makedirs(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name)
                 f = open(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name + "/" + msg, "w")
@@ -575,28 +588,26 @@ def analysis(phase,log):
         write_log(msg, log)
         log.flush()
 
-def write_log(msg,log):
+def write_log(msg,log): # definition of how to write a log file
     print(msg, file = log)
 
-			
-	
 if __name__ == "__main__":
-    Setting.initiate()
-    log1 = open(Setting.logpath1, mode='w+', encoding='utf-8')
+    Setting.initiate() #initiate the setting and ensure the environment is ready
+    log1 = open(Setting.logpath1, mode='w+', encoding='utf-8')  # open the log file to write
     log2 = open(Setting.logpath2, mode='w+', encoding='utf-8')
     log3 = open(Setting.logpath3, mode='w+', encoding='utf-8')
     log4 = open(Setting.logpath4, mode='w+', encoding='utf-8')
     log5 = open(Setting.logpath5, mode='w+', encoding='utf-8')
     log6 = open(Setting.logpath6, mode='w+', encoding='utf-8')
     log7 = open(Setting.logpath7, mode='w+', encoding='utf-8')
-    t1 = threading.Thread(target=analysis, args=("reg", log1))
+    t1 = threading.Thread(target=analysis, args=("reg", log1))  # create threads for each phase
     t2 = threading.Thread(target=analysis, args=("auth_1b_em", log2))
     t3 = threading.Thread(target=analysis, args=("auth_1b_st", log3))
     t4 = threading.Thread(target=analysis, args=("auth_1r_em", log4))
     t5 = threading.Thread(target=analysis, args=("auth_1r_st", log5))
     t6 = threading.Thread(target=analysis, args=("auth_2b", log6))
     t7 = threading.Thread(target=analysis, args=("auth_2r", log7))
-    tlist = [t1,t2,t3,t4,t5,t6,t7]#run all th phase
+    tlist = [t1,t2,t3,t4,t5,t6,t7]  #run all th phase
     
     try:
         options, args = getopt.getopt(sys.argv[1:], "ht:", ["help", "target="])
@@ -606,7 +617,7 @@ if __name__ == "__main__":
         if option in ("-h", "-help", "--help"):
             print("usage: [-help] [-t]")
             sys.exit()
-        if option in ("-t","--t","--target","-target"):
+        if option in ("-t","--t","--target","-target"): # if specific which phase to analyze, then clean the tlist
             tlist = []
             if str(value) == "reg":
                 tlist.append(t1)
@@ -622,8 +633,6 @@ if __name__ == "__main__":
                 tlist.append(t6)
             if str(value) == "auth_2r":
                 tlist.append(t7)
-            
-    print(tlist)
     for t in tlist:
         t.start()
     for t in tlist:

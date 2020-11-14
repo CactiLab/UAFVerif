@@ -6,5 +6,5 @@
 result/
 .vscode/
 .idea/
-TEMP/TEMP--*
+TEMP/
 LOG/
