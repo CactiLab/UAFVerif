@@ -557,35 +557,43 @@ def analysis(phase,log):
         r, case = gen.generater_case() # get a case to analyze
         if r == False: # end mark
             break
+        log_msg = str(count).ljust(5)
+        write_name = str(count).ljust(5)
         if(gen.jump_if_its_secure()): # jump analyzing if it take a secure case as the subset
-            msg = str(count).ljust(5) + phase.ljust(4) + "skipping for secure sets"
+            log_msg += phase.ljust(4) + "skipping for secure sets"
         elif(gen.jump_if_its_noprove()): # jump analyzing if it take a un-prove case as the subset
-            msg = str(count).ljust(5) + phase.ljust(4) + "skipping for noprove sets"
+            log_msg += phase.ljust(4) + "skipping for noprove sets"
         else: # no jumping and continually analyze
-            msg = str(count).ljust(5) + phase.ljust(4)
+            log_msg += phase.ljust(4)
             ret, result, content = case.analyze() # analyze this case
             if ret == 'true':
                 gen.this_case_is_secure()
-                msg += "  true"
+                log_msg += " true"
+                write_name += " true"
             else:
-                msg += "  " + ret # generate all the message
-            #gen.set_last_state(ret)
-            msg += " type "
-            msg += case.type.name.ljust(4)
-            msg += " query "
-            msg += case.query.name.ljust(4)
-            msg += str(case.fields.name).ljust(9)
-            msg += " "
-            msg += str(case.entities.name).ljust(8)
-            if ret != 'false': #if not false then write the analysis file
+                log_msg += " " + ret # generate all the message
+                write_name += " " + ret
+            log_msg += " type "
+            log_msg += case.type.name.ljust(4)
+            log_msg += " query "
+            log_msg += case.query.name.ljust(4)
+            log_msg += " "
+            log_msg += str(case.fields.name).ljust(9)
+            write_name += " "
+            write_name += str(case.fields.name).ljust(9)
+            log_msg += " "
+            log_msg += str(case.entities.name).ljust(8)
+            write_name += " "
+            write_name += str(case.entities.name).ljust(9)
+            if ret != 'false':  #  if not false then write the result file
                 if not os.path.exists(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name):
                     os.makedirs(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name)
-                f = open(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name + "/" + msg, "w")
+                f = open(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name + "/" + write_name, "w")
                 f.writelines(content)
                 f.writelines(str(result[-1000:-1]))
                 f.close()
         count = count + 1
-        write_log(msg, log)
+        write_log(log_msg, log)
         log.flush()
 
 def write_log(msg,log): # definition of how to write a log file
