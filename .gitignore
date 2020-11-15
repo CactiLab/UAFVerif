@@ -8,3 +8,6 @@ result/
 .idea/
 TEMP/
 LOG/
+*.pdf
+*.dot
+test.pv

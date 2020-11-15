@@ -6,19 +6,21 @@ let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facet
 	let pkAT = spk(skAT) in
 	new fakefacetid:Facetid; new fakecallerid:Callerid;
 	(* the attacker has access to following fields *)
-	out(c,(uname,appid,facetid,callerid,fakefacetid,fakecallerid,aaid,skAT));
+	out(c,(uname,appid,facetid,callerid,fakefacetid,fakecallerid,aaid,pkAT));
 	insert AppList(appid,facetid);	
 			(* following fields may leaked *)
-			(*out(c,skAT);*)
 			(*out(c,token);*)
 			(*out(c,wrapkey);*)
+			(*out(c,skAT);*)
 			(* there may exists following malicious entities *)
-			(*RegUC(c, MC, fakefacetid)|*)
 			(*RegUA(https, c, uname,appid,password)|*)
+			(*RegUC(c, MC, fakefacetid)|*)
 			(*RegUC(CU, c, facetid)|*)
+			(*RegUC(c, c, fakefacetid)|*)
 			(*RegASM(c, AM, token, fakecallerid, atype)|*)
 			(*RegASM(MC, c, token, callerid, atype)|*)
-			(*RegAutr(c, aaid, skAT, wrapkey, atype)|*)
+			(*RegASM(c, c, token, fakecallerid, atype)|*)
+			(*RegASM(c, c, token, fakecallerid, atype)|*)
 	(* following is honest entities *)
 	RegRP(https, uname, appid, password)|
 	RegRP(c, uname, appid, password)|

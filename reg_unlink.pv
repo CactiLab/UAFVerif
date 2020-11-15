@@ -10,18 +10,19 @@ let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facet
 	new fakefacetid:Facetid; new fakecallerid:Callerid;
 	out(c,(uname,appid,facetid,callerid,fakefacetid,fakecallerid,aaid,skAT));
 	insert AppList(appid,facetid);	
-	
-			(* some fields may leaked  *)
-			(*out(c,skAT);*)
+			(* following fields may leaked *)
 			(*out(c,token);*)
 			(*out(c,wrapkey);*)
-			(* malicious entities situations *)
-			(*RegUC(c, MC, fakefacetid)|*)
+			(*out(c,skAT);*)
+			(* there may exists following malicious entities *)
 			(*RegUA(https, c, uname,appid,password)|*)
+			(*RegUC(c, MC, fakefacetid)|*)
 			(*RegUC(CU, c, facetid)|*)
+			(*RegUC(c, c, fakefacetid)|*)
 			(*RegASM(c, AM, token, fakecallerid, atype)|*)
 			(*RegASM(MC, c, token, callerid, atype)|*)
-			(*RegAutr(c, aaid, skAT, wrapkey, atype)|*)
+			(*RegASM(c, c, token, fakecallerid, atype)|*)
+			(*RegASM(c, c, token, fakecallerid, atype)|*)
 	(* honest entities *)
 	RegRP(https, uname, appid, password)|
 	RegRP(c, uname, appid, password)|

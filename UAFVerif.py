@@ -14,9 +14,9 @@ class Setting:
     '''
     rootpath = os.getcwd() + "/"
     reg_set_type_row = 4 #indicate which row to insert "let atype = xxx"
-    reg_insert_row = 21   #indicate which row to insert malicious entities
+    reg_insert_row = 23   #indicate which row to insert malicious entities
     auth_set_type_row = 7
-    auth_insert_row = 31
+    auth_insert_row = 32
     regpath = rootpath + "reg.pv"
     authpath = rootpath + "auth.pv"
     if not os.path.exists(rootpath + "LOG/"):
@@ -283,15 +283,15 @@ class All_fields:
     '''
     A parant class for all possible combinations of the compromised fields
     this file does not consider the compromise of the fields since it lead to too much time to run
-    if you want to analyze the case when there are fields being compromised use "get_all_scenes_version2"
+    if the analysis require too much time, you can use "get_all_scenes_version2"  to let all fields not be compromiseed.
     '''
     def __init__(self):
         self.all_fields = []
         self.all_fields.append("out(c,token);\n")
         self.all_fields.append("out(c,wrapkey);\n")
-    def get_all_scenes(self): #a version that no fields will be compromised.
+    def get_all_scenes_version2(self): #a version that no fields will be compromised.
         self.fields = [Fields(["(* no fields being compromised *)\n"])]
-    def get_all_scenes_version2(self):
+    def get_all_scenes(self):
         self.fields = []
         for delnum in range(len(self.all_fields)+ 1) :
             for pre in itertools.combinations(self.all_fields, delnum):
@@ -556,13 +556,14 @@ def analysis(phase,log):
     while True:
         r, case = gen.generater_case() # get a case to analyze
         if r == False: # end mark
+            print(phase + " is finish !!!!!!!!!!")
             break
         log_msg = str(count).ljust(5)
         write_name = str(count).ljust(5)
         if(gen.jump_if_its_secure()): # jump analyzing if it take a secure case as the subset
-            log_msg += phase.ljust(4) + "skipping for secure sets"
+            log_msg += phase.ljust(4) + "  skipping for secure sets"
         elif(gen.jump_if_its_noprove()): # jump analyzing if it take a un-prove case as the subset
-            log_msg += phase.ljust(4) + "skipping for noprove sets"
+            log_msg += phase.ljust(4) + "  skipping for noprove sets"
         else: # no jumping and continually analyze
             log_msg += phase.ljust(4)
             ret, result, content = case.analyze() # analyze this case
@@ -616,7 +617,6 @@ if __name__ == "__main__":
     t6 = threading.Thread(target=analysis, args=("auth_2b", log6))
     t7 = threading.Thread(target=analysis, args=("auth_2r", log7))
     tlist = [t1,t2,t3,t4,t5,t6,t7]  #run all th phase
-    
     try:
         options, args = getopt.getopt(sys.argv[1:], "ht:", ["help", "target="])
     except getopt.GetoptError:

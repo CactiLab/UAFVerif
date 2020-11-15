@@ -16,18 +16,20 @@ let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstr
 		new fakecallerid:Callerid; new fakefacetid:Facetid;
 		new tr:Tr;   let testtr = tr in
 				(* following fields may leaked *)
+				(*out(c,token);*)
 				(*out(c,wrapkey);*)
 				(*out(c,skAU);*)
 				(*out(c,cntr);*)
-				(*out(c,token);*)
+				(*out(c,kid);*)
 				(* there may exists following malicious entities *)
-				(*AuthUA(c, CU, uname, ltype)|*)
 				(*AuthUA(https, c, uname, ltype)|*)
 				(*AuthUC(c, MC, fakefacetid, ltype)|*)
 				(*AuthUC(CU, c, facetid, ltype)|*)
+				(*AuthUC(c, c, fakefacetid, ltype)|*)
 				(*AuthASM(c,AM,token,fakecallerid,atype,ltype)|*)
 				(*AuthASM(MC,c,token,callerid,atype,ltype)|*)
-				(*AuthAutr(c,aaid,wrapkey,cntr,atype,ltype)|*)
+				(*AuthASM(c,c,token,fakecallerid,atype,ltype)|*)
+				(*AuthAutr(c,aaid,wrapkey,cntr,tr,atype,ltype)|*)
 		(* honest entities *)
 		AuthRP(https, uname, appid, aaid,kid,pkAU,cntr,tr,ltype)|
 		AuthUA(https, CU,uname, ltype)|
