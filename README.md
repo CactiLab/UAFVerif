@@ -8,7 +8,7 @@ If you want to cite our paper in your work, please use the following BibTeX entr
   title={A formal analysis of the FIDO UAF protocol},
   author={Feng, Haonan and Li, Hui and Pan, Xuesong Pan and Zhao, Ziming},
   booktitle={Proceedings of the Network and Distributed System Security Symposium (NDSS)},
-  pages={x--x},
+  pages={x--x},.
   year={2021},
 }
 ```
@@ -19,7 +19,7 @@ To run UAFVerif, you need ProVerif 2.01+ and Python 3.0+.
 
 ### Requirements
 1. [ProVerif 2.01](https://prosecco.gforge.inria.fr/personal/bblanche/proverif/): download the ProVerif.exe, and add the ProVerif.exe into the SYSTEM PATH.
-2. Python 3.0+: to batch ProVerif input file
+2. Python 3.0+: to batch ProVerif input file.
 
 ### File Organization
 
