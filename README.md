@@ -42,7 +42,7 @@ Generated files:
 
 #### Verify the confidentiality and authentication goals
 
-With a large number of input cases, we use a python script to batch analyze, the script is in directory "script".
+With a large number of input cases, we use a python script to batch analyze (UAFVerif.py).
 You can run the script without arguments and analyze confidentiality and authentication objectives in all cases.
 
 ```
@@ -68,12 +68,20 @@ Or you can run the script with -t/-target to specific which process you want to 
 ../FIDO-UAF-Verification> python script/script.py -t auth_2r 
 ```
 
+Use -h/-help to get help informations.
+
+```
+../FIDO-UAF-Verification> python script/script.py -h
+```
+
 After running the script, you can find the result in result folder.
 The results are classified by folder, for example, "../result/reg/autr_1b/S-ak" contains the result of the confidentiality of the *ak* in registration process, 1B authenticator scene.
 Then the files shows the minimal assumptions of this result, for example "34   reg   true type autr_1b query S-ak fields-1  mali-6 ,0,1,2,3,4,7" means we firstly found a minimal assumptions, where one data field can be compromised and 6 malicious entities can exist.
 Opennig the file, you can find which fields can be compromised and which malicious entities are exist to let the protocol satisifies the security goal.
 
 Also, there would be the log files which record all the analysis procedure.
+
+`NOTE: In order to reduce the analysis time, we remove the analysis of compromise fields in the initial release, that is, the code only analyzed scenarios where no fields would leak. If you want a full analysis, use ``get_all_scenes_version2" in the class ``ALL_fields" `.
 
 #### Verify the unlinkability goals
 

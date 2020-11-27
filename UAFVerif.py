@@ -283,15 +283,16 @@ class All_fields:
     '''
     A parant class for all possible combinations of the compromised fields
     this file does not consider the compromise of the fields since it lead to too much time to run
-    if the analysis require too much time, you can use "get_all_scenes_version2"  to let all fields not be compromiseed.
+    because the analysis require too much time, we donot consider the compromise of the fields,
+	if you want to analyze all compromised fields scenarios, you can use "get_all_scenes_version2".
     '''
     def __init__(self):
         self.all_fields = []
         self.all_fields.append("out(c,token);\n")
         self.all_fields.append("out(c,wrapkey);\n")
-    def get_all_scenes_version2(self): #a version that no fields will be compromised.
+    def get_all_scenes(self): #a version that no fields will be compromised.
         self.fields = [Fields(["(* no fields being compromised *)\n"])]
-    def get_all_scenes(self):
+    def get_all_scenes_version2(self):
         self.fields = []
         for delnum in range(len(self.all_fields)+ 1) :
             for pre in itertools.combinations(self.all_fields, delnum):
@@ -600,6 +601,21 @@ def analysis(phase,log):
 def write_log(msg,log): # definition of how to write a log file
     print(msg, file = log)
 
+def print_help():
+    print("usage: [-help] [-h] [-target <target_name>] [-t <target_name>]")
+    print("Options and arguments:")
+    print("-h  : show help informations.")
+    print("-t  : verify a specific phase, if don't specify, then verify all phases.the candidates arguments are:")
+    print("      The candidates arguments are:")
+    print("       reg   : to analyze registration process.")
+    print("       auth_1b_em   : to analyze authentication process with 1B authenticator to log in.")
+    print("       auth_1b_st   : to analyze authentication process with 1B authenticator to step-up authentication.")
+    print("       auth_1r_em   : to analyze authentication process with 1R authenticator to log in.")
+    print("       auth_1r_st   : to analyze authentication process with 1R authenticator to step-up authentication.")
+    print("       auth_2b   : to analyze authentication process with 2B authenticator to step-up authentication.")
+    print("       auth_2r   : to analyze authentication process with 2R authenticator to step-up authentication.")
+
+
 if __name__ == "__main__":
     Setting.initiate() #initiate the setting and ensure the environment is ready
     log1 = open(Setting.logpath1, mode='w+', encoding='utf-8')  # open the log file to write
@@ -618,14 +634,17 @@ if __name__ == "__main__":
     t7 = threading.Thread(target=analysis, args=("auth_2r", log7))
     tlist = [t1,t2,t3,t4,t5,t6,t7]  #run all th phase
     try:
-        options, args = getopt.getopt(sys.argv[1:], "ht:", ["help", "target="])
+        options, args = getopt.getopt(sys.argv[1:], "-h-help-t:-target:", ["help", "target="])
     except getopt.GetoptError:
+        print("wrong option!")
+        print_help()
         sys.exit()
     for option, value in options:
+        print(option)
         if option in ("-h", "-help", "--help"):
-            print("usage: [-help] [-t]")
+            print_help()
             sys.exit()
-        if option in ("-t","--t","--target","-target"): # if specific which phase to analyze, then clean the tlist
+        elif option in ("-t","--t","--target","-target"): # if specific which phase to analyze, then clean the tlist
             tlist = []
             if str(value) == "reg":
                 tlist.append(t1)
@@ -641,6 +660,10 @@ if __name__ == "__main__":
                 tlist.append(t6)
             if str(value) == "auth_2r":
                 tlist.append(t7)
+            else:
+                print("wrong arguemnt!")
+        else:
+            print("wrong option!")
     for t in tlist:
         t.start()
     for t in tlist:
