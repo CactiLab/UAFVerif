@@ -56,7 +56,7 @@ Or you can run the script with -t/-target to specific which process you want to 
 ```
 PROJECTROOTDIR> python UAFVerif.py -t reg 
 PROJECTROOTDIR> python UAFVerif.py -t auth_1b_em 
-PROJECTROOTDIR> python UAFVerif.py-t auth_1b_st 
+PROJECTROOTDIR> python UAFVerif.py -t auth_1b_st 
 PROJECTROOTDIR> python UAFVerif.py -t auth_1r_em 
 PROJECTROOTDIR> python UAFVerif.py -t auth_1r_st 
 PROJECTROOTDIR> python UAFVerif.py -t auth_2b 
