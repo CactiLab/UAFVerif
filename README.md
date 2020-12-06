@@ -54,13 +54,13 @@ Or you can run the script with -t/-target to specific which process you want to 
 - "auth_2r" represents the authentication process for 2R authentication in step-up authentication phase.
 
 ```
-PROJECTROOTDIR> python script/script.py -t reg 
-PROJECTROOTDIR> python script/script.py -t auth_1b_em 
-PROJECTROOTDIR> python script/script.py -t auth_1b_st 
-PROJECTROOTDIR> python script/script.py -t auth_1r_em 
-PROJECTROOTDIR> python script/script.py -t auth_1r_st 
-PROJECTROOTDIR> python script/script.py -t auth_2b 
-PROJECTROOTDIR> python script/script.py -t auth_2r 
+PROJECTROOTDIR> python UAFVerif.py -t reg 
+PROJECTROOTDIR> python UAFVerif.py -t auth_1b_em 
+PROJECTROOTDIR> python UAFVerif.py-t auth_1b_st 
+PROJECTROOTDIR> python UAFVerif.py -t auth_1r_em 
+PROJECTROOTDIR> python UAFVerif.py -t auth_1r_st 
+PROJECTROOTDIR> python UAFVerif.py -t auth_2b 
+PROJECTROOTDIR> python UAFVerif.py -t auth_2r 
 ```
 
 Use -h/-help to get help informations.
