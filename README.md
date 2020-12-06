@@ -72,7 +72,7 @@ PROJECTROOTDIR> python UAFVerif.py -h
 After running the script, you can find the result in result folder.
 The results are classified by folder, for example, "../result/reg/autr_1b/S-ak" contains the result of the confidentiality of the *ak* in registration process, 1B authenticator scene.
 Then the files shows the minimal assumptions of this result, for example "34   reg   true type autr_1b query S-ak fields-1  mali-6 ,0,1,2,3,4,7" means we firstly found a minimal assumptions, where one data field can be compromised and 6 malicious entities can exist.
-Opennig the file, you can find which fields can be compromised and which malicious entities are exist to let the protocol satisifies the security goal.
+Opening the file, you can find which fields can be compromised and which malicious entities are exist to let the protocol satisfies the security goal.
 
 Also, there would be the log files which record all the analysis procedure.
 
