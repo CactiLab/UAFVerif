@@ -66,7 +66,7 @@ PROJECTROOTDIR> python UAFVerif.py -t auth_2r
 Use -h/-help to get help informations.
 
 ```
-PROJECTROOTDIR> python script/script.py -h
+PROJECTROOTDIR> python UAFVerif.py -h
 ```
 
 After running the script, you can find the result in result folder.
