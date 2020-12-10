@@ -4,10 +4,12 @@
 *.json
 *.zip
 result/
+result1/
 .vscode/
 .idea/
 TEMP/
 LOG/
+LOG1/
 *.pdf
 *.dot
 test.pv
