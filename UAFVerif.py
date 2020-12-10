@@ -31,7 +31,7 @@ class Setting:
     logpath7 = rootpath + "LOG/" + "auth_2r.log"
     libpath = rootpath + "UAF.pvl"
     resultpath = rootpath + "result/"
-	analyze_flag = "full" #full to analze all scenarios, simple to analyze without fields leakage.
+    analyze_flag = "full" #full to analze all scenarios, simple to analyze without fields leakage.
     @classmethod
     def initiate(cls): # judge if the setting is ready for running
         if not os.path.exists(cls.libpath):
@@ -283,22 +283,25 @@ class Auth_entities_version2(All_entities):
 
 class All_fields:
     '''
-    A parant class for all possible combinations of the compromised fields
-    this file does not consider the compromise of the fields since it lead to too much time to run
-    because the analysis require too much time, we donot consider the compromise of the fields,
-	if you want to analyze all compromised fields scenarios, you can use "get_all_scenes_version2".
+    A parent class for all possible combinations of the compromised fields
+    based on the command line parameter, it will choose the "full" version
+    to analyze all compromise scenarios of the fields, or the "simple" version
+    which do not consider the compromise of the fields.
     '''
     def __init__(self):
         self.all_fields = []
         self.all_fields.append("out(c,token);\n")
         self.all_fields.append("out(c,wrapkey);\n")
-    def get_all_scenes(self): #a version that no fields will be compromised.
-        self.fields = [Fields(["(* no fields being compromised *)\n"])]
-    def get_all_scenes_version2(self):
-        self.fields = []
-        for delnum in range(len(self.all_fields)+ 1) :
-            for pre in itertools.combinations(self.all_fields, delnum):
-                self.fields.append(Fields(pre))
+    def get_all_scenes(self):
+        if Setting.analyze_flag == "simple":
+            print("analyzing the scenarios where no fields are comprimised.")
+            self.fields = [Fields(["(* no fields being compromised *)\n"])]
+        else:
+            print("analyzing the full scenarios.")
+            self.fields = []
+            for delnum in range(len(self.all_fields)+ 1) :
+                for pre in itertools.combinations(self.all_fields, delnum):
+                    self.fields.append(Fields(pre))
     def size(self):
         return len(self.fields)
     def get(self,i):
@@ -588,7 +591,7 @@ def analysis(phase,log):
             log_msg += " "
             log_msg += str(case.entities.name).ljust(8)
             log_msg += " "
-            log_msg += time.strftime('%Y.%m.%d %H:%M:%S ',time.localtime(time.time()))
+            log_msg += time.strftime('%Y.%m.%d %H:%M ',time.localtime(time.time()))
             write_name += " "
             write_name += str(case.entities.name).ljust(9)
             if ret != 'false':  #  if not false then write the result file
@@ -609,9 +612,9 @@ def print_help():
     print("usage: [-help] [-h] [-target <target_name>] [-t <target_name>]")
     print("Options and arguments:")
     print("-h/-help  : show help informations.")
-	print("-simple :  analyze cases where the fields are not leaked, this argument will reduce the analyzing time but give incomplete results. If don't specify, then analyze all cases.")
+    print("-s/-simple :  analyze cases where the fields are not leaked, this argument will reduce the analyzing time but give incomplete results. If don't specify, then analyze all cases.")
     print("-t/-target  : verify a specific phase, if don't specify, then verify all phases. ")
-    print("      The candidates arguments are:")
+    print("    The candidates arguments are:")
     print("       reg   : to analyze registration process.")
     print("       auth_1b_em   : to analyze authentication process with 1B authenticator to log in.")
     print("       auth_1b_st   : to analyze authentication process with 1B authenticator to step-up authentication.")
@@ -639,7 +642,7 @@ if __name__ == "__main__":
     t7 = threading.Thread(target=analysis, args=("auth_2r", log7))
     tlist = [t1,t2,t3,t4,t5,t6,t7]  #run all th phase
     try:
-        options, args = getopt.getopt(sys.argv[1:], "-h-help-t:-target:-full-simple", ["help", "target="])
+        options, args = getopt.getopt(sys.argv[1:], "-h-help-t:-target:-s-simple", ["help", "target="])
     except getopt.GetoptError:
         print("wrong option!")
         print_help()
@@ -666,6 +669,8 @@ if __name__ == "__main__":
                 tlist.append(t7)
             else:
                 print("wrong arguemnt!")
+        elif option in ("-simple", "-s"):
+            Setting.analyze_flag = "simple"
         else:
             print("wrong option!")
     for t in tlist:
