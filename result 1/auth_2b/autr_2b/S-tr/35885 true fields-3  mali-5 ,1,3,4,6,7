@@ -1,0 +1,86 @@
+query secret testtr.
+let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstring,uname:Uname,facetid:Facetid,callerid:Callerid,cntr:CNTR) =
+((* one RP authenticate one user many times *)
+	(* write "let atype = autr_1b in" down to set the type you want to verify *)
+	(* "autr_1b" for 1B,  "autr_1r" for 1R, "autr_2b" for 2B, "autr_2r" for 2R *)
+	(* write "let ltype = empty in" down to set the phase you want to verify *)
+	(* "empty" for first login, "stepup" for step-up authentication *)
+	(* do not use the combination of autr_2b/autr_2r and empty *)
+let atype = autr_2b in
+let ltype = stepup in 
+	let pkAU = spk(skAU) in let testskAU = skAU in
+	let kh = get_kh(atype,uname,appid,callerid,token,keyid,wrapkey,skAU) in
+	let kid = get_kid(atype,kh,keyid) in let testkid = kid in	
+	insert ASMDB(appid,kid,kh);
+	insert AutrDB(appid,kid,kh);
+	out(c,(uname,appid,facetid,aaid,callerid,pkAU)); (* public info *)
+	( 
+		new https:channel; new CU:channel; new MC:channel; new AM:channel;
+		new fakecallerid:Callerid; new fakefacetid:Facetid;
+		new tr:Tr;   let testtr = tr in
+				(* following fields may leaked *)
+				(*out(c,token);*)
+				(*out(c,wrapkey);*)
+				(*out(c,skAU);*)
+				(*out(c,cntr);*)
+				(*out(c,kid);*)
+				(* there may exists following malicious entities *)
+				(*AuthUA(https, c, uname, ltype)|*)
+				(*AuthUC(c, MC, fakefacetid, ltype)|*)
+				(*AuthUC(CU, c, facetid, ltype)|*)
+				(*AuthUC(c, c, fakefacetid, ltype)|*)
+				(*AuthASM(c,AM,token,fakecallerid,atype,ltype)|*)
+				(*AuthASM(MC,c,token,callerid,atype,ltype)|*)
+				(*AuthASM(c,c,token,fakecallerid,atype,ltype)|*)
+				(*AuthAutr(c,aaid,wrapkey,cntr,tr,atype,ltype)|*)
+out(c,token);
+out(c,skAU);
+out(c,cntr);
+AuthUC(c, MC, fakefacetid, ltype)|
+AuthUC(c, c, fakefacetid, ltype)|
+AuthASM(c,AM,token,fakecallerid,atype,ltype)|
+AuthASM(c,c,token,fakecallerid,atype,ltype)|
+AuthAutr(c,aaid,wrapkey,cntr,tr,atype,ltype)| 
+		(* honest entities *)
+		AuthRP(https, uname, appid, aaid,kid,pkAU,cntr,tr,ltype)|
+		AuthUA(https, CU,uname, ltype)|
+		AuthUC(CU, MC, facetid, ltype)|		
+		AuthASM(MC,AM,token,callerid,atype,ltype)|		
+		AuthAutr(AM,aaid,wrapkey,cntr,tr,atype,ltype)	
+	)
+).
+
+process
+(
+	new appid:Appid;
+	new aaid:AAID;
+	new skAU:sskey; 
+	new keyid:KeyID;
+	new wrapkey:key;	
+	new token:bitstring;	
+	new uname:Uname;
+	new cntr:CNTR;
+	new facetid:Facetid; insert AuthAppList(appid,facetid);
+	new callerid:Callerid; insert TrustCallerid(callerid);
+	(* User 1 authenticates in RP 1 *)
+	!system(appid,aaid,skAU,keyid,wrapkey,token,uname,facetid,callerid,cntr)|
+	(* User 2 authenticates in RP 1 *)
+	!(
+		new skAU2:sskey;
+		new keyid2:KeyID;
+		new wrapkey2:key;
+		new token2:bitstring;
+		new uname2:Uname;
+		new cntr2:CNTR;
+		system(appid,aaid,skAU2,keyid2,wrapkey2,token2,uname2,facetid,callerid,cntr2)
+	)|
+	(* User 1 authenticates in RP 2 *)
+	!(
+		new appid2:Appid;
+		new skAU3:sskey;
+		new keyid3:KeyID;
+		new uname3:Uname;
+		new cntr3:CNTR;
+		system(appid2,aaid,skAU3,keyid3,wrapkey,token,uname3,facetid,callerid,cntr3)
+	)
+)b'r_93,testtr_92,testtr_91,testtr_90,testtr_89,testtr_88,testtr_87,testtr_86,testtr_85,testtr_84,testtr_83,testtr_82,testtr_81,testtr_80,testtr_79,testtr_78,testtr_77,testtr_76,testtr_75,testtr_74,testtr_73,testtr_72,testtr_71,testtr_70,testtr_69,testtr_68,testtr_67,testtr_66,testtr_65,testtr_64,testtr_63,testtr_62,testtr_61,testtr_60,testtr_59,testtr_58,testtr_57,testtr_56,testtr_55,testtr_54,testtr_53,testtr_52,testtr_51,testtr_50,testtr_49,testtr_48,testtr_47,testtr_46,testtr_45,testtr_44,testtr_43,testtr_42,testtr_41,testtr_40,testtr_39,testtr_38,testtr_37,testtr_36,testtr_35,testtr_34,testtr_33,testtr_32,testtr_31,testtr_30,testtr_29,testtr_28,testtr_27,testtr_26,testtr_25,testtr_24,testtr_23,testtr_22,testtr_21,testtr_20,testtr_19,testtr_18,testtr_17,testtr_16,testtr_15,testtr_14,testtr_13,testtr_12,testtr_11,testtr_10,testtr_9,testtr_8,testtr_7,testtr_6,testtr_5,testtr_4,testtr_3,testtr_2,testtr_1,testtr is true.\r\n\r\n--------------------------------------------------------------\r\n'

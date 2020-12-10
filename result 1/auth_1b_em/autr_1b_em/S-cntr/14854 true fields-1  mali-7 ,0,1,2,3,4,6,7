@@ -1,0 +1,86 @@
+query secret testcntr.
+let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstring,uname:Uname,facetid:Facetid,callerid:Callerid,cntr:CNTR) =
+((* one RP authenticate one user many times *)
+	(* write "let atype = autr_1b in" down to set the type you want to verify *)
+	(* "autr_1b" for 1B,  "autr_1r" for 1R, "autr_2b" for 2B, "autr_2r" for 2R *)
+	(* write "let ltype = empty in" down to set the phase you want to verify *)
+	(* "empty" for first login, "stepup" for step-up authentication *)
+	(* do not use the combination of autr_2b/autr_2r and empty *)
+let atype = autr_1b in
+let ltype = empty in 
+	let pkAU = spk(skAU) in let testskAU = skAU in
+	let kh = get_kh(atype,uname,appid,callerid,token,keyid,wrapkey,skAU) in
+	let kid = get_kid(atype,kh,keyid) in let testkid = kid in	
+	insert ASMDB(appid,kid,kh);
+	insert AutrDB(appid,kid,kh);
+	out(c,(uname,appid,facetid,aaid,callerid,pkAU)); (* public info *)
+	( 
+		new https:channel; new CU:channel; new MC:channel; new AM:channel;
+		new fakecallerid:Callerid; new fakefacetid:Facetid;
+		new tr:Tr;   let testtr = tr in
+				(* following fields may leaked *)
+				(*out(c,token);*)
+				(*out(c,wrapkey);*)
+				(*out(c,skAU);*)
+				(*out(c,cntr);*)
+				(*out(c,kid);*)
+				(* there may exists following malicious entities *)
+				(*AuthUA(https, c, uname, ltype)|*)
+				(*AuthUC(c, MC, fakefacetid, ltype)|*)
+				(*AuthUC(CU, c, facetid, ltype)|*)
+				(*AuthUC(c, c, fakefacetid, ltype)|*)
+				(*AuthASM(c,AM,token,fakecallerid,atype,ltype)|*)
+				(*AuthASM(MC,c,token,callerid,atype,ltype)|*)
+				(*AuthASM(c,c,token,fakecallerid,atype,ltype)|*)
+				(*AuthAutr(c,aaid,wrapkey,cntr,tr,atype,ltype)|*)
+out(c,kid);
+AuthUA(https, c, uname, ltype)|
+AuthUC(c, MC, fakefacetid, ltype)|
+AuthUC(CU, c, facetid, ltype)|
+AuthUC(c, c, fakefacetid, ltype)|
+AuthASM(c,AM,token,fakecallerid,atype,ltype)|
+AuthASM(c,c,token,fakecallerid,atype,ltype)|
+AuthAutr(c,aaid,wrapkey,cntr,tr,atype,ltype)| 
+AuthRP(c,uname, appid, aaid,kid,pkAU,cntr,tr,ltype)| (*add RP to c for first login*)
+		AuthRP(https, uname, appid, aaid,kid,pkAU,cntr,tr,ltype)|
+		AuthUA(https, CU,uname, ltype)|
+		AuthUC(CU, MC, facetid, ltype)|		
+		AuthASM(MC,AM,token,callerid,atype,ltype)|		
+		AuthAutr(AM,aaid,wrapkey,cntr,tr,atype,ltype)	
+	)
+).
+
+process
+(
+	new appid:Appid;
+	new aaid:AAID;
+	new skAU:sskey; 
+	new keyid:KeyID;
+	new wrapkey:key;	
+	new token:bitstring;	
+	new uname:Uname;
+	new cntr:CNTR;
+	new facetid:Facetid; insert AuthAppList(appid,facetid);
+	new callerid:Callerid; insert TrustCallerid(callerid);
+	(* User 1 authenticates in RP 1 *)
+	!system(appid,aaid,skAU,keyid,wrapkey,token,uname,facetid,callerid,cntr)|
+	(* User 2 authenticates in RP 1 *)
+	!(
+		new skAU2:sskey;
+		new keyid2:KeyID;
+		new wrapkey2:key;
+		new token2:bitstring;
+		new uname2:Uname;
+		new cntr2:CNTR;
+		system(appid,aaid,skAU2,keyid2,wrapkey2,token2,uname2,facetid,callerid,cntr2)
+	)|
+	(* User 1 authenticates in RP 2 *)
+	!(
+		new appid2:Appid;
+		new skAU3:sskey;
+		new keyid3:KeyID;
+		new uname3:Uname;
+		new cntr3:CNTR;
+		system(appid2,aaid,skAU3,keyid3,wrapkey,token,uname3,facetid,callerid,cntr3)
+	)
+)b'estcntr_77,testcntr_76,testcntr_75,testcntr_74,testcntr_73,testcntr_72,testcntr_71,testcntr_70,testcntr_69,testcntr_68,testcntr_67,testcntr_66,testcntr_65,testcntr_64,testcntr_63,testcntr_62,testcntr_61,testcntr_60,testcntr_59,testcntr_58,testcntr_57,testcntr_56,testcntr_55,testcntr_54,testcntr_53,testcntr_52,testcntr_51,testcntr_50,testcntr_49,testcntr_48,testcntr_47,testcntr_46,testcntr_45,testcntr_44,testcntr_43,testcntr_42,testcntr_41,testcntr_40,testcntr_39,testcntr_38,testcntr_37,testcntr_36,testcntr_35,testcntr_34,testcntr_33,testcntr_32,testcntr_31,testcntr_30,testcntr_29,testcntr_28,testcntr_27,testcntr_26,testcntr_25,testcntr_24,testcntr_23,testcntr_22,testcntr_21,testcntr_20,testcntr_19,testcntr_18,testcntr_17,testcntr_16,testcntr_15,testcntr_14,testcntr_13,testcntr_12,testcntr_11,testcntr_10,testcntr_9,testcntr_8,testcntr_7,testcntr_6,testcntr_5,testcntr_4,testcntr_3,testcntr_2,testcntr_1,testcntr is true.\r\n\r\n--------------------------------------------------------------\r\n'

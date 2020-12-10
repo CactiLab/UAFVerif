@@ -3,6 +3,7 @@ import os
 import sys
 import threading
 import getopt
+import time
 from threading import Timer
 from subprocess import Popen, PIPE
 
@@ -30,6 +31,7 @@ class Setting:
     logpath7 = rootpath + "LOG/" + "auth_2r.log"
     libpath = rootpath + "UAF.pvl"
     resultpath = rootpath + "result/"
+	analyze_flag = "full" #full to analze all scenarios, simple to analyze without fields leakage.
     @classmethod
     def initiate(cls): # judge if the setting is ready for running
         if not os.path.exists(cls.libpath):
@@ -585,6 +587,8 @@ def analysis(phase,log):
             write_name += str(case.fields.name).ljust(9)
             log_msg += " "
             log_msg += str(case.entities.name).ljust(8)
+            log_msg += " "
+            log_msg += time.strftime('%Y.%m.%d %H:%M:%S ',time.localtime(time.time()))
             write_name += " "
             write_name += str(case.entities.name).ljust(9)
             if ret != 'false':  #  if not false then write the result file
@@ -604,8 +608,9 @@ def write_log(msg,log): # definition of how to write a log file
 def print_help():
     print("usage: [-help] [-h] [-target <target_name>] [-t <target_name>]")
     print("Options and arguments:")
-    print("-h  : show help informations.")
-    print("-t  : verify a specific phase, if don't specify, then verify all phases.the candidates arguments are:")
+    print("-h/-help  : show help informations.")
+	print("-simple :  analyze cases where the fields are not leaked, this argument will reduce the analyzing time but give incomplete results. If don't specify, then analyze all cases.")
+    print("-t/-target  : verify a specific phase, if don't specify, then verify all phases. ")
     print("      The candidates arguments are:")
     print("       reg   : to analyze registration process.")
     print("       auth_1b_em   : to analyze authentication process with 1B authenticator to log in.")
@@ -634,13 +639,12 @@ if __name__ == "__main__":
     t7 = threading.Thread(target=analysis, args=("auth_2r", log7))
     tlist = [t1,t2,t3,t4,t5,t6,t7]  #run all th phase
     try:
-        options, args = getopt.getopt(sys.argv[1:], "-h-help-t:-target:", ["help", "target="])
+        options, args = getopt.getopt(sys.argv[1:], "-h-help-t:-target:-full-simple", ["help", "target="])
     except getopt.GetoptError:
         print("wrong option!")
         print_help()
         sys.exit()
     for option, value in options:
-        print(option)
         if option in ("-h", "-help", "--help"):
             print_help()
             sys.exit()
@@ -648,17 +652,17 @@ if __name__ == "__main__":
             tlist = []
             if str(value) == "reg":
                 tlist.append(t1)
-            if str(value) == "auth_1b_em":
+            elif str(value) == "auth_1b_em":
                 tlist.append(t2)
-            if str(value) == "auth_1b_st":
+            elif str(value) == "auth_1b_st":
                 tlist.append(t3)
-            if str(value) == "auth_1r_em":
+            elif str(value) == "auth_1r_em":
                 tlist.append(t4)
-            if str(value) == "auth_1r_st":
+            elif str(value) == "auth_1r_st":
                 tlist.append(t5)
-            if str(value) == "auth_2b":
+            elif str(value) == "auth_2b":
                 tlist.append(t6)
-            if str(value) == "auth_2r":
+            elif str(value) == "auth_2r":
                 tlist.append(t7)
             else:
                 print("wrong arguemnt!")
