@@ -12,11 +12,12 @@ If you want to cite our paper in your work, please use the following BibTeX entr
 }
 ```
 
+The project is still being updated, with the ``version 1.0`` corresponding to the NDSS paper.
+
 ## Instructions
 
 ### Software Requirements
 To run UAFVerif, you need [ProVerif 2.01+](https://prosecco.gforge.inria.fr/personal/bblanche/proverif/) and Python 3.0+ (to batch ProVerif input file.).
-
 
 ### File Organization
 
