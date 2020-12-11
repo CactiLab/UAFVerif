@@ -564,8 +564,8 @@ def analysis(phase,log):
         if r == False: # end mark
             print(phase + " is finish !!!!!!!!!!")
             break
-        log_msg = str(count).ljust(5)
-        write_name = str(count).ljust(5)
+        log_msg = str(count).ljust(6)
+        write_name = str(count).ljust(6)
         if(gen.jump_if_its_secure()): # jump analyzing if it take a secure case as the subset
             log_msg += phase.ljust(4) + "  skipping for secure sets"
         elif(gen.jump_if_its_noprove()): # jump analyzing if it take a un-prove case as the subset
