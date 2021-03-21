@@ -94,10 +94,15 @@ class All_types:
 class Reg_types(All_types): # Reg types
     def __init__(self):
         All_types.__init__(self)
-        self.all_types.append(Type("autr_1b", "let atype = autr_1b in\n"))
-        self.all_types.append(Type("autr_1r", "let atype = autr_1r in\n"))
-        self.all_types.append(Type("autr_2b", "let atype = autr_2b in\nlet ltype = stepup in \n"))
-        self.all_types.append(Type("autr_2r", "let atype = autr_2r in\nlet ltype = stepup in \n"))
+        self.all_types.append(Type("autr_1b_null", "let atype = autr_1b in\nlet ftype = null in \n"))
+        self.all_types.append(Type("autr_1r_null", "let atype = autr_1r in\nlet ftype = null in \n"))
+        self.all_types.append(Type("autr_2b_null", "let atype = autr_2b in\nlet ltype = stepup in \nlet ftype = null in \n"))
+        self.all_types.append(Type("autr_2r_null", "let atype = autr_2r in\nlet ltype = stepup in \nlet ftype = null in \n"))
+        self.all_types.append(Type("autr_1b_set", "let atype = autr_1b in\nlet ftype = hasset in \n"))
+        self.all_types.append(Type("autr_1r_set", "let atype = autr_1r in\nlet ftype = hasset in \n"))
+        self.all_types.append(Type("autr_2b_set", "let atype = autr_2b in\nlet ltype = stepup in \nlet ftype = hasset in \n"))
+        self.all_types.append(Type("autr_2r_set", "let atype = autr_2r in\nlet ltype = stepup in \nlet ftype = hasset in \n"))
+        
 
 class Auth_1b_em_types(All_types): # types of 1b login phase 
     def __init__(self):
@@ -150,7 +155,7 @@ class Reg_queries(All_queries): # reg queries
     def __init__(self):
         All_queries.__init__(self)
         self.all_queries.append(Query("S-skat", "query secret skAT.\n"))
-        self.all_queries.append(Query("Rauth","query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_reg(u,a,aa,kid)) ==> (inj-event(Autr_verify_reg(u,a,aa,kid))==> inj-event(UA_init_reg(u,a))).\n"))
+        self.all_queries.append(Query("Rauth","query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_reg(u,a,aa,kid)) ==> (inj-event(Autr_verify_reg(u,a,aa,kid))==> inj-event(UA_init_reg(u))).\n"))
 
 class Auth_stepup_queries(All_queries): # query of step-up phase 
     def __init__(self):
@@ -232,18 +237,21 @@ class Reg_entities(All_entities):
     def __init__(self):
         All_entities.__init__(self)
         self.all_entities = []
-        self.all_entities.append("RegUA(https, c, uname,appid,password)|\n")
-        self.all_entities.append("RegUC(c, MC, fakefacetid)|\n")
-        self.all_entities.append("RegUC(CU, c, facetid)|\n")
-        self.all_entities.append("RegUC(c, c, fakefacetid)|\n")
-        self.all_entities.append("RegASM(c, AM, token, fakecallerid, atype)|\n")
-        self.all_entities.append("RegASM(MC, c, token, callerid, atype)|\n")
-        self.all_entities.append("RegASM(c, c, token, fakecallerid, atype)|\n")
+        self.all_entities.append('RegUS(c, appid, ftype)|\n')
+        self.all_entities.append('RegRP(c, https, uname, password)|\n')
+        self.all_entities.append("RegUA(https, c, uname ,password,ftype)|\n")
+        self.all_entities.append("RegUC(c, MC, fakefacetid, ftype)|\n")
+        self.all_entities.append("RegUC(CU, c, facetid, ftype)|\n")
+        #self.all_entities.append("RegUC(c, c, fakefacetid, ftype)|\n")
+        self.all_entities.append("RegASM(c, AM, token, fakecallerid,fakepersonaid, atype)|\n")
+        self.all_entities.append("RegASM(MC, c, token, callerid, personaid, atype)|\n")
+        #self.all_entities.append("RegASM(c, c, token, fakecallerid, fakepersonaid, atype)|\n")
         self.all_entities.append("RegAutr(c, aaid, skAT, wrapkey, atype)|\n")
         self.get_all_scenes()
 
 class Reg_entities_version2(All_entities): 
     '''
+    do not use,
 	another way to insert malicious entities
 	in this way, we only consider malicious scenario but not consider who to communicate in this way.
 	for example, RegUA | RegASM means there is a malicious UC.
@@ -251,10 +259,10 @@ class Reg_entities_version2(All_entities):
     def __init__(self):
         All_entities.__init__(self)
         self.all_entities = []
-        self.all_entities.append("RegUC(c, MC, fakefacetid)| (*malicious-UA*)\n")
-        self.all_entities.append("RegUA(https, c, uname,appid,password)| RegASM(c, AM, token, fakecallerid, atype)| (*malicious-UC*)\n")
+        self.all_entities.append("RegUC(c, MC, fakefacetid, ftype)| (*malicious-UA*)\n")
+        self.all_entities.append("RegUA(https, c, uname,appid,password,ftype)| RegASM(c, AM, token, fakecallerid, fakepersonaid, atype)| (*malicious-UC*)\n")
         self.all_entities.append("RegUC(CU, c, facetid)| RegAutr(c, aaid, skAT, wrapkey, atype)| (*malicious-ASM*)\n")
-        self.all_entities.append("RegASM(MC, c, token, callerid, atype)| (*-malicious-Autr*)\n")
+        self.all_entities.append("RegASM(MC, c, token, callerid, personaid, atype)| (*-malicious-Autr*)\n")
         self.get_all_scenes()
 
 class Auth_entities(All_entities):
@@ -265,9 +273,9 @@ class Auth_entities(All_entities):
         self.all_entities.append("AuthUC(c, MC, fakefacetid, ltype)|\n")
         self.all_entities.append("AuthUC(CU, c, facetid, ltype)|\n")
         self.all_entities.append("AuthUC(c, c, fakefacetid, ltype)|\n")
-        self.all_entities.append("AuthASM(c,AM,token,fakecallerid,atype,ltype)|\n")
-        self.all_entities.append("AuthASM(MC,c,token,callerid,atype,ltype)|\n")
-        self.all_entities.append("AuthASM(c,c,token,fakecallerid,atype,ltype)|\n")
+        self.all_entities.append("AuthASM(c,AM,token,fakecallerid,fakepersonaid,atype,ltype)|\n")
+        self.all_entities.append("AuthASM(MC,c,token,callerid,personaid,atype,ltype)|\n")
+        self.all_entities.append("AuthASM(c,c,token,fakecallerid,fakepersonaid,atype,ltype)|\n")
         self.all_entities.append("AuthAutr(c,aaid,wrapkey,cntr,tr,atype,ltype)| \n")
         self.get_all_scenes()
 
@@ -276,9 +284,9 @@ class Auth_entities_version2(All_entities):
         All_entities.__init__(self)
         self.all_entities = []
         self.all_entities.append("AuthUC(c, MC, fakefacetid, ltype)| (*malicious-UA*)\n")
-        self.all_entities.append("AuthUA(https, c, uname, ltype)| AuthASM(c,AM,token,fakecallerid,atype,ltype)| (*malicious-UC*)\n")
+        self.all_entities.append("AuthUA(https, c, uname, ltype)| AuthASM(c,AM,token,fakecallerid,fakepersonaid,atype,ltype)| (*malicious-UC*)\n")
         self.all_entities.append("AuthUC(CU, c, facetid, ltype)| AuthAutr(c,aaid,wrapkey,cntr,tr,atype,ltype)| (*malicious-ASM*)\n")
-        self.all_entities.append("AuthASM(MC,c,token,callerid,atype,ltype)| (*malicious-Autr*)\n")
+        self.all_entities.append("AuthASM(MC,c,token,callerid,personaid,atype,ltype)| (*malicious-Autr*)\n")
         self.get_all_scenes()
 
 class All_fields:
@@ -396,12 +404,10 @@ class Case:
         #print(result)
         if result == b"" or len(result) == 0:
             result = stdout[-1000:-1]
-            if result.find(b'a trace has been found.'):
-                ret = 'false'
-            elif result.find(b'trace'):
-                ret = 'mayfalse'
-            else:
-                ret = 'tout'
+        if (result.find(b'a trace has been found.') != -1):
+            ret = 'false'
+        elif (result.find(b'trace') != -1):
+            ret = 'mayfalse'
         elif (result.find(b'error') != -1):
             ret = 'error'
         elif (result.find(b'false') != -1):
