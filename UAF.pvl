@@ -188,11 +188,11 @@ let RegUS(SR:channel, appid:Appid, ftype:Ftype) =
 		out(SR, RegRPreq_null(uname,sdata,chlg));
 		in(SR,m:msg);
 		let RegRPresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s) = m in
-		let FCParams(appid,facetid,=chlg,=tlsdata) = fcp in
+		let FCParams(appid2,facetid,=chlg,=tlsdata) = fcp in
 		if xsdata = sdata && fc = ToFc(hash(fcp)) then
 		if (aaid,fc,kid,cntr,pkAU) = checksign(s,pkAT) then
 		(
-			event RP_success_reg(uname,appid,aaid,kid);
+			event RP_success_reg(uname,appid2,aaid,kid);
 			out(c,debug)
 		)	
 	)
@@ -361,14 +361,19 @@ let RegAutr(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,atype:Atype) =
 	)
 ).
 
+
 (**************************message format 2*******************************)
 fun AuthRPreq_em(Appid,SData,Chlg):msg[data].
+fun AuthRPreq_em_null(SData,Chlg):msg[data].
 fun AuthRPresp_em(SData,AAID,Nonce,Fchlg,KeyID,CNTR,bitstring,bitstring):msg[data].
 fun AuthRPreq_st(Appid,KeyID,SData,Chlg,Tr):msg[data].
+fun AuthRPreq_st_null(KeyID,SData,Chlg,Tr):msg[data].
 fun AuthRPresp_st(SData,AAID,Nonce,Fchlg,Tr,KeyID,CNTR,bitstring,bitstring):msg[data].
 fun AuthCUreq_em(Appid,SData,Chlg,bitstring):msg[data].
+fun AuthCUreq_em_null(SData,Chlg,bitstring):msg[data].
 fun AuthCUresp_em(SData,AAID,Nonce,Fchlg,KeyID,CNTR,bitstring,bitstring):msg[data].
 fun AuthCUreq_st(Appid,KeyID,SData,Chlg,Tr,bitstring):msg[data].
+fun AuthCUreq_st_null(KeyID,SData,Chlg,Tr,bitstring):msg[data].
 fun AuthCUresp_st(SData,AAID,Nonce,Fchlg,Tr,KeyID,CNTR,bitstring,bitstring):msg[data].
 fun AuthCMreq_em(Appid,bitstring):msg[data].
 fun AuthCMresp_em(AAID,Nonce,Fchlg,KeyID,CNTR,bitstring):msg[data].
@@ -389,100 +394,203 @@ fun AuthAMresp_st(AAID,Nonce,Fchlg,Tr,KeyID,CNTR,bitstring):msg[data].
 
 event RP_success_auth(Uname,Appid,AAID,KeyID).
 event RP_success_tr(Tr).
-event UA_launch_auth(Uname,Appid).
+event UA_launch_auth(Uname).
 event UA_launch_auth_tr(Tr).
 event Autr_verify_auth_1br(Uname,Appid,AAID,KeyID).
 event Autr_verify_auth_2br(Appid,AAID,KeyID).
 event Autr_verify_tr(Tr).
 
+const ok:bitstring.
+
 (********************************************************************)
 (**************************main process*******************************)
 (********************************************************************)
-let AuthRP(https:channel,uname:Uname,appid:Appid,aaid:AAID,kid:KeyID,pkAU:spkey,cntr:CNTR,tr:Tr,ltype:Ltype) = 
+let AuthUS(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr, ltype:Ltype, ftype:Ftype) =
 (
-	new sdata:SData;
+    in(SR, tlsdata:bitstring);
+    new sdata:SData;
 	new chlg:Chlg;
-	let tlsdata = GetTLSdata(https) in
-	if ltype = empty then
-	(
-		out(https,AuthRPreq_em(appid,sdata,chlg));
-		in(https,m:msg);
-		let AuthRPresp_em(=sdata,=aaid,nonce,fc,=kid,xcntr,fcp,s) = m in
-		let FCParams(=appid,facetid,=chlg,=tlsdata) = fcp in
-		get AuthAppList(=appid,=facetid) in
-		if fc = ToFc(hash(fcp)) then
-		if (aaid,nonce,fc,kid,xcntr) = checksign(s,pkAU) then
-		if xcntr = cntr then
-		event RP_success_auth(uname,appid,aaid,kid);
-		out(c,debug)
-	)
-	else 
-	(
-		out(https,AuthRPreq_st(appid,kid,sdata,chlg,tr));
-		in(https,m:msg);
-		let AuthRPresp_st(=sdata,=aaid,nonce,fc,htr,=kid,xcntr,fcp,s) = m in
-		let FCParams(=appid,facetid,=chlg,=tlsdata) = fcp in
-		get AuthAppList(=appid,=facetid) in
-		if fc = ToFc(hash(fcp)) then
-		if htr = hash_tr(tr) then
-		if (aaid,nonce,fc,htr,kid,xcntr) = checksign(s,pkAU) then
-		if xcntr = cntr then
-		event RP_success_auth(uname,appid,aaid,kid);
-		event RP_success_tr(tr);
-		out(c,debug)
-	)
+	if ftype = hasset then
+    (
+        if ltype = empty then
+        (
+            out(SR,AuthRPreq_em(appid,sdata,chlg));
+            in(SR,m:msg);
+            let AuthRPresp_em(=sdata,=aaid,nonce,fc,=kid,xcntr,fcp,s) = m in
+            let FCParams(appid,facetid,=chlg,=tlsdata) = fcp in
+            get AuthAppList(=appid,=facetid) in
+            if fc = ToFc(hash(fcp)) then
+            if (aaid,nonce,fc,kid,xcntr) = checksign(s,pkAU) then
+            if xcntr = cntr then
+            event RP_success_auth(uname,appid,aaid,kid);
+            out(c,debug)
+        )
+        else 
+        (
+            out(SR,AuthRPreq_st(appid,kid,sdata,chlg,tr));
+            in(SR,m:msg);
+            let AuthRPresp_st(=sdata,=aaid,nonce,fc,htr,=kid,xcntr,fcp,s) = m in
+            let FCParams(=appid,facetid,=chlg,=tlsdata) = fcp in
+            get AuthAppList(=appid,=facetid) in
+            if fc = ToFc(hash(fcp)) then
+            if htr = hash_tr(tr) then
+            if (aaid,nonce,fc,htr,kid,xcntr) = checksign(s,pkAU) then
+            if xcntr = cntr then
+            event RP_success_auth(uname,appid,aaid,kid);
+            event RP_success_tr(tr);
+            out(c,debug)
+        )
+    )
+    else
+    (
+        if ltype = empty then
+        (
+            out(SR,AuthRPreq_em_null(sdata,chlg));
+            in(SR,m:msg);
+            let AuthRPresp_em(=sdata,=aaid,nonce,fc,=kid,xcntr,fcp,s) = m in
+            let FCParams(appid2,facetid,=chlg,=tlsdata) = fcp in
+            get AuthAppList(=appid2,=facetid) in
+            if fc = ToFc(hash(fcp)) then
+            if (aaid,nonce,fc,kid,xcntr) = checksign(s,pkAU) then
+            if xcntr = cntr then
+            event RP_success_auth(uname,appid2,aaid,kid);
+            out(c,debug)
+        )
+        else 
+        (
+            out(SR,AuthRPreq_st_null(kid,sdata,chlg,tr));
+            in(SR,m:msg);
+            let AuthRPresp_st(=sdata,=aaid,nonce,fc,htr,=kid,xcntr,fcp,s) = m in
+            let FCParams(appid2,facetid,=chlg,=tlsdata) = fcp in
+            get AuthAppList(=appid2,=facetid) in
+            if fc = ToFc(hash(fcp)) then
+            if htr = hash_tr(tr) then
+            if (aaid,nonce,fc,htr,kid,xcntr) = checksign(s,pkAU) then
+            if xcntr = cntr then
+            event RP_success_auth(uname,appid2,aaid,kid);
+            event RP_success_tr(tr);
+            out(c,debug)
+        )
+    )
 ).
 
-
-let AuthUA(https:channel,UC:channel,uname:Uname,ltype:Ltype) =
+let AuthRP(RS:channel,https:channel) = 
 (
-	in(https,m:msg);
-	if ltype = empty then
-	(
-		let AuthRPreq_em(appid,sdata,chlg) = m in
-		event UA_launch_auth(uname,appid);
-		let tlsdata = GetTLSdata(https) in
-		out(UC,AuthCUreq_em(appid,sdata,chlg,tlsdata));
-		in(UC,mm:msg);
-		let AuthCUresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s) = mm in
-		out(https,AuthRPresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s))
-	)
-	else 
-	(
-		let AuthRPreq_st(appid,kid,sdata,chlg,tr2) = m in
-		event UA_launch_auth(uname,appid);
-		event UA_launch_auth_tr(tr2);
-		let tlsdata = GetTLSdata(https) in
-		out(UC,AuthCUreq_st(appid,kid,sdata,chlg,tr2,tlsdata));
-		in(UC,mm:msg);
-		let AuthCUresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s) = mm in
-		out(https,AuthRPresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
-	)
+    in(https, tg:bitstring);
+    let tlsdata = GetTLSdata(https) in
+    out(RS, tlsdata);
+    in(RS,m:msg);
+    out(https,m);
+    in(https,x:msg);
+    out(RS, x)
 ).
 
-let AuthUC(CU:channel,CM:channel,facetid:Facetid,ltype:Ltype) =
+
+let AuthUA(https:channel,UC:channel,uname:Uname,ltype:Ltype,ftype:Ftype) =
+(
+    out(https,ok);
+	in(https,m:msg);
+    if ftype = hasset then
+    (
+        if ltype = empty then
+        (
+            let AuthRPreq_em(appid,sdata,chlg) = m in
+            event UA_launch_auth(uname);
+            let tlsdata = GetTLSdata(https) in
+            out(UC,AuthCUreq_em(appid,sdata,chlg,tlsdata));
+            in(UC,mm:msg);
+            let AuthCUresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s) = mm in
+            out(https,AuthRPresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s))
+        )
+        else 
+        (
+            let AuthRPreq_st(appid,kid,sdata,chlg,tr2) = m in
+            event UA_launch_auth(uname);
+            event UA_launch_auth_tr(tr2);
+            let tlsdata = GetTLSdata(https) in
+            out(UC,AuthCUreq_st(appid,kid,sdata,chlg,tr2,tlsdata));
+            in(UC,mm:msg);
+            let AuthCUresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s) = mm in
+            out(https,AuthRPresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
+        )
+    )
+    else
+    (
+        if ltype = empty then
+        (
+            let AuthRPreq_em_null(sdata,chlg) = m in
+            event UA_launch_auth(uname);
+            let tlsdata = GetTLSdata(https) in
+            out(UC,AuthCUreq_em_null(sdata,chlg,tlsdata));
+            in(UC,mm:msg);
+            let AuthCUresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s) = mm in
+            out(https,AuthRPresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s))
+        )
+        else 
+        (
+            let AuthRPreq_st_null(kid,sdata,chlg,tr2) = m in
+            event UA_launch_auth(uname);
+            event UA_launch_auth_tr(tr2);
+            let tlsdata = GetTLSdata(https) in
+            out(UC,AuthCUreq_st_null(kid,sdata,chlg,tr2,tlsdata));
+            in(UC,mm:msg);
+            let AuthCUresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s) = mm in
+            out(https,AuthRPresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
+        )
+    )
+	
+).
+
+let AuthUC(CU:channel,CM:channel,facetid:Facetid,ltype:Ltype,ftype:Ftype) =
 (
 	in(CU,m:msg);
-	if ltype = empty then
-	(
-		let AuthCUreq_em(appid,sdata,chlg,tlsdata) = m in
-		get AuthAppList(=appid,=facetid) in
-		let fcp = FCParams(appid,facetid,chlg,tlsdata) in
-		out(CM,AuthCMreq_em(appid,fcp));
-		in(CM,mm:msg);
-		let AuthCMresp_em(aaid,nonce,fc,kid,xcntr,s) = mm in
-		out(CU,AuthCUresp_em(sdata,aaid,nonce,fc,kid,xcntr,fcp,s))
-	)
-	else 
-	(
-		let AuthCUreq_st(appid,kid,sdata,chlg,tr,tlsdata) = m in
-		get AuthAppList(=appid,=facetid) in
-		let fcp = FCParams(appid,facetid,chlg,tlsdata) in
-		out(CM,AuthCMreq_st(appid,fcp,kid,tr));
-		in(CM,mm:msg);
-		let AuthCMresp_st(aaid,nonce,fc,htr,xkid,xcntr,s) = mm in
-		out(CU,AuthCUresp_st(sdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
-	)
+    if ftype = hasset then
+    (
+        if ltype = empty then
+        (
+            let AuthCUreq_em(appid,sdata,chlg,tlsdata) = m in
+            get AuthAppList(=appid,=facetid) in
+            let fcp = FCParams(appid,facetid,chlg,tlsdata) in
+            out(CM,AuthCMreq_em(appid,fcp));
+            in(CM,mm:msg);
+            let AuthCMresp_em(aaid,nonce,fc,kid,xcntr,s) = mm in
+            out(CU,AuthCUresp_em(sdata,aaid,nonce,fc,kid,xcntr,fcp,s))
+        )
+        else 
+        (
+            let AuthCUreq_st(appid,kid,sdata,chlg,tr,tlsdata) = m in
+            get AuthAppList(=appid,=facetid) in
+            let fcp = FCParams(appid,facetid,chlg,tlsdata) in
+            out(CM,AuthCMreq_st(appid,fcp,kid,tr));
+            in(CM,mm:msg);
+            let AuthCMresp_st(aaid,nonce,fc,htr,xkid,xcntr,s) = mm in
+            out(CU,AuthCUresp_st(sdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
+        )
+    )
+    else
+    (
+        if ltype = empty then
+        (
+            let AuthCUreq_em_null(sdata,chlg,tlsdata) = m in
+            let appid = facetid_to_appid(facetid) in
+            let fcp = FCParams(appid,facetid,chlg,tlsdata) in
+            out(CM,AuthCMreq_em(appid,fcp));
+            in(CM,mm:msg);
+            let AuthCMresp_em(aaid,nonce,fc,kid,xcntr,s) = mm in
+            out(CU,AuthCUresp_em(sdata,aaid,nonce,fc,kid,xcntr,fcp,s))
+        )
+        else 
+        (
+            let AuthCUreq_st_null(kid,sdata,chlg,tr,tlsdata) = m in
+            let appid = facetid_to_appid(facetid) in
+            let fcp = FCParams(appid,facetid,chlg,tlsdata) in
+            out(CM,AuthCMreq_st(appid,fcp,kid,tr));
+            in(CM,mm:msg);
+            let AuthCMresp_st(aaid,nonce,fc,htr,xkid,xcntr,s) = mm in
+            out(CU,AuthCUresp_st(sdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
+        )
+    )
+	
 ).
 
 let AuthASM(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID,atype:Atype,ltype:Ltype) =

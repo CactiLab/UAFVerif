@@ -14,6 +14,8 @@ let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facet
 			(*out(c,wrapkey);*)
 			(*out(c,skAT);*)
 			(* there may exists following malicious entities *)
+            (*RegUS(c, appid, ftype)|*)
+            (*RegRP(c, https, uname, password)|*)
 			(*RegUA(https, c, uname,appid,password,ftype)|*)
 			(*RegUC(c, MC, fakefacetid, ftype)|*)
 			(*RegUC(CU, c, facetid, ftype)|*)

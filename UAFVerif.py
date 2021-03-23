@@ -16,8 +16,8 @@ class Setting:
     rootpath = os.getcwd() + "/"
     reg_set_type_row = 4 #indicate which row to insert "let atype = xxx"
     reg_insert_row = 23   #indicate which row to insert malicious entities
-    auth_set_type_row = 7
-    auth_insert_row = 32
+    auth_set_type_row = 8
+    auth_insert_row = 35
     regpath = rootpath + "reg.pv"
     authpath = rootpath + "auth.pv"
     if not os.path.exists(rootpath + "LOG/"):
@@ -107,31 +107,39 @@ class Reg_types(All_types): # Reg types
 class Auth_1b_em_types(All_types): # types of 1b login phase 
     def __init__(self):
         All_types.__init__(self)
-        self.all_types.append(Type("autr_1b_em","let atype = autr_1b in\nlet ltype = empty in \n"))
+        self.all_types.append(Type("autr_1b_em_set","let atype = autr_1b in\nlet ltype = empty in \nlet ftype = hasset in \n"))
+        self.all_types.append(Type("autr_1b_em_null","let atype = autr_1b in\nlet ltype = empty in \nlet ftype = null in \n"))
+        
 
 class Auth_1b_st_types(All_types):# types of 1b step-up phase 
     def __init__(self):
         All_types.__init__(self)
-        self.all_types.append(Type("autr_1b_st","let atype = autr_1b in\nlet ltype = stepup in \n"))
+        self.all_types.append(Type("autr_1b_st_set","let atype = autr_1b in\nlet ltype = stepup in \nlet ftype = hasset in \n"))
+        self.all_types.append(Type("autr_1b_st_null","let atype = autr_1b in\nlet ltype = stepup in \nlet ftype = null in \n"))
 
 class Auth_1r_em_types(All_types): # types of 1r login phase 
     def __init__(self):
         All_types.__init__(self)
-        self.all_types.append(Type("autr_1r_em","let atype = autr_1r in\nlet ltype = empty in \n"))
+        self.all_types.append(Type("autr_1r_em_set","let atype = autr_1r in\nlet ltype = empty in \nlet ftype = hasset in \n"))
+        self.all_types.append(Type("autr_1r_em_null","let atype = autr_1r in\nlet ltype = empty in \nlet ftype = null in \n"))
+        
 class Auth_1r_st_types(All_types): # types of 1r step-up phase 
     def __init__(self):
         All_types.__init__(self)
-        self.all_types.append(Type("autr_1r_st","let atype = autr_1r in\nlet ltype = stepup in \n"))
+        self.all_types.append(Type("autr_1r_st_set","let atype = autr_1r in\nlet ltype = stepup in \nlet ftype = hasset in \n"))
+        self.all_types.append(Type("autr_1r_st_null","let atype = autr_1r in\nlet ltype = stepup in \nlet ftype = null in \n"))
 
 class Auth_2b_types(All_types): # types of 2b step-up phase 
     def __init__(self):
         All_types.__init__(self)
-        self.all_types.append(Type("autr_2b", "let atype = autr_2b in\nlet ltype = stepup in \n"))
+        self.all_types.append(Type("autr_2b_set", "let atype = autr_2b in\nlet ltype = stepup in \nlet ftype = hasset in \n"))
+        self.all_types.append(Type("autr_2b_null", "let atype = autr_2b in\nlet ltype = stepup in \nlet ftype = null in \n"))
 
 class Auth_2r_types(All_types): # types of 2r step-up phase 
     def __init__(self): 
         All_types.__init__(self)
-        self.all_types.append(Type("autr_2r", "let atype = autr_2r in\nlet ltype = stepup in \n"))
+        self.all_types.append(Type("autr_2r_set", "let atype = autr_2r in\nlet ltype = stepup in \nlet ftype = hasset in \n"))
+        self.all_types.append(Type("autr_2r_null", "let atype = autr_2r in\nlet ltype = stepup in \nlet ftype = null in \n"))
 
 class All_queries:
     '''
@@ -166,33 +174,33 @@ class Auth_stepup_queries(All_queries): # query of step-up phase
 class Auth_1b_em_queries(All_queries): # query of 1b login phase 
     def __init__(self):
         All_queries.__init__(self)
-        self.all_queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
+        self.all_queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
 
 class Auth_1b_st_queries(Auth_stepup_queries):  # query of 1b step-up phase 
     def __init__(self):
         Auth_stepup_queries.__init__(self)
-        self.all_queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
+        self.all_queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
 
 
 class Auth_2b_queries(Auth_stepup_queries):  # query of 2b step-up phase 
     def __init__(self):
         Auth_stepup_queries.__init__(self)
-        self.all_queries.append(Query("Aauth-2br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
+        self.all_queries.append(Query("Aauth-2br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
 
 class Auth_1r_em_queries(All_queries):  # query of 1r login phase 
     def __init__(self):
         All_queries.__init__(self)
-        self.all_queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
+        self.all_queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
 
 class Auth_1r_st_queries(Auth_stepup_queries):  # query of 1r step-up phase 
     def __init__(self):
         Auth_stepup_queries.__init__(self)
-        self.all_queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
+        self.all_queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
 
 class Auth_2r_queries(Auth_stepup_queries):  # query of 2r step-up phase 
     def __init__(self):
         Auth_stepup_queries.__init__(self)
-        self.all_queries.append(Query("Aauth-2br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(a,aa,kid)) ==> inj-event(UA_launch_auth(u,a))).\n"))
+        self.all_queries.append(Query("Aauth-2br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
 
 class All_entities:
     '''
@@ -269,13 +277,15 @@ class Auth_entities(All_entities):
     def __init__(self):
         All_entities.__init__(self)
         self.all_entities = []
-        self.all_entities.append("AuthUA(https, c, uname, ltype)|\n")
-        self.all_entities.append("AuthUC(c, MC, fakefacetid, ltype)|\n")
-        self.all_entities.append("AuthUC(CU, c, facetid, ltype)|\n")
-        self.all_entities.append("AuthUC(c, c, fakefacetid, ltype)|\n")
+        self.all_entities.append("AuthUS(c, uname, appid, aaid,kid,pkAU,cntr,tr,ltype,ftype)|\n")
+        self.all_entities.append("AuthRP(c, https)|\n")
+        self.all_entities.append("AuthUA(https, c,uname, ltype,ftype)|\n")
+        self.all_entities.append("AuthUC(c, MC, facetid, ltype,ftype)|\n")
+        self.all_entities.append("AuthUC(CU, c, facetid, ltype,ftype)|\n")
+        #self.all_entities.append("AuthUC(c, c, fakefacetid, ltype,ftype)|\n")
         self.all_entities.append("AuthASM(c,AM,token,fakecallerid,fakepersonaid,atype,ltype)|\n")
         self.all_entities.append("AuthASM(MC,c,token,callerid,personaid,atype,ltype)|\n")
-        self.all_entities.append("AuthASM(c,c,token,fakecallerid,fakepersonaid,atype,ltype)|\n")
+        #self.all_entities.append("AuthASM(c,c,token,fakecallerid,fakepersonaid,atype,ltype)|\n")
         self.all_entities.append("AuthAutr(c,aaid,wrapkey,cntr,tr,atype,ltype)| \n")
         self.get_all_scenes()
 
@@ -498,7 +508,7 @@ class Generator: #generator cases
             for i in range(len(tttt)):
             # when it is the longin phase, anyone can communicate with RP
                 if i == self.insert_row:
-                    lns.append("AuthRP(c,uname, appid, aaid,kid,pkAU,cntr,tr,ltype)| (*add RP to c for first login*)\n")
+                    lns.append("AuthRP(SR, c)| (*add RP to c for first login*)\n")
                 else:
                     lns.append(tttt[i])
         else:
