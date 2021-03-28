@@ -1,8 +1,8 @@
 (**************************************************************************************)
 
 set displayDerivation = false.
-
-(*set reconstructTrace = false.*)
+set traceDisplay = none.
+set reconstructTrace = false.
 (*set verboseRules = none.*)
 set verboseClauses = none.
 (********************************************************************)

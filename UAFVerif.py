@@ -610,7 +610,7 @@ def analysis(phase,log):
             log_msg += time.strftime('%Y.%m.%d %H:%M ',time.localtime(time.time()))
             write_name += " "
             write_name += str(case.entities.name).ljust(9)
-            if ret != 'false':  #  if not false then write the result file
+            if ret != 'false' and ret != 'prove':  #  if not false then write the result file
                 if not os.path.exists(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name):
                     os.makedirs(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name)
                 f = open(Setting.resultpath + case.phase + "/" + case.type.name + "/" + case.query.name + "/" + write_name, "w")
