@@ -55,13 +55,14 @@ class Query: # indicate a specific query
         self.write = write # indicate how to write the query in .pv file
 
 class Fields: # indicate a specific combination of compromised fields
-    def __init__(self, fields): # initiate by a list
+    def __init__(self, fields, row_numbers): # initiate by a list
         self.nums = len(fields)  # number of the malicious fields
         self.write = "" # how to write those fields in .pv file
         self.name = "fields-" + str(self.nums) # give it a name to generate the output files
         for item in fields:
             self.write += item
         self.fields = fields
+        self.row_numbers = row_numbers
 
 class Entities: # indicate a specific combination of malicious entities
     def __init__(self, entities, row_numbers): # initiate by a list and which rows in the list to add
@@ -313,13 +314,17 @@ class All_fields:
     def get_all_scenes(self):
         if Setting.analyze_flag == "simple":
             print("analyzing the scenarios where no fields are comprimised.")
-            self.fields = [Fields(["(* no fields being compromised *)\n"])]
+            self.fields = [Fields(["(* no fields being compromised *)\n"],0)]
         else:
             print("analyzing the full scenarios.")
             self.fields = []
-            for delnum in range(len(self.all_fields)+ 1) :
-                for pre in itertools.combinations(self.all_fields, delnum):
-                    self.fields.append(Fields(pre))
+            for delnum in range(len(self.all_fields)+ 1) :              
+                for row_numbers in itertools.combinations(range(len(self.all_fields)), delnum):
+                    temp = []
+                    for i in row_numbers:
+                        temp.append(self.all_fields[i])
+                    self.fields.append(Fields(temp,row_numbers))
+                    
     def size(self):
         return len(self.fields)
     def get(self,i):
@@ -442,7 +447,8 @@ class Generator: #generator cases
     besides, this class maintain a secure sets to speed up the case which is subset
     '''
     def __init__(self,phase):
-        self.secure_sets = [] 
+        self.secure_e_sets = [] 
+        self.secure_f_sets = []
         self.noprove_sets = []
         if phase == "reg":
             self.phase = "reg"
@@ -533,7 +539,8 @@ class Generator: #generator cases
     def increase(self): 
         if self.e_cur >= self.e_nums - 1:
             self.e_cur = 0
-            self.secure_sets.clear()
+            self.secure_e_sets.clear()
+            self.secure_f_sets.clear()
             if(self.f_cur >= self.f_nums - 1):
                 self.f_cur = 0
                 if(self.q_cur >= self.q_nums - 1):
@@ -553,11 +560,16 @@ class Generator: #generator cases
         self.fields.fields.reverse()
         self.entities.entities.reverse()
     def this_case_is_secure(self):# add a secure sets
-        self.secure_sets.append(self.entities.get(self.e_cur).row_numbers)
+        self.secure_e_sets.append(self.entities.get(self.e_cur).row_numbers)
+        self.secure_f_sets.append(self.fields.get(self.f_cur).row_numbers)
     def jump_if_its_secure(self): 
-        for secur_case in self.secure_sets:
+        for secure_case in self.secure_e_sets:
             cur_case = self.entities.get(self.e_cur).row_numbers
-            if(set(cur_case).issubset(set(secur_case))):
+            if(set(cur_case).issubset(set(secure_case))):
+                return True
+        for secure_case in self.secure_f_sets:
+            cur_case = self.fields.get(self.f_cur).row_numbers
+            if(set(cur_case).issubset(set(secure_case))):
                 return True
         return False
     def this_case_is_noprove(self):
