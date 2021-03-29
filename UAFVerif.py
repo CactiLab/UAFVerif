@@ -309,7 +309,7 @@ class All_fields:
     '''
     def __init__(self):
         self.all_fields = []
-        self.all_fields.append("out(c,token);\n")
+        #self.all_fields.append("out(c,token);\n")
         self.all_fields.append("out(c,wrapkey);\n")
     def get_all_scenes(self):
         if Setting.analyze_flag == "simple":
@@ -538,11 +538,11 @@ class Generator: #generator cases
     def increase(self): 
         if self.e_cur >= self.e_nums - 1:
             self.e_cur = 0
-            self.secure_sets.clear()
             if(self.f_cur >= self.f_nums - 1):
                 self.f_cur = 0
                 if(self.q_cur >= self.q_nums - 1):
                     self.q_cur = 0
+                    self.secure_sets.clear()
                     if(self.t_cur >= self.t_nums - 1):
                         return False
                     else:
