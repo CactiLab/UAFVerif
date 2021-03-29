@@ -447,8 +447,7 @@ class Generator: #generator cases
     besides, this class maintain a secure sets to speed up the case which is subset
     '''
     def __init__(self,phase):
-        self.secure_e_sets = [] 
-        self.secure_f_sets = []
+        self.secure_sets = []
         self.noprove_sets = []
         if phase == "reg":
             self.phase = "reg"
@@ -539,8 +538,7 @@ class Generator: #generator cases
     def increase(self): 
         if self.e_cur >= self.e_nums - 1:
             self.e_cur = 0
-            self.secure_e_sets.clear()
-            self.secure_f_sets.clear()
+            self.secure_sets.clear()
             if(self.f_cur >= self.f_nums - 1):
                 self.f_cur = 0
                 if(self.q_cur >= self.q_nums - 1):
@@ -560,16 +558,12 @@ class Generator: #generator cases
         self.fields.fields.reverse()
         self.entities.entities.reverse()
     def this_case_is_secure(self):# add a secure sets
-        self.secure_e_sets.append(self.entities.get(self.e_cur).row_numbers)
-        self.secure_f_sets.append(self.fields.get(self.f_cur).row_numbers)
-    def jump_if_its_secure(self): 
-        for secure_case in self.secure_e_sets:
-            cur_case = self.entities.get(self.e_cur).row_numbers
-            if(set(cur_case).issubset(set(secure_case))):
-                return True
-        for secure_case in self.secure_f_sets:
-            cur_case = self.fields.get(self.f_cur).row_numbers
-            if(set(cur_case).issubset(set(secure_case))):
+        self.secure_sets.append((self.fields.get(self.f_cur).row_numbers, self.entities.get(self.e_cur).row_numbers))
+    def jump_if_its_secure(self):
+        for secure_case in self.secure_sets:
+            cur_f_case = self.fields.get(self.f_cur).row_numbers
+            cur_e_case = self.entities.get(self.e_cur).row_numbers
+            if(set(cur_f_case).issubset(set(secure_case[0]))) and (set(cur_e_case).issubset(set(secure_case[1]))):
                 return True
         return False
     def this_case_is_noprove(self):
