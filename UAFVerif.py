@@ -309,7 +309,7 @@ class All_fields:
     '''
     def __init__(self):
         self.all_fields = []
-        #self.all_fields.append("out(c,token);\n")
+        self.all_fields.append("out(c,token);\n")
         self.all_fields.append("out(c,wrapkey);\n")
     def get_all_scenes(self):
         if Setting.analyze_flag == "simple":
@@ -502,6 +502,7 @@ class Generator: #generator cases
         self.q_cur = 0
         self.f_cur = 0
         self.e_cur = -1
+
     def read_file(self,phase): # read all lines of the reg.pv or auth.pv
         if phase == "reg":
             f = open(Setting.regpath)
