@@ -318,7 +318,7 @@ class All_fields:
         else:
             print("analyzing the full scenarios.")
             self.fields = []
-            for delnum in range(len(self.all_fields)+ 1) :              
+            for delnum in range(len(self.all_fields)+ 1) :
                 for row_numbers in itertools.combinations(range(len(self.all_fields)), delnum):
                     temp = []
                     for i in row_numbers:

@@ -1,14 +1,11 @@
 let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facetid:Facetid,callerid:Callerid,personaid:PersonaID,token:bitstring,wrapkey:key)=
 (
-	(* write "let atype = autr_1b in" down to set the type you want to verify *)
-	(* "autr_1b" for 1B,  "autr_1r" for 1R, "autr_2b" for 2B, "autr_2r" for 2R *)
-	(* write "let ftype = hasset in" down to set RP provides appid, "let ftype = null" to set RP provides no appid *)
 	new SR:channel; new https:channel; new CU:channel; new MC:channel; new AM:channel;
 	let pkAT = spk(skAT) in
 	new fakefacetid:Facetid; new fakecallerid:Callerid; new fakepersonaid:PersonaID;
 	(* the attacker has access to following fields *)
 	out(c,(uname,appid,facetid,callerid,fakefacetid,fakecallerid,fakepersonaid,aaid,pkAT));
-	insert AppList(appid,facetid);	
+	insert AppList(appid,facetid);
 			(* following fields may leaked *)
 			(*out(c,token);*)
 			(*out(c,wrapkey);*)
@@ -38,14 +35,7 @@ let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facet
 process
 ( 
 	(  
-		new appid:Appid;
-		new aaid:AAID;
-		new facetid:Facetid; 
-		new callerid:Callerid; 
-		new personaid:PersonaID;
-		new skAT:sskey; 
-		new wrapkey:key;
-		new token:bitstring;
+		new appid:Appid; new aaid:AAID; new facetid:Facetid;  new callerid:Callerid;  new personaid:PersonaID; new skAT:sskey;  new wrapkey:key; new token:bitstring;
 		new uname:Uname; new password:bitstring;
 		(* User 1 registers in RP 1 *)
 		!system(appid,aaid,skAT,uname,password,facetid,callerid,personaid,token,wrapkey)|
