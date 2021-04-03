@@ -48,7 +48,7 @@ class Reg_content(Base_content):
                         "   let pkAT = spk(skAT) in\n" ,
                         "   new fakefacetid:Facetid; new fakecallerid:Callerid; new fakepersonaid:PersonaID;\n" ,
                         "   (* the attacker has access to following fields *)\n" ,
-                        "   out(c,(uname,appid,facetid,callerid,fakefacetid,fakecallerid,fakepersonaid,aaid,pkAT));\n" ,
+                        "   out(c,(uname,appid,facetid,callerid,fakefacetid,personaid,fakepersonaid,aaid,pkAT));\n" ,
                         "   insert AppList(appid,facetid);\n" ,
                         ").\n" ,
                         "process\n" ,

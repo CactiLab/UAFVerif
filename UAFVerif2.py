@@ -69,7 +69,7 @@ class Jump:
     def is_secure(self,target_scene):
         for secure_scene in self.secure_set:
             if secure_scene.scene_name == target_scene.scene_name and secure_scene.query_name == target_scene.query_name:
-                if (set(target_scene.leak_lines).issubset(set(secure_scene.leak_lines))) and (set(target_scene.malicious_lines).issubset(set(target_scene.malicious_lines))):
+                if (set(target_scene.leak_lines).issubset(set(secure_scene.leak_lines))) and (set(target_scene.malicious_lines).issubset(set(secure_scene.malicious_lines))):
                     return True
         return False
 
@@ -126,7 +126,17 @@ def analyze(root_path,content_class,target_scene_class):
             count = 0
         log_msg = str(count).ljust(6)
         if jump.is_secure(gen_content):
-            log_msg += "  skipping for secure sets"
+            log_msg += "  skipping"
+            log_msg += " TYPE "
+            log_msg += gen_content.scene_name.ljust(6)
+            log_msg += " QUERY "
+            log_msg += gen_content.query_name.ljust(4)
+            log_msg += " LEAK "
+            log_msg += gen_content.leak_lines_write.ljust(5)
+            log_msg += " MALICIOUS "
+            log_msg += gen_content.malicious_lines_write.ljust(8)
+            log_msg += " TIME "
+            log_msg += time.strftime('%Y.%m.%d %H:%M ', time.localtime(time.time()))
         else:
             content = gen_content.get_content()
             temp_pvfile_path = root_path + "/TEMP/" + target_scene.scene_name + "temp.pv"
@@ -217,7 +227,7 @@ if __name__ == "__main__":
             sys.exit()
         elif option in ("-t", "--t", "--target", "-target"):  # if specific which phase to analyze, then clean the tlist
             tlist = []
-    #regt.start()
-    #regt.join()
-    autht.start()
-    autht.join()
+    regt.start()
+    regt.join()
+    #autht.start()
+    #autht.join()
