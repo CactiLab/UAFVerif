@@ -228,6 +228,6 @@ if __name__ == "__main__":
         elif option in ("-t", "--t", "--target", "-target"):  # if specific which phase to analyze, then clean the tlist
             tlist = []
     regt.start()
+    autht.start()
     regt.join()
-    #autht.start()
-    #autht.join()
+    autht.join()
