@@ -13,3 +13,4 @@ LOG1/
 *.pdf
 *.dot
 test.pv
+*.pyc

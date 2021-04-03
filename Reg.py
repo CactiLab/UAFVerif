@@ -21,10 +21,10 @@ class Reg:
                             "\t\tout(c,wrapkey);\n",
                             "\t\tout(c,skAT);\n"]
         self.queries = [Query("s-ak","query secret testak.\n"),
-                        Query("s-cntr","query secret testcntr.\n"),
-                        Query("s-skau","query secret testskAU.\n"),
-                        Query("s-kid","query secret testkid.\n"),
-                        Query("S-skat", "query secret skAT.\n"),
+                        Query("s-cntr","query secret cntr.\n"),
+                        Query("s-skau","query secret skAU).\n"),
+                        Query("s-kid","query secret kid.\n"),
+                        Query("S-skat", "query attacker(new skAT).\n"),
                         Query("Rauth","query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_reg(u,a,aa,kid)) ==> (inj-event(Autr_verify_reg(u,a,aa,kid))==> inj-event(UA_init_reg(u))).\n")]
     def complete_content(self,honest_name,malicious_name):
         for i in range(len(self.honest_entities)):

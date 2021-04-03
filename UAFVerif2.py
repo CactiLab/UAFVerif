@@ -38,14 +38,16 @@ class Generator:
         self.cur_l = 0
         self.cur_m = -1
     def generate_case(self):
+        ret = 0
         target_content = self.content_class()
         if self.cur_m >= self.malicious_num - 1:
             self.cur_m = 0
             if(self.cur_l >= self.leak_num - 1):
                 self.cur_l = 0
                 if(self.cur_q >= self.query_num - 1):
-                    return False, target_content
+                    return -1, target_content
                 else:
+                    ret = 1
                     self.cur_q = self.cur_q + 1
             else:
                 self.cur_l = self.cur_l + 1
@@ -57,9 +59,21 @@ class Generator:
         target_content.add_malicious_entities(self.all_malicious[self.cur_m][1],self.all_malicious[self.cur_m][0])
         target_content.add_open_rp(self.target_scene.get_open_rp())
         target_content.add_query(self.all_queries[self.cur_q].query, self.all_queries[self.cur_q].name)
-        return True, target_content
+        return ret, target_content
 
-def proverif(root_path,query_path): # activate proverif and analyze the temp .pv file
+class Jump:
+    def __init__(self):
+        self.secure_set = []
+    def add_secure_scene(self,target_scene):
+        self.secure_set.append(target_scene)
+    def is_secure(self,target_scene):
+        for secure_scene in self.secure_set:
+            if secure_scene.scene_name == target_scene.scene_name and secure_scene.query_name == target_scene.query_name:
+                if (set(target_scene.leak_lines).issubset(set(secure_scene.leak_lines))) and (set(target_scene.malicious_lines).issubset(set(target_scene.malicious_lines))):
+                    return True
+        return False
+
+def proverif(root_path,query_path): # activate proverif and analyze the temp.pv file
     output = Popen('proverif -lib "' + root_path + "UAF.pvl" + '" ' + query_path, stdout=PIPE, stderr=PIPE)
     timer = Timer(20, lambda process: process.kill(), [output])
     try:
@@ -90,17 +104,7 @@ def proverif(root_path,query_path): # activate proverif and analyze the temp .pv
         ret = 'tout'
     return ret, result # return the results
 
-class Jump:
-    def __init__(self):
-        self.secure_set = []
-    def add_secure_scene(self,target_scene):
-        self.secure_set.append(target_scene)
-    def is_secure(self,target_scene):
-        for secure_scene in self.secure_set:
-            if secure_scene.scene_name == target_scene.scene_name and secure_scene.query_name == target_scene.query_name:
-                if (set(target_scene.leak_lines).issubset(set(secure_scene.leak_lines))) and (set(target_scene.malicious_lines).issubset(set(target_scene.malicious_lines))):
-                    return True
-        return False
+
 
 def analyze(root_path,content_class,target_scene_class):
     target_scene = target_scene_class()
@@ -116,8 +120,10 @@ def analyze(root_path,content_class,target_scene_class):
     count = 0
     while True:
         state, gen_content = gen.generate_case()
-        if state == False:
+        if state == -1:#finish
             break
+        elif state == 1:#reset counter when query new
+            count = 0
         log_msg = str(count).ljust(6)
         if jump.is_secure(gen_content):
             log_msg += "  skipping for secure sets"

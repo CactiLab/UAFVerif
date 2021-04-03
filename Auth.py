@@ -22,9 +22,9 @@ class Auth:
                             "\t\tout(c,cntr);\n",
                             "\t\tout(c,kid);\n"]
         self.queries = [Query("s-ak","query secret testak.\n"),
-                        Query("s-cntr","query secret testcntr.\n"),
-                        Query("s-skau","query secret testskAU.\n"),
-                        Query("s-kid","query secret testkid.\n")]
+                        Query("s-cntr","query attacker(new cntr).\n"),
+                        Query("s-skau","query attacker(new skAU).\n"),
+                        Query("s-kid","query secret kid.\n")]
         self.open_rp = []
     def complete_content(self,honest_name,malicious_name):
         for i in range(len(self.honest_entities)):
