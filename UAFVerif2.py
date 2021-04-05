@@ -1,17 +1,22 @@
 import itertools
 import os
+import shutil
 import sys
 import threading
 import getopt
 import time
 from threading import Timer
 from subprocess import Popen, PIPE
+import pickle
 from Content import Reg_content, Auth_content
 from Reg import Reg_1b_seta,Reg_1b_noa,Reg_2b_seta,Reg_2b_noa,Reg_1r_seta,Reg_1r_noa,Reg_2r_seta,Reg_2r_noa
 from Auth import Auth_1b_seta_login,Auth_1b_seta_stepup,Auth_1b_noa_login,Auth_1b_noa_stepup,Auth_2b_seta,Auth_2b_noa,Auth_1r_seta_login,Auth_1r_seta_stepup,Auth_1r_noa_login,Auth_1r_noa_stepup,Auth_2r_seta,Auth_2r_noa
 
+reboot = False
+
 class Generator:
     def __init__(self,content_class,target_scene):
+        self.counter = 0
         self.content_class = content_class
         self.target_scene = target_scene
         self.all_leak = []
@@ -38,7 +43,6 @@ class Generator:
         self.cur_l = 0
         self.cur_m = -1
     def generate_case(self):
-        ret = 0
         target_content = self.content_class()
         if self.cur_m >= self.malicious_num - 1:
             self.cur_m = 0
@@ -47,7 +51,7 @@ class Generator:
                 if(self.cur_q >= self.query_num - 1):
                     return -1, target_content
                 else:
-                    ret = 1
+                    self.counter = 0
                     self.cur_q = self.cur_q + 1
             else:
                 self.cur_l = self.cur_l + 1
@@ -59,7 +63,8 @@ class Generator:
         target_content.add_malicious_entities(self.all_malicious[self.cur_m][1],self.all_malicious[self.cur_m][0])
         target_content.add_open_rp(self.target_scene.get_open_rp())
         target_content.add_query(self.all_queries[self.cur_q].query, self.all_queries[self.cur_q].name)
-        return ret, target_content
+        self.counter += 1
+        return self.counter, target_content
 
 class Jump:
     def __init__(self):
@@ -108,23 +113,22 @@ def proverif(root_path,query_path): # activate proverif and analyze the temp.pv 
 
 def analyze(root_path,content_class,target_scene_class):
     target_scene = target_scene_class()
-    if not os.path.exists(root_path + "/" + "RESULT/"):
-        os.makedirs(root_path + "/" + "RESULT/")
-    if not os.path.exists(root_path + "/" + "TEMP/"):
-        os.makedirs(root_path + "/" + "TEMP/")
-    if not os.path.exists(root_path + "/" + "LOG/"):
-        os.makedirs(root_path + "/" + "LOG/")
-    gen = Generator(content_class,target_scene)
-    jump = Jump()
-    log_file = open(root_path + "/LOG/" + target_scene.scene_name + ".log","w")
-    count = 0
+    global reboot
+    if reboot == False:
+        gen = Generator(content_class,target_scene)
+        jump = Jump()
+        log_file = open(root_path + "/LOG/" + target_scene.scene_name + ".log", "w")
+    else:
+        with open(root_path + "LOG/reboot_generator","rb") as f:
+            gen = pickle.load(f)
+        with open(root_path + "LOG/reboot_jump","rb") as f:
+            jump = pickle.load(f)
+        log_file = open(root_path + "/LOG/" + target_scene.scene_name + ".log", "a")
     while True:
-        state, gen_content = gen.generate_case()
-        if state == -1:#finish
+        counter, gen_content = gen.generate_case()
+        if counter == -1:#finishj
             break
-        elif state == 1:#reset counter when query new
-            count = 0
-        log_msg = str(count).ljust(6)
+        log_msg = str(counter).ljust(6)
         if jump.is_secure(gen_content):
             log_msg += "  skipping"
             log_msg += " TYPE "
@@ -140,9 +144,8 @@ def analyze(root_path,content_class,target_scene_class):
         else:
             content = gen_content.get_content()
             temp_pvfile_path = root_path + "/TEMP/" + target_scene.scene_name + "temp.pv"
-            f = open(temp_pvfile_path,"w")
-            f.writelines(content)
-            f.close()
+            with open(temp_pvfile_path,"w") as f:
+                f.writelines(content)
             ret, result = proverif(root_path, temp_pvfile_path)
             if ret == 'true':
                 jump.add_secure_scene(gen_content)
@@ -161,13 +164,16 @@ def analyze(root_path,content_class,target_scene_class):
             if ret != 'false' and ret != 'prove':  #  if not false then write the result file
                 if not os.path.exists(root_path + "/" + "RESULT/" + gen_content.scene_name + "/" + gen_content.query_name):
                     os.makedirs(root_path + "/" + "RESULT/" + gen_content.scene_name + "/" + gen_content.query_name)
-                f = open(root_path + "/" + "RESULT/" + gen_content.scene_name + "/" + gen_content.query_name + "/" + file_log_write, "w")
-                f.writelines(content)
-                f.writelines(str(result[-1000:-1]))
-                f.close()
-        count = count + 1
+                with open(root_path + "/" + "RESULT/" + gen_content.scene_name + "/" + gen_content.query_name + "/" + file_log_write, "w") as f:
+                    f.writelines(content)
+                    f.writelines(str(result[-1000:-1]))
         print(log_msg, file = log_file)
         log_file.flush()
+        #Serialization
+        with open(root_path + "/LOG/reboot_generator","wb") as f:
+            pickle.dump(gen,f)
+        with open(root_path + "/LOG/reboot_jump","wb") as f:
+            pickle.dump(jump,f)
     log_file.close()
 
 
@@ -210,13 +216,28 @@ def auth_analyze(root_path):
     analyze(root_path, Auth_content, Auth_2r_seta)
     analyze(root_path, Auth_content, Auth_2r_noa)
 
+def makedir(root_path):
+    if not os.path.exists(root_path + "/" + "RESULT/"):
+        os.makedirs(root_path + "/" + "RESULT/")
+    if not os.path.exists(root_path + "/" + "TEMP/"):
+        os.makedirs(root_path + "/" + "TEMP/")
+    if not os.path.exists(root_path + "/" + "LOG/"):
+        os.makedirs(root_path + "/" + "LOG/")
+
+def clear_dir(root_path):
+    if os.path.exists(root_path + "/" + "RESULT/"):
+        shutil.rmtree(root_path + "/RESULT")
+    if os.path.exists(root_path + "/" + "TEMP/"):
+        shutil.rmtree(root_path + "/TEMP")
+    if os.path.exists(root_path + "/" + "LOG/"):
+        shutil.rmtree(root_path + "/LOG")
 
 if __name__ == "__main__":
     root_path = os.getcwd() + "/"
     regt = threading.Thread(target=reg_analyze, args=(root_path,))  # create threads for each phase
     autht = threading.Thread(target=auth_analyze, args=(root_path,))
     try:
-        options, args = getopt.getopt(sys.argv[1:], "-h-help-t:-target:-s-simple", ["help", "target="])
+        options, args = getopt.getopt(sys.argv[1:], "-h-help-t:-target:-s-simple-r-reboot-f", ["help", "target=","reboot"])
     except getopt.GetoptError:
         print("wrong option!")
         print_help()
@@ -225,9 +246,24 @@ if __name__ == "__main__":
         if option in ("-h", "-help", "--help"):
             print_help()
             sys.exit()
+        elif option in ("-r", "-reboot", "--reboot"):
+            reboot = True
         elif option in ("-t", "--t", "--target", "-target"):  # if specific which phase to analyze, then clean the tlist
             tlist = []
+    if reboot == False:
+        if os.path.exists(root_path + "/LOG/reboot_generator") or os.path.exists(root_path + "/LOG/reboot_jump"):
+            print("Warning, there are unfinished session, continue will delete the logs and restart")
+            print("Use -reboot to continue the unfinished session")
+            print("Enter Y to continue, R to contunue")
+            s = input()
+            if s == "Y" or s == "y":
+                reboot = False
+            elif s == "R" or s == "r":
+                reboot = True
+    if reboot == False:
+       clear_dir(root_path)
+    makedir(root_path)
     regt.start()
     autht.start()
-    regt.join()
-    autht.join()
+    #regt.join()
+    #autht.join()
