@@ -1,8 +1,9 @@
-(********************************************************************)
-set traceDisplay = none.
-set displayDerivation = false.
-set reconstructTrace = false.
+(**********************************)
+
+(*set reconstructTrace = false.*)
 (*set verboseRules = none.*)
+(*set traceDisplay = none.*)
+set displayDerivation = false.
 set verboseClauses = none.
 (********************************************************************)
 (*                           Messages Type declaration                                        	    *)
@@ -722,7 +723,6 @@ let AuthASM_2r(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid
 
 let AuthAutr_1b_login(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
 (
-	let testcntr = cntr in
 	in(AM,m:msg);
     let AuthAMreq_1bem(ak,fc,appid,kh) = m in
     let (skAU:sskey,aka:Token,uname:Uname,kid:KeyID) = sdec(kh,wrapkey) in
@@ -735,7 +735,6 @@ let AuthAutr_1b_login(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
 ).
 let AuthAutr_1b_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
 (
-	let testcntr = cntr in
 	in(AM,m:msg);
     let AuthAMreq_1bst(ak,fc,appid,kh,=tr) = m in
     let (skAU:sskey,aka:Token,uname:Uname,kid:KeyID) = sdec(kh,wrapkey) in
@@ -750,7 +749,6 @@ let AuthAutr_1b_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
 ).
 let AuthAutr_2b(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
 (
-	let testcntr = cntr in
 	in(AM,m:msg);
     let AuthAMreq_2bst(ak,fc,appid,kh,=tr) = m in
     let (skAU:sskey,aka:Token,kid:KeyID) = sdec(kh,wrapkey) in
@@ -765,7 +763,6 @@ let AuthAutr_2b(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
 ).
 let AuthAutr_1r_login(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
 (
-	let testcntr = cntr in
 	in(AM,m:msg);
     let AuthAMreq_1rem(ak,fc,appid) = m in
     get AutrDB(=appid,xkid,kh) in
@@ -779,7 +776,6 @@ let AuthAutr_1r_login(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
 ).
 let AuthAutr_1r_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
 (
-	let testcntr = cntr in
 	in(AM,m:msg);
     let AuthAMreq_1rst(ak,fc,appid,kid,=tr) = m in
     get AutrDB(=appid,=kid,kh) in
@@ -795,7 +791,6 @@ let AuthAutr_1r_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
 ).
 let AuthAutr_2r(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
 (
-	let testcntr = cntr in
 	in(AM,m:msg);
     let AuthAMreq_2rst(ak,fc,appid,kid,=tr) = m in
     let (skAU:sskey,aka:Token) = sdec(kid,wrapkey) in

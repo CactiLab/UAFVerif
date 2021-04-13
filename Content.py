@@ -88,7 +88,7 @@ class Auth_content(Base_content):
         Base_content.__init__(self)
         self.content = ["let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstring,uname:Uname,facetid:Facetid,callerid:Callerid,personaid:PersonaID,cntr:CNTR) =\n",
                         "((* one RP authenticate one user many times *)\n",
-                        "	let pkAU = spk(skAU) in let testskAU = skAU in\n",
+                        "	let pkAU = spk(skAU) in let testskAU = skAU in let testcntr = cntr in\n",
                         "	out(c,(uname,appid,facetid,aaid,callerid,personaid,pkAU)); (* public info *)\n",
                         "	( \n",
                         "		new SR:channel; new https:channel; new CU:channel; new MC:channel; new AM:channel;\n",
@@ -116,7 +116,7 @@ class Auth_content(Base_content):
                         "	)\n",
                         ")\n"]
         self.insert_number = 12
-        self.specific_operation_insert_number = 8
+        self.specific_operation_insert_number = 10
     def reset_insert_number(self):
         self.insert_number = 12
     def add_specific_operation(self, specific_operation):

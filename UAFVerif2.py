@@ -254,7 +254,7 @@ if __name__ == "__main__":
         if os.path.exists(root_path + "/LOG/reboot_generator") or os.path.exists(root_path + "/LOG/reboot_jump"):
             print("Warning, there are unfinished session, continue will delete the logs and restart")
             print("Use -reboot to continue the unfinished session")
-            print("Enter Y to continue, R to contunue")
+            print("Enter Y to delete and restart, R to reboot from exist session")
             s = input()
             if s == "Y" or s == "y":
                 reboot = False
@@ -263,7 +263,7 @@ if __name__ == "__main__":
     if reboot == False:
        clear_dir(root_path)
     makedir(root_path)
-    regt.start()
+   # regt.start()
     autht.start()
     #regt.join()
-    #autht.join()
+    autht.join()
