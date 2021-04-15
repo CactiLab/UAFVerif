@@ -116,7 +116,7 @@ class Auth_content(Base_content):
                         "	)\n",
                         ")\n"]
         self.insert_number = 12
-        self.specific_operation_insert_number = 10
+        self.specific_operation_insert_number = 8
     def reset_insert_number(self):
         self.insert_number = 12
     def add_specific_operation(self, specific_operation):

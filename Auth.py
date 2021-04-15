@@ -21,10 +21,10 @@ class Auth:
                             "\t\tout(c,skAU);\n",
                             "\t\tout(c,cntr);\n",
                             "\t\tout(c,kid);\n"]
-        self.queries = [Query("s-ak","query secret testak.\n"),
-                        Query("s-cntr","query secret testcntr.\n"),
-                        Query("s-skau","query secret testskAU.\n"),
-                        Query("s-kid","query secret kid.\n")]
+        self.queries = [Query("s-ak", "query secret testak.\n"),
+                        Query("s-cntr", "query secret testcntr.\n"),
+                        Query("s-skau", "query secret testskAU.\n"),
+                        Query("s-kid", "query secret kid.\n")]
         self.open_rp = []
     def complete_content(self,honest_name,malicious_name):
         for i in range(len(self.honest_entities)):
@@ -85,10 +85,10 @@ class Auth_1b_noa_login(Auth):
                        "\t\tAuthASM_1b_login", "\t\tAuthAutr_1b_login"]
         malicious_name = ["\t\tAuthUS_noa_login", "\t\tAuthRP", "\t\tAuthUA_noa_login", "\t\tAuthUC_noa_login", "\t\tAuthUC_noa_login","\t\tAuthASM_1b_login", "\t\tAuthASM_1b_login", "\t\tAuthAutr_1b_login"]
         self.complete_content(honest_name, malicious_name)
-        self.specific_operation = ["\t\tlet ak = To_12b_token(appid,token,callerid,personaid) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
+        self.specific_operation = ["\t\tlet ak = To_12b_token(facetid_to_appid(facetid),token,callerid,personaid) in\n",
+                                   "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
-                                   "\t\tinsert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);\n"]
+                                   "\t\tinsert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);\n"]
         self.open_rp.append("\t\tAuthRP(SR, c)|\n")
 
 class Auth_1b_noa_stepup(Auth):
@@ -103,10 +103,10 @@ class Auth_1b_noa_stepup(Auth):
         honest_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup","\t\tAuthASM_1b_stepup", "\t\tAuthAutr_1b_stepup"]
         malicious_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthUC_noa_stepup","\t\tAuthASM_1b_stepup", "\t\tAuthASM_1b_stepup", "\t\tAuthAutr_1b_stepup"]
         self.complete_content(honest_name, malicious_name)
-        self.specific_operation = ["\t\tlet ak = To_12b_token(appid,token,callerid,personaid) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
+        self.specific_operation = ["\t\tlet ak = To_12b_token(facetid_to_appid(facetid),token,callerid,personaid) in\n",
+                                   "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
-                                   "\t\tinsert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);\n"]
+                                   "\t\tinsert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);\n"]
 
 class Auth_2b_seta(Auth):
     def __init__(self):
@@ -134,12 +134,12 @@ class Auth_2b_noa(Auth):
         self.queries.append(Query("Aauth-tr",
                                   "query tr:Tr; inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr))).\n"))
         honest_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_2b_stepup", "\t\tAuthAutr_2b_stepup"]
-        malicious_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_2b_stepup", "\t\tAuthASM_2b_stepup","\t\tAuthAutr_2b_stepup"]
+        malicious_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_2b_stepup", "\t\tAuthASM_2b_stepup","\t\tAuthAutr_2b_stepup"]
         self.complete_content(honest_name, malicious_name)
-        self.specific_operation = ["\t\tlet ak = To_12b_token(appid,token,callerid,personaid) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,appid),keyid),wrapkey) in\n",
+        self.specific_operation = ["\t\tlet ak = To_12b_token(facetid_to_appid(facetid),token,callerid,personaid) in\n",
+                                   "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
-                                   "\t\tinsert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);\n"]
+                                   "\t\tinsert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);\n"]
 
 class Auth_1r_seta_login(Auth):
     def __init__(self):
@@ -149,7 +149,7 @@ class Auth_1r_seta_login(Auth):
         honest_name = ["\t\tAuthUS_seta_login", "\t\tAuthRP", "\t\tAuthUA_seta_login", "\t\tAuthUC_seta_login", "\t\tAuthASM_1r_login", "\t\tAuthAutr_1r_login"]
         malicious_name = ["\t\tAuthUS_seta_login", "\t\tAuthRP", "\t\tAuthUA_seta_login", "\t\tAuthUC_seta_login", "\t\tAuthUC_seta_login", "\t\tAuthASM_1r_login", "\t\tAuthASM_1r_login","\t\tAuthAutr_1r_login"]
         self.complete_content(honest_name, malicious_name)
-        self.specific_operation = ["\t\tlet ak = To_12r_token(appid,token,callerid,personaid) in\n",
+        self.specific_operation = ["\t\tlet ak = To_12r_token(appid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
                                    "\t\tinsert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);\n"]
@@ -166,7 +166,7 @@ class Auth_1r_seta_stepup(Auth):
         honest_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_1r_stepup", "\t\tAuthAutr_1r_stepup"]
         malicious_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_1r_stepup", "\t\tAuthASM_1r_stepup","\t\tAuthAutr_1r_stepup"]
         self.complete_content(honest_name, malicious_name)
-        self.specific_operation = ["\t\tlet ak = To_12r_token(appid,token,callerid,personaid) in\n",
+        self.specific_operation = ["\t\tlet ak = To_12r_token(appid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
                                    "\t\tinsert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);\n"]
@@ -181,10 +181,10 @@ class Auth_1r_noa_login(Auth):
         honest_name = ["\t\tAuthUS_noa_login", "\t\tAuthRP", "\t\tAuthUA_noa_login", "\t\tAuthUC_noa_login", "\t\tAuthASM_1r_login", "\t\tAuthAutr_1r_login"]
         malicious_name = ["\t\tAuthUS_noa_login", "\t\tAuthRP", "\t\tAuthUA_noa_login", "\t\tAuthUC_noa_login", "\t\tAuthUC_noa_login", "\t\tAuthASM_1r_login", "\t\tAuthASM_1r_login","\t\tAuthAutr_1r_login"]
         self.complete_content(honest_name, malicious_name)
-        self.specific_operation = ["\t\tlet ak = To_12r_token(appid,token,callerid,personaid) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
+        self.specific_operation = ["\t\tlet ak = To_12r_token(facetid_to_appid(facetid)) in\n",
+                                   "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
-                                   "\t\tinsert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);\n"]
+                                   "\t\tinsert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);\n"]
         self.open_rp.append("\t\tAuthRP(SR, c)|\n")
 
 class Auth_1r_noa_stepup(Auth):
@@ -199,10 +199,10 @@ class Auth_1r_noa_stepup(Auth):
         honest_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_1r_stepup", "\t\tAuthAutr_1r_stepup"]
         malicious_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_1r_stepup", "\t\tAuthASM_1r_stepup","\t\tAuthAutr_1r_stepup"]
         self.complete_content(honest_name, malicious_name)
-        self.specific_operation = ["\t\tlet ak = To_12r_token(appid,token,callerid,personaid) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
+        self.specific_operation = ["\t\tlet ak = To_12r_token(facetid_to_appid(facetid)) in\n",
+                                   "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
-                                   "\t\tinsert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);\n"]
+                                   "\t\tinsert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);\n"]
 
 class Auth_2r_seta(Auth):
     def __init__(self):
@@ -214,7 +214,7 @@ class Auth_2r_seta(Auth):
         honest_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_2r_stepup", "\t\tAuthAutr_2r_stepup"]
         malicious_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_2r_stepup", "\t\tAuthASM_2r_stepup","\t\tAuthAutr_2r_stepup"]
         self.complete_content(honest_name, malicious_name)
-        self.specific_operation = ["\t\tlet ak = To_12r_token(appid,token,callerid,personaid) in\n",
+        self.specific_operation = ["\t\tlet ak = To_12r_token(appid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,appid)),wrapkey) in\n",
                                    "\t\tlet kid = kh in\n",
                                    "\t\tinsert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);\n"]
@@ -230,7 +230,7 @@ class Auth_2r_noa(Auth):
         honest_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_2r_stepup", "\t\tAuthAutr_2r_stepup"]
         malicious_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_2r_stepup", "\t\tAuthASM_2r_stepup","\t\tAuthAutr_2r_stepup"]
         self.complete_content(honest_name, malicious_name)
-        self.specific_operation = ["\t\tlet ak = To_12r_token(appid,token,callerid,personaid) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,appid)),wrapkey) in\n",
+        self.specific_operation = ["\t\tlet ak = To_12r_token(facetid_to_appid(facetid)) in\n",
+                                   "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid))),wrapkey) in\n",
                                    "\t\tlet kid = kh in\n",
-                                   "\t\tinsert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);\n"]
+                                   "\t\tinsert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);\n"]
