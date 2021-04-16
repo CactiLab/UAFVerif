@@ -263,7 +263,7 @@ if __name__ == "__main__":
     if reboot == False:
        clear_dir(root_path)
     makedir(root_path)
-    #regt.start()
+    regt.start()
     autht.start()
-    #regt.join()
+    regt.join()
     autht.join()
