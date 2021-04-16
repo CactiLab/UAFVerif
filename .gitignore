@@ -10,6 +10,7 @@ result1/
 TEMP/
 LOG/
 LOG1/
+__pycache__/
 *.pdf
 *.dot
 test.pv
