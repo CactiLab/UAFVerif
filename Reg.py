@@ -49,59 +49,59 @@ class Reg_1b_seta(Reg):
     def __init__(self):
         Reg.__init__(self)
         self.scene_name = "Reg_1b_seta"
-        honest_name = ["\t\tRegUS_seta","\t\tRegRP","\t\tRegRP","\t\tRegUA_seta","\t\tRegUC_seta","\t\tRegASM_1b2b","\t\tRegAutr_1b"]
-        malicious_name = ["\t\tRegUS_seta","\t\tRegRP","\t\tRegUA_seta","\t\tRegUC_seta","\t\tRegUC_seta","\t\tRegASM_1b2b","\t\tRegASM_1b2b","\t\tRegAutr_1b"]
+        honest_name = ["\t\tRegUS_seta","\t\tRegRP_seta","\t\tRegRP_seta","\t\tRegUA_seta","\t\tRegUC_seta","\t\tRegASM_1b2b","\t\tRegAutr_1b"]
+        malicious_name = ["\t\tRegUS_seta","\t\tRegRP_seta","\t\tRegUA_seta","\t\tRegUC_seta","\t\tRegUC_seta","\t\tRegASM_1b2b","\t\tRegASM_1b2b","\t\tRegAutr_1b"]
         self.complete_content(honest_name,malicious_name)
 
 class Reg_1b_noa(Reg):
     def __init__(self):
         Reg.__init__(self)
         self.scene_name = "Reg_1b_noa"
-        honest_name = ["\t\tRegUS_noa","\t\tRegRP","\t\tRegRP","\t\tRegUA_noa","\t\tRegUC_noa","\t\tRegASM_1b2b","\t\tRegAutr_1b"]
-        malicious_name = ["\t\tRegUS_noa","\t\tRegRP","\t\tRegUA_noa","\t\tRegUC_noa","\t\tRegUC_noa","\t\tRegASM_1b2b","\t\tRegASM_1b2b","\t\tRegAutr_1b"]
+        honest_name = ["\t\tRegUS_noa","\t\tRegRP_noa","\t\tRegRP_noa","\t\tRegUA_noa","\t\tRegUC_noa","\t\tRegASM_1b2b","\t\tRegAutr_1b"]
+        malicious_name = ["\t\tRegUS_noa","\t\tRegRP_noa","\t\tRegUA_noa","\t\tRegUC_noa","\t\tRegUC_noa","\t\tRegASM_1b2b","\t\tRegASM_1b2b","\t\tRegAutr_1b"]
         self.complete_content(honest_name,malicious_name)
 
 class Reg_2b_seta(Reg):
     def __init__(self):
         Reg.__init__(self)
         self.scene_name = "Reg_2b_seta"
-        honest_name = ["\t\tRegUS_seta","\t\tRegRP","\t\tRegRP","\t\tRegUA_seta","\t\tRegUC_seta","\t\tRegASM_1b2b","\t\tRegAutr_2b"]
-        malicious_name = ["\t\tRegUS_seta","\t\tRegRP","\t\tRegUA_seta","\t\tRegUC_seta","\t\tRegUC_seta","\t\tRegASM_1b2b","\t\tRegASM_1b2b","\t\tRegAutr_2b"]
+        honest_name = ["\t\tRegUS_seta","\t\tRegRP_seta","\t\tRegRP_seta","\t\tRegUA_seta","\t\tRegUC_seta","\t\tRegASM_1b2b","\t\tRegAutr_2b"]
+        malicious_name = ["\t\tRegUS_seta","\t\tRegRP_seta","\t\tRegUA_seta","\t\tRegUC_seta","\t\tRegUC_seta","\t\tRegASM_1b2b","\t\tRegASM_1b2b","\t\tRegAutr_2b"]
         self.complete_content(honest_name,malicious_name)
 
 class Reg_2b_noa(Reg):
     def __init__(self):
         Reg.__init__(self)
         self.scene_name = "Reg_2b_noa"
-        honest_name = ["\t\tRegUS_noa","\t\tRegRP","\t\tRegRP","\t\tRegUA_noa","\t\tRegUC_noa","\t\tRegASM_1b2b","\t\tRegAutr_2b"]
-        malicious_name = ["\t\tRegUS_noa","\t\tRegRP","\t\tRegUA_noa","\t\tRegUC_noa","\t\tRegUC_noa","\t\tRegASM_1b2b","\t\tRegASM_1b2b","\t\tRegAutr_2b"]
+        honest_name = ["\t\tRegUS_noa","\t\tRegRP_noa","\t\tRegRP_noa","\t\tRegUA_noa","\t\tRegUC_noa","\t\tRegASM_1b2b","\t\tRegAutr_2b"]
+        malicious_name = ["\t\tRegUS_noa","\t\tRegRP_noa","\t\tRegUA_noa","\t\tRegUC_noa","\t\tRegUC_noa","\t\tRegASM_1b2b","\t\tRegASM_1b2b","\t\tRegAutr_2b"]
         self.complete_content(honest_name,malicious_name)
 
 class Reg_1r_seta(Reg):
     def __init__(self):
         Reg.__init__(self)
         self.scene_name = "Reg_1r_seta"
-        honest_name = ["\t\tRegUS_seta","\t\tRegRP","\t\tRegRP","\t\tRegUA_seta","\t\tRegUC_seta","\t\tRegASM_1r2r","\t\tRegAutr_1r"]
-        malicious_name = ["\t\tRegUS_seta","\t\tRegRP","\t\tRegUA_seta","\t\tRegUC_seta","\t\tRegUC_seta","\t\tRegASM_1r2r","\t\tRegASM_1r2r","\t\tRegAutr_1r"]
+        honest_name = ["\t\tRegUS_seta","\t\tRegRP_seta","\t\tRegRP_seta","\t\tRegUA_seta","\t\tRegUC_seta","\t\tRegASM_1r2r","\t\tRegAutr_1r"]
+        malicious_name = ["\t\tRegUS_seta","\t\tRegRP_seta","\t\tRegUA_seta","\t\tRegUC_seta","\t\tRegUC_seta","\t\tRegASM_1r2r","\t\tRegASM_1r2r","\t\tRegAutr_1r"]
         self.complete_content(honest_name,malicious_name)
 class Reg_1r_noa(Reg):
     def __init__(self):
         Reg.__init__(self)
         self.scene_name = "Reg_1r_noa"
-        honest_name = ["\t\tRegUS_noa","\t\tRegRP","\t\tRegRP","\t\tRegUA_noa","\t\tRegUC_noa","\t\tRegASM_1r2r","\t\tRegAutr_1r"]
-        malicious_name = ["\t\tRegUS_noa","\t\tRegRP","\t\tRegUA_noa","\t\tRegUC_noa","\t\tRegUC_noa","\t\tRegASM_1r2r","\t\tRegASM_1r2r","\t\tRegAutr_1r"]
+        honest_name = ["\t\tRegUS_noa","\t\tRegRP_noa","\t\tRegRP_noa","\t\tRegUA_noa","\t\tRegUC_noa","\t\tRegASM_1r2r","\t\tRegAutr_1r"]
+        malicious_name = ["\t\tRegUS_noa","\t\tRegRP_noa","\t\tRegUA_noa","\t\tRegUC_noa","\t\tRegUC_noa","\t\tRegASM_1r2r","\t\tRegASM_1r2r","\t\tRegAutr_1r"]
         self.complete_content(honest_name,malicious_name)
 class Reg_2r_seta(Reg):
     def __init__(self):
         Reg.__init__(self)
         self.scene_name = "Reg_2r_seta"
-        honest_name = ["\t\tRegUS_seta","\t\tRegRP","\t\tRegRP","\t\tRegUA_seta","\t\tRegUC_seta","\t\tRegASM_1r2r","\t\tRegAutr_2r"]
-        malicious_name = ["\t\tRegUS_seta","\t\tRegRP","\t\tRegUA_seta","\t\tRegUC_seta","\t\tRegUC_seta","\t\tRegASM_1r2r","\t\tRegASM_1r2r","\t\tRegAutr_2r"]
+        honest_name = ["\t\tRegUS_seta","\t\tRegRP_seta","\t\tRegRP_seta","\t\tRegUA_seta","\t\tRegUC_seta","\t\tRegASM_1r2r","\t\tRegAutr_2r"]
+        malicious_name = ["\t\tRegUS_seta","\t\tRegRP_seta","\t\tRegUA_seta","\t\tRegUC_seta","\t\tRegUC_seta","\t\tRegASM_1r2r","\t\tRegASM_1r2r","\t\tRegAutr_2r"]
         self.complete_content(honest_name,malicious_name)
 class Reg_2r_noa(Reg):
     def __init__(self):
         Reg.__init__(self)
         self.scene_name = "Reg_2r_noa"
-        honest_name = ["\t\tRegUS_noa","\t\tRegRP","\t\tRegRP","\t\tRegUA_noa","\t\tRegUC_noa","\t\tRegASM_1r2r","\t\tRegAutr_2r"]
-        malicious_name = ["\t\tRegUS_noa","\t\tRegRP","\t\tRegUA_seta","\t\tRegUC_noa","\t\tRegUC_noa","\t\tRegASM_1r2r","\t\tRegASM_1r2r","\t\tRegAutr_2r"]
+        honest_name = ["\t\tRegUS_noa","\t\tRegRP_noa","\t\tRegRP_noa","\t\tRegUA_noa","\t\tRegUC_noa","\t\tRegASM_1r2r","\t\tRegAutr_2r"]
+        malicious_name = ["\t\tRegUS_noa","\t\tRegRP_noa","\t\tRegUA_seta","\t\tRegUC_noa","\t\tRegUC_noa","\t\tRegASM_1r2r","\t\tRegASM_1r2r","\t\tRegAutr_2r"]
         self.complete_content(honest_name,malicious_name)

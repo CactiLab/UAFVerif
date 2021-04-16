@@ -49,14 +49,14 @@ class Auth_1b_seta_login(Auth):
         Auth.__init__(self)
         self.scene_name = "Auth_1b_seta_login"
         self.queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
-        honest_name = ["\t\tAuthUS_seta_login", "\t\tAuthRP", "\t\tAuthUA_seta_login", "\t\tAuthUC_seta_login", "\t\tAuthASM_1b_login", "\t\tAuthAutr_1b_login"]
-        malicious_name = ["\t\tAuthUS_seta_login", "\t\tAuthRP", "\t\tAuthUA_seta_login", "\t\tAuthUC_seta_login", "\t\tAuthUC_seta_login", "\t\tAuthASM_1b_login", "\t\tAuthASM_1b_login","\t\tAuthAutr_1b_login"]
+        honest_name = ["\t\tAuthUS_seta_login", "\t\tAuthRP_seta_login", "\t\tAuthUA_seta_login", "\t\tAuthUC_seta_login", "\t\tAuthASM_1b_login", "\t\tAuthAutr_1b_login"]
+        malicious_name = ["\t\tAuthUS_seta_login", "\t\tAuthRP_seta_login", "\t\tAuthUA_seta_login", "\t\tAuthUC_seta_login", "\t\tAuthUC_seta_login", "\t\tAuthASM_1b_login", "\t\tAuthASM_1b_login","\t\tAuthAutr_1b_login"]
         self.complete_content(honest_name, malicious_name)
         self.specific_operation = ["\t\tlet ak = To_12b_token(appid,token,callerid,personaid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
                                    "\t\tinsert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);\n"]
-        self.open_rp.append("\t\tAuthRP(SR, c)|\n")
+        self.open_rp.append("\t\tAuthRP_seta_login(SR, c)|\n")
 
 class Auth_1b_seta_stepup(Auth):
     def __init__(self):
@@ -66,8 +66,8 @@ class Auth_1b_seta_stepup(Auth):
         self.queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
         self.queries.append(Query("Aauth-tr",
                                   "query tr:Tr; inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr))).\n"))
-        honest_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_1b_stepup", "\t\tAuthAutr_1b_stepup"]
-        malicious_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_1b_stepup", "\t\tAuthASM_1b_stepup","\t\tAuthAutr_1b_stepup"]
+        honest_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP_seta_stepup", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_1b_stepup", "\t\tAuthAutr_1b_stepup"]
+        malicious_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP_seta_stepup", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_1b_stepup", "\t\tAuthASM_1b_stepup","\t\tAuthAutr_1b_stepup"]
         self.complete_content(honest_name, malicious_name)
         self.specific_operation = ["\t\tlet ak = To_12b_token(appid,token,callerid,personaid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
@@ -81,15 +81,15 @@ class Auth_1b_noa_login(Auth):
         self.scene_name = "Auth_1b_noa_login"
         self.queries.append(Query("Aauth-1br",
                                   "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
-        honest_name = ["\t\tAuthUS_noa_login", "\t\tAuthRP", "\t\tAuthUA_noa_login", "\t\tAuthUC_noa_login",
+        honest_name = ["\t\tAuthUS_noa_login", "\t\tAuthRP_noa_login", "\t\tAuthUA_noa_login", "\t\tAuthUC_noa_login",
                        "\t\tAuthASM_1b_login", "\t\tAuthAutr_1b_login"]
-        malicious_name = ["\t\tAuthUS_noa_login", "\t\tAuthRP", "\t\tAuthUA_noa_login", "\t\tAuthUC_noa_login", "\t\tAuthUC_noa_login","\t\tAuthASM_1b_login", "\t\tAuthASM_1b_login", "\t\tAuthAutr_1b_login"]
+        malicious_name = ["\t\tAuthUS_noa_login", "\t\tAuthRP_noa_login", "\t\tAuthUA_noa_login", "\t\tAuthUC_noa_login", "\t\tAuthUC_noa_login","\t\tAuthASM_1b_login", "\t\tAuthASM_1b_login", "\t\tAuthAutr_1b_login"]
         self.complete_content(honest_name, malicious_name)
         self.specific_operation = ["\t\tlet ak = To_12b_token(facetid_to_appid(facetid),token,callerid,personaid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
                                    "\t\tinsert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);\n"]
-        self.open_rp.append("\t\tAuthRP(SR, c)|\n")
+        self.open_rp.append("\t\tAuthRP_noa_login(SR, c)|\n")
 
 class Auth_1b_noa_stepup(Auth):
     def __init__(self):
@@ -100,8 +100,8 @@ class Auth_1b_noa_stepup(Auth):
                                   "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
         self.queries.append(Query("Aauth-tr",
                                   "query tr:Tr; inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr))).\n"))
-        honest_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup","\t\tAuthASM_1b_stepup", "\t\tAuthAutr_1b_stepup"]
-        malicious_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthUC_noa_stepup","\t\tAuthASM_1b_stepup", "\t\tAuthASM_1b_stepup", "\t\tAuthAutr_1b_stepup"]
+        honest_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP_noa_stepup", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup","\t\tAuthASM_1b_stepup", "\t\tAuthAutr_1b_stepup"]
+        malicious_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP_noa_stepup", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthUC_noa_stepup","\t\tAuthASM_1b_stepup", "\t\tAuthASM_1b_stepup", "\t\tAuthAutr_1b_stepup"]
         self.complete_content(honest_name, malicious_name)
         self.specific_operation = ["\t\tlet ak = To_12b_token(facetid_to_appid(facetid),token,callerid,personaid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),uname,keyid),wrapkey) in\n",
@@ -116,8 +116,8 @@ class Auth_2b_seta(Auth):
         self.queries.append(Query("Aauth-2br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
         self.queries.append(Query("Aauth-tr",
                                   "query tr:Tr; inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr))).\n"))
-        honest_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_2b_stepup", "\t\tAuthAutr_2b_stepup"]
-        malicious_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_2b_stepup", "\t\tAuthASM_2b_stepup","\t\tAuthAutr_2b_stepup"]
+        honest_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP_seta_stepup", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_2b_stepup", "\t\tAuthAutr_2b_stepup"]
+        malicious_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP_seta_stepup", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_2b_stepup", "\t\tAuthASM_2b_stepup","\t\tAuthAutr_2b_stepup"]
         self.complete_content(honest_name, malicious_name)
         self.specific_operation = ["\t\tlet ak = To_12b_token(appid,token,callerid,personaid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,appid),keyid),wrapkey) in\n",
@@ -133,8 +133,8 @@ class Auth_2b_noa(Auth):
                                   "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
         self.queries.append(Query("Aauth-tr",
                                   "query tr:Tr; inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr))).\n"))
-        honest_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_2b_stepup", "\t\tAuthAutr_2b_stepup"]
-        malicious_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_2b_stepup", "\t\tAuthASM_2b_stepup","\t\tAuthAutr_2b_stepup"]
+        honest_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP_noa_stepup", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_2b_stepup", "\t\tAuthAutr_2b_stepup"]
+        malicious_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP_noa_stepup", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_2b_stepup", "\t\tAuthASM_2b_stepup","\t\tAuthAutr_2b_stepup"]
         self.complete_content(honest_name, malicious_name)
         self.specific_operation = ["\t\tlet ak = To_12b_token(facetid_to_appid(facetid),token,callerid,personaid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),keyid),wrapkey) in\n",
@@ -146,14 +146,14 @@ class Auth_1r_seta_login(Auth):
         Auth.__init__(self)
         self.scene_name = "Auth_1r_seta_login"
         self.queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
-        honest_name = ["\t\tAuthUS_seta_login", "\t\tAuthRP", "\t\tAuthUA_seta_login", "\t\tAuthUC_seta_login", "\t\tAuthASM_1r_login", "\t\tAuthAutr_1r_login"]
-        malicious_name = ["\t\tAuthUS_seta_login", "\t\tAuthRP", "\t\tAuthUA_seta_login", "\t\tAuthUC_seta_login", "\t\tAuthUC_seta_login", "\t\tAuthASM_1r_login", "\t\tAuthASM_1r_login","\t\tAuthAutr_1r_login"]
+        honest_name = ["\t\tAuthUS_seta_login", "\t\tAuthRP_seta_login", "\t\tAuthUA_seta_login", "\t\tAuthUC_seta_login", "\t\tAuthASM_1r_login", "\t\tAuthAutr_1r_login"]
+        malicious_name = ["\t\tAuthUS_seta_login", "\t\tAuthRP_seta_login", "\t\tAuthUA_seta_login", "\t\tAuthUC_seta_login", "\t\tAuthUC_seta_login", "\t\tAuthASM_1r_login", "\t\tAuthASM_1r_login","\t\tAuthAutr_1r_login"]
         self.complete_content(honest_name, malicious_name)
         self.specific_operation = ["\t\tlet ak = To_12r_token(appid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
                                    "\t\tinsert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);\n"]
-        self.open_rp.append("\t\tAuthRP(SR, c)|\n")
+        self.open_rp.append("\t\tAuthRP_seta_login(SR, c)|\n")
 
 class Auth_1r_seta_stepup(Auth):
     def __init__(self):
@@ -163,8 +163,8 @@ class Auth_1r_seta_stepup(Auth):
         self.queries.append(Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
         self.queries.append(Query("Aauth-tr",
                                   "query tr:Tr; inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr))).\n"))
-        honest_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_1r_stepup", "\t\tAuthAutr_1r_stepup"]
-        malicious_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_1r_stepup", "\t\tAuthASM_1r_stepup","\t\tAuthAutr_1r_stepup"]
+        honest_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP_seta_stepup", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_1r_stepup", "\t\tAuthAutr_1r_stepup"]
+        malicious_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP_seta_stepup", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_1r_stepup", "\t\tAuthASM_1r_stepup","\t\tAuthAutr_1r_stepup"]
         self.complete_content(honest_name, malicious_name)
         self.specific_operation = ["\t\tlet ak = To_12r_token(appid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
@@ -178,14 +178,14 @@ class Auth_1r_noa_login(Auth):
         self.scene_name = "Auth_1r_noa_login"
         self.queries.append(Query("Aauth-1br",
                                   "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
-        honest_name = ["\t\tAuthUS_noa_login", "\t\tAuthRP", "\t\tAuthUA_noa_login", "\t\tAuthUC_noa_login", "\t\tAuthASM_1r_login", "\t\tAuthAutr_1r_login"]
-        malicious_name = ["\t\tAuthUS_noa_login", "\t\tAuthRP", "\t\tAuthUA_noa_login", "\t\tAuthUC_noa_login", "\t\tAuthUC_noa_login", "\t\tAuthASM_1r_login", "\t\tAuthASM_1r_login","\t\tAuthAutr_1r_login"]
+        honest_name = ["\t\tAuthUS_noa_login", "\t\tAuthRP_noa_login", "\t\tAuthUA_noa_login", "\t\tAuthUC_noa_login", "\t\tAuthASM_1r_login", "\t\tAuthAutr_1r_login"]
+        malicious_name = ["\t\tAuthUS_noa_login", "\t\tAuthRP_noa_login", "\t\tAuthUA_noa_login", "\t\tAuthUC_noa_login", "\t\tAuthUC_noa_login", "\t\tAuthASM_1r_login", "\t\tAuthASM_1r_login","\t\tAuthAutr_1r_login"]
         self.complete_content(honest_name, malicious_name)
         self.specific_operation = ["\t\tlet ak = To_12r_token(facetid_to_appid(facetid)) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
                                    "\t\tinsert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);\n"]
-        self.open_rp.append("\t\tAuthRP(SR, c)|\n")
+        self.open_rp.append("\t\tAuthRP_noa_login(SR, c)|\n")
 
 class Auth_1r_noa_stepup(Auth):
     def __init__(self):
@@ -196,8 +196,8 @@ class Auth_1r_noa_stepup(Auth):
                                   "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
         self.queries.append(Query("Aauth-tr",
                                   "query tr:Tr; inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr))).\n"))
-        honest_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_1r_stepup", "\t\tAuthAutr_1r_stepup"]
-        malicious_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_1r_stepup", "\t\tAuthASM_1r_stepup","\t\tAuthAutr_1r_stepup"]
+        honest_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP_noa_stepup", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_1r_stepup", "\t\tAuthAutr_1r_stepup"]
+        malicious_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP_noa_stepup", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_1r_stepup", "\t\tAuthASM_1r_stepup","\t\tAuthAutr_1r_stepup"]
         self.complete_content(honest_name, malicious_name)
         self.specific_operation = ["\t\tlet ak = To_12r_token(facetid_to_appid(facetid)) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),uname,keyid),wrapkey) in\n",
@@ -211,8 +211,8 @@ class Auth_2r_seta(Auth):
         self.queries.append(Query("S-tr", "query secret testtr.\n"))
         self.queries.append(Query("Aauth-2br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
         self.queries.append(Query("Aauth-tr","query tr:Tr; inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr))).\n"))
-        honest_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_2r_stepup", "\t\tAuthAutr_2r_stepup"]
-        malicious_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_2r_stepup", "\t\tAuthASM_2r_stepup","\t\tAuthAutr_2r_stepup"]
+        honest_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP_seta_stepup", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_2r_stepup", "\t\tAuthAutr_2r_stepup"]
+        malicious_name = ["\t\tAuthUS_seta_stepup", "\t\tAuthRP_seta_stepup", "\t\tAuthUA_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthUC_seta_stepup", "\t\tAuthASM_2r_stepup", "\t\tAuthASM_2r_stepup","\t\tAuthAutr_2r_stepup"]
         self.complete_content(honest_name, malicious_name)
         self.specific_operation = ["\t\tlet ak = To_12r_token(appid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,appid)),wrapkey) in\n",
@@ -227,8 +227,8 @@ class Auth_2r_noa(Auth):
         self.queries.append(Query("Aauth-2br",
                                   "query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(a,aa,kid)) ==> inj-event(UA_launch_auth(u))).\n"))
         self.queries.append(Query("Aauth-tr", "query tr:Tr; inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr))).\n"))
-        honest_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_2r_stepup", "\t\tAuthAutr_2r_stepup"]
-        malicious_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_2r_stepup", "\t\tAuthASM_2r_stepup","\t\tAuthAutr_2r_stepup"]
+        honest_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP_noa_stepup", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_2r_stepup", "\t\tAuthAutr_2r_stepup"]
+        malicious_name = ["\t\tAuthUS_noa_stepup", "\t\tAuthRP_noa_stepup", "\t\tAuthUA_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthUC_noa_stepup", "\t\tAuthASM_2r_stepup", "\t\tAuthASM_2r_stepup","\t\tAuthAutr_2r_stepup"]
         self.complete_content(honest_name, malicious_name)
         self.specific_operation = ["\t\tlet ak = To_12r_token(facetid_to_appid(facetid)) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid))),wrapkey) in\n",
