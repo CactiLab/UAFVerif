@@ -1,29 +1,20 @@
-query secret testcntr.
 free c:channel.
-let A(ac:channel,testcntr:bitstring) =
-(
-    new s:bitstring;
-    out(ac,s);
-    in(c,testcntr2:bitstring);
-    out(c,s)
-).
+fun h(bitstring):bitstring.
 
-let C(ac:channel,cb:channel) = 
-(
-    in(ac,m:bitstring);
-    out(cb,m);
-    in(cb,t:bitstring);
-    out(ac,t)
-).
-let B(bc:channel,testcntr:bitstring)=
-(
-    in(bc,s:bitstring);
-    out(bc,testcntr)
-).
+event e(bitstring).
+event e'(bitstring).
+event C(bitstring).
+event D(bitstring).
 
-process
-(
-	new testcntr:bitstring;
-    new ab:channel; new ac:channel; new bc:channel;
-    (A(ac,testcntr)|C(ac,bc)|B(bc,testcntr)|C(ac,c))
-)
+query x:bitstring;  putbegin event:C,putbegin event:D; event (e'(x)) ==> event(e(x)).
+
+process 
+	new s:bitstring;
+	(
+        event C(s);
+		event e(s);
+		out(c,h(s))
+	) | (
+		in(c,=h(s));
+		event e'(h(s))
+	)
