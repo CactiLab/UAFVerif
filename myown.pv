@@ -1,20 +1,51 @@
+
+(********************************************************************)
+(*                                      Signature function                                                *)
+(********************************************************************)
+type spkey.
+type sskey.
+
+fun spk(sskey):spkey.
+fun sign(bitstring, sskey): bitstring.
+reduc forall m: bitstring, ssk: sskey; checksign(sign(m,ssk),spk(ssk)) = m.
+reduc forall m: bitstring, ssk: sskey; getmess(sign(m,ssk)) = m.
+
 free c:channel.
 fun h(bitstring):bitstring.
 
-event e(bitstring).
-event e'(bitstring).
-event C(bitstring).
-event D(bitstring).
+event A(bitstring).
+event B(bitstring).
+event maliciousB().
+event maliciousF().
 
-query x:bitstring;  putbegin event:C,putbegin event:D; event (e'(x)) ==> event(e(x)).
+query x:bitstring; event (A(x)) ==> event(B(x)) || event(maliciousF()) || event(maliciousB()).
 
+
+let AA(ch:channel, pkAT:spkey) = 
+    new s:bitstring;
+    out(ch,s);
+    in(ch,s2:bitstring);
+    if checksign(s2, pkAT) = s then
+        event A(s).
+        
+let BB(ch:channel,skAT:sskey) =
+    in(ch,sx:bitstring);
+    event B(sx);
+    let s = sign(sx,skAT) in
+    out(ch,s).
+    
+let CC(ch:channel, pkAT:spkey) = 
+    new s:bitstring;
+    out(ch,s);
+    in(ch,s2:bitstring); 
+    if checksign(s2, pkAT) = s then
+        event A(s).
+        
 process 
-	new s:bitstring;
-	(
-        event C(s);
-		event e(s);
-		out(c,h(s))
-	) | (
-		in(c,=h(s));
-		event e'(h(s))
-	)
+	new ch:channel;
+    new skAT:sskey;
+    let pkAT = spk(skAT) in
+    out(c, skAT);
+    (!AA(ch, pkAT))|
+    (!BB(ch, skAT))|
+    (event maliciousB();!CC(c,pkAT))  | (event maliciousF();!AA(c, pkAT))

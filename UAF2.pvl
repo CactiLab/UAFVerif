@@ -138,10 +138,8 @@ const auth_cntr:CNTR[private].
 event RP_success_reg(Uname,Appid,AAID,KeyID).
 event UA_init_reg(Uname).
 event Autr_verify_reg(Uname,Appid,AAID,KeyID).
-
 event malicious_RP_to_US().
 event malicious_US_to_RP().
-event malicious_RP_to_UA().
 event malicious_UC_to_UA().
 event malicious_UA_to_RP().
 event malicious_UA_to_UC().
@@ -149,12 +147,6 @@ event malicious_ASM_to_UC().
 event malicious_UC_to_ASM().
 event malicious_Autr_to_ASM().
 event malicious_ASM_to_Autr().
-event leak_token().
-event leak_kw().
-event leak_skat().
-event leak_skau().
-event leak_cntr().
-event leak_kid().
 
 (********************************************************************)
 (*                              Registration message format                                        *)
@@ -219,14 +211,6 @@ let RegUS_noa(SR:channel, appid:Appid) =
     )	
 ).
 
-let RegUS_1b_seta(SR:channel, appid:Appid) = RegUS_seta(SR, appid).
-let RegUS_1b_noa(SR:channel, appid:Appid) = RegUS_noa(SR, appid).
-let RegUS_2b_seta(SR:channel, appid:Appid) = RegUS_seta(SR, appid).
-let RegUS_2b_noa(SR:channel, appid:Appid) = RegUS_noa(SR, appid).
-let RegUS_1r_seta(SR:channel, appid:Appid) = RegUS_seta(SR, appid).
-let RegUS_1r_noa(SR:channel, appid:Appid) = RegUS_noa(SR, appid).
-let RegUS_2r_seta(SR:channel, appid:Appid) = RegUS_seta(SR, appid).
-let RegUS_2r_noa(SR:channel, appid:Appid) = RegUS_noa(SR, appid).
 
 (********************************************************************)
 (*                                            Relying Party                                                 *)
@@ -259,15 +243,6 @@ let RegRP_noa(RS:channel, https:channel, uname:Uname, password:bitstring) =
     out(RS, RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
 ).
 
-let RegRP_1b_seta(RS:channel, https:channel, uname:Uname, password:bitstring) = RegRP_seta(RS, https, uname, password).
-let RegRP_1b_noa(RS:channel, https:channel, uname:Uname, password:bitstring) = RegRP_noa(RS, https, uname, password).
-let RegRP_2b_seta(RS:channel, https:channel, uname:Uname, password:bitstring) = RegRP_seta(RS, https, uname, password).
-let RegRP_2b_noa(RS:channel, https:channel, uname:Uname, password:bitstring) = RegRP_noa(RS, https, uname, password).
-let RegRP_1r_seta(RS:channel, https:channel, uname:Uname, password:bitstring) = RegRP_seta(RS, https, uname, password).
-let RegRP_1r_noa(RS:channel, https:channel, uname:Uname, password:bitstring) = RegRP_noa(RS, https, uname, password).
-let RegRP_2r_seta(RS:channel, https:channel, uname:Uname, password:bitstring) = RegRP_seta(RS, https, uname, password).
-let RegRP_2r_noa(RS:channel, https:channel, uname:Uname, password:bitstring) = RegRP_noa(RS, https, uname, password).
-
 (********************************************************************)
 (*                                             User Agent                                                   *)
 (* 1.  only represent a honest user agent                     					                *)
@@ -283,6 +258,7 @@ let RegUA_seta(https:channel,UC:channel,uname:Uname,password:bitstring) =
         let tlsdata = GetTLSdata(https) in
         out(UC,RegUCreq(xuname,appid,sdata,chlg,tlsdata));
         in(UC, mm:msg);
+        
         let RegCUresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s)  = mm in
         out(https,RegURresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
     )
@@ -295,6 +271,7 @@ let RegUA_noa(https:channel,UC:channel,uname:Uname,password:bitstring) =
 	in(https, m:msg);
     let RegRUreq_null(xuname,sdata,chlg) = m in
     (
+        
         let tlsdata = GetTLSdata(https) in
         out(UC,RegUCreq_null(xuname,sdata,chlg,tlsdata));
         in(UC, mm:msg);
@@ -302,15 +279,6 @@ let RegUA_noa(https:channel,UC:channel,uname:Uname,password:bitstring) =
         out(https,RegURresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
     )
 ).
-
-let RegUA_1b_seta(https:channel,UC:channel,uname:Uname,password:bitstring) = RegUA_seta(https,UC,uname,password).
-let RegUA_1b_noa(https:channel,UC:channel,uname:Uname,password:bitstring) = RegUA_noa(https,UC,uname,password).
-let RegUA_2b_seta(https:channel,UC:channel,uname:Uname,password:bitstring) = RegUA_seta(https,UC,uname,password).
-let RegUA_2b_noa(https:channel,UC:channel,uname:Uname,password:bitstring) = RegUA_noa(https,UC,uname,password).
-let RegUA_1r_seta(https:channel,UC:channel,uname:Uname,password:bitstring) = RegUA_seta(https,UC,uname,password).
-let RegUA_1r_noa(https:channel,UC:channel,uname:Uname,password:bitstring) = RegUA_noa(https,UC,uname,password).
-let RegUA_2r_seta(https:channel,UC:channel,uname:Uname,password:bitstring) = RegUA_seta(https,UC,uname,password).
-let RegUA_2r_noa(https:channel,UC:channel,uname:Uname,password:bitstring) = RegUA_noa(https,UC,uname,password).
 
 (********************************************************************)
 (*                                             FIDO Client                                                  *)
@@ -339,16 +307,6 @@ let RegUC_noa(CU:channel,CM:channel,facetid:Facetid) =
     let RegMCresp(aaid,fc,kid,cntr,pkAT,pkAU,s) = mm in
     out(CU,RegCUresp(sdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
 ).
-
-let RegUC_1b_seta(CU:channel,CM:channel,facetid:Facetid) = RegUC_seta(CU,CM,facetid).
-let RegUC_1b_noa(CU:channel,CM:channel,facetid:Facetid) = RegUC_noa(CU,CM,facetid).
-let RegUC_2b_seta(CU:channel,CM:channel,facetid:Facetid) = RegUC_seta(CU,CM,facetid).
-let RegUC_2b_noa(CU:channel,CM:channel,facetid:Facetid) = RegUC_noa(CU,CM,facetid).
-let RegUC_1r_seta(CU:channel,CM:channel,facetid:Facetid) = RegUC_seta(CU,CM,facetid).
-let RegUC_1r_noa(CU:channel,CM:channel,facetid:Facetid) = RegUC_noa(CU,CM,facetid).
-let RegUC_2r_seta(CU:channel,CM:channel,facetid:Facetid) = RegUC_seta(CU,CM,facetid).
-let RegUC_2r_noa(CU:channel,CM:channel,facetid:Facetid) = RegUC_noa(CU,CM,facetid).
-
 
 (********************************************************************)
 (*                                                  ASM                                                        *)
@@ -381,14 +339,6 @@ let RegASM_1r2r(MC:channel, MA:channel, token:bitstring, callerid:Callerid, pers
     out(MC,RegMCresp(aaid,fc2,kid,cntr,pkAT,pkAU,s))
 ).
 
-let RegASM_1b_seta(MC:channel, MA:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) = RegASM_1b2b(MC, MA, token, callerid, personaid).
-let RegASM_1b_noa(MC:channel, MA:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) = RegASM_1b2b(MC, MA, token, callerid, personaid).
-let RegASM_2b_seta(MC:channel, MA:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) = RegASM_1b2b(MC, MA, token, callerid, personaid).
-let RegASM_2b_noa(MC:channel, MA:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) = RegASM_1b2b(MC, MA, token, callerid, personaid).
-let RegASM_1r_seta(MC:channel, MA:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) = RegASM_1r2r(MC, MA, token, callerid, personaid).
-let RegASM_1r_noa(MC:channel, MA:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) = RegASM_1r2r(MC, MA, token, callerid, personaid).
-let RegASM_2r_seta(MC:channel, MA:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) = RegASM_1r2r(MC, MA, token, callerid, personaid).
-let RegASM_2r_noa(MC:channel, MA:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) = RegASM_1r2r(MC, MA, token, callerid, personaid).
 
 
 (********************************************************************)
@@ -468,15 +418,6 @@ let RegAutr_2r(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =
     event Autr_verify_reg(uname,appid,aaid,kid);
     out(AM,RegAMresp_12r(aaid,fc,kid,cntr,pkAT,pkAU,s))
 ).
-
-let RegAutr_1b_seta(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =  RegAutr_1b(AM,aaid,skAT,wrapkey).
-let RegAutr_1b_noa(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =  RegAutr_1b(AM,aaid,skAT,wrapkey).
-let RegAutr_2b_seta(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =  RegAutr_2b(AM,aaid,skAT,wrapkey).
-let RegAutr_2b_noa(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =  RegAutr_2b(AM,aaid,skAT,wrapkey).
-let RegAutr_1r_seta(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =  RegAutr_1r(AM,aaid,skAT,wrapkey).
-let RegAutr_1r_noa(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =  RegAutr_1r(AM,aaid,skAT,wrapkey).
-let RegAutr_2r_seta(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =  RegAutr_2r(AM,aaid,skAT,wrapkey).
-let RegAutr_2r_noa(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =  RegAutr_2r(AM,aaid,skAT,wrapkey).
 
 (**************************message format 2*******************************)
 fun AuthSRreq_em(Appid,SData,Chlg):msg[data].

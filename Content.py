@@ -1,47 +1,11 @@
-class Base_content:
-    def __init__(self):
-        self.if_add = -4
-    def add_query(self, query, query_name):
-        self.content.insert(0,query)
-        self.if_add = self.if_add + 1
-        self.query_name = query_name
-    def add_honest_entities(self, honest_entities, scene_name):
-        for line in honest_entities:
-            self.content.insert(self.insert_number, line)
-            self.insert_number += 1
-        self.reset_insert_number()
-        self.if_add = self.if_add + 1
-        self.scene_name = scene_name
-    def add_leak_fields(self, leak_fields, leak_lines):
-        for line in leak_fields:
-            self.content.insert(self.insert_number,line)
-            self.insert_number += 1
-        self.if_add = self.if_add + 1
-        self.leak_lines = leak_lines
-        self.leak_lines_write = ""
-        for i in self.leak_lines:
-            self.leak_lines_write += str(i) + " "
-    def add_malicious_entities(self, malicious_entities,malicious_lines):
-        for line in malicious_entities:
-            self.content.insert(self.insert_number, line)
-            self.insert_number += 1
-        self.if_add = self.if_add + 1
-        self.malicious_lines = malicious_lines
-        self.malicious_lines_write = ""
-        for i in self.malicious_lines:
-            self.malicious_lines_write += str(i) + " "
-    def get_content(self):
-        if self.if_add < 0:
-            print("error, the content is not completed, check the code")
-            exit(-1)
-        return self.content
+import copy
+from Definition import Query
 
-class Reg_content(Base_content):
+class Reg():
     '''
     生成注册阶段.pv文件文本的类，需要其他类辅助生成
     '''
     def __init__(self):
-        Base_content.__init__(self)
         self.content = ["let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facetid:Facetid,callerid:Callerid,personaid:PersonaID,token:bitstring,wrapkey:key)=\n" ,
                         "(\n" ,
                         "\tnew SR:channel; new https:channel; new CU:channel; new MC:channel; new AM:channel;\n" ,
@@ -49,7 +13,26 @@ class Reg_content(Base_content):
                         "\tnew fakefacetid:Facetid; new fakecallerid:Callerid; new fakepersonaid:PersonaID;\n" ,
                         "\t(* the attacker has access to following fields *)\n" ,
                         "\tout(c,(uname,appid,facetid,callerid,fakefacetid,personaid,fakepersonaid,aaid,pkAT));\n" ,
-                        "\tinsert AppList(appid,facetid);\n" ,
+                        "\tinsert AppList(appid,facetid);\n",
+                        "\t(event leak_token();out(c,token))|\n",
+                        "\t(event leak_kw(); out(c,wrapkey))|\n",
+                        "\t(event leak_skat(); out(c,skAT))|\n",
+                        "\t(event malicious_US_to_RP();!RegRP_(c, https, uname, password))|\n",
+                        "\t(event malicious_RP_to_US();!RegUS_(c, appid))|\n",
+                        "\t(event malicious_RP_to_UA(); RegUA_(c,CU,uname,password))|\n",
+                        "\t(event malicious_UA_to_RP(); !RegRP_(SR, c, uname, password))|\n",
+                        "\t(event malicious_UA_to_UC();!RegUC_(c, MC, fakefacetid))|\n",
+                        "\t(event malicious_UC_to_UA();RegUA_(https, c, uname,password))|\n",
+                        "\t(event malicious_UC_to_ASM();!RegASM_(c, AM, token, fakecallerid, fakepersonaid))|\n",
+                        "\t(event malicious_ASM_to_UC();!RegUC_(CU, c, facetid))|\n",
+                        "\t(event malicious_ASM_to_Autr();!RegAutr_(c, aaid, skAT, wrapkey))|\n",
+                        "\t(event malicious_Autr_to_ASM();!RegASM_(MC, c, token, callerid, personaid))|\n",
+                        "\tRegUS_(SR, appid)|\n",
+                        "\tRegRP_(SR, https, uname, password)|\n",
+                        "\tRegUA_(https, CU,uname, password)|\n",
+                        "\tRegUC_(CU, MC, facetid)|\n",
+                        "\tRegASM_(MC, AM, token, callerid, personaid)|\n",
+                        "\tRegAutr_(AM, aaid, skAT, wrapkey)\n" ,
                         ").\n" ,
                         "process\n" ,
                         "( \n" ,
@@ -73,17 +56,52 @@ class Reg_content(Base_content):
                         "\t\tsystem(appid2,aaid,skAT,uname3,password3,facetid,callerid,personaid,token,wrapkey)\n" ,
                         "\t)\n" ,
                         ")\n"]
-        self.insert_number = 8
-    def add_specific_operation(self, specific_operation):
-        return
-    def add_open_rp(self,open_rp):
-        return
-    def reset_insert_number(self):
-        self.insert_number = 8
+        self.basic_queries = [Query("s-skau","query secret testskAU.\n"),
+                            Query("s-ak","query secret testak.\n"),
+                            Query("s-cntr","query secret testcntr.\n"),
+                            Query("s-kid","query secret testkid.\n"),
+                            Query("S-skat", "query attacker(new skAT).\n"),
+                            Query("Rauth","query u:Uname,a:Appid,aa:AAID,kid:KeyID; inj-event(RP_success_reg(u,a,aa,kid)) ==> (inj-event(Autr_verify_reg(u,a,aa,kid))==> inj-event(UA_init_reg(u))).\n")]
 
-class Auth_content(Base_content):
+        self.need_type_row = 11
+        self.need_type_num = 16
+        self.reg_1b_seta = self.get_type("1b_seta")
+        self.reg_1b_noa = self.get_type("1b_noa")
+        self.reg_2b_seta = self.get_type("2b_seta")
+        self.reg_2b_noa = self.get_type("2b_noa")
+        self.reg_1r_seta = self.get_type("1r_seta")
+        self.reg_1r_noa = self.get_type("1r_noa")
+        self.reg_2r_seta = self.get_type("2r_seta")
+        self.reg_2r_noa = self.get_type("2r_noa")
+
+    def get_type(self,type):
+        output = copy.deepcopy(self.content)
+        for i in range(self.need_type_num):  # 每行的指定位置加入类型字段，如
+            index = output[self.need_type_row + i].rindex("_") + 1
+            list_str = list(output[self.need_type_row + i])
+            list_str.insert(index, type)
+            output[self.need_type_row + i] = "".join(list_str)
+        return output
+    def get_reg_1b_seta(self):
+        return self.reg_1b_seta
+    def get_reg_1b_noa(self):
+        return self.reg_1b_noa
+    def get_reg_2b_seta(self):
+        return self.reg_2b_seta
+    def get_reg_2b_noa(self):
+        return self.reg_2b_noa
+    def get_reg_1r_seta(self):
+        return self.reg_1r_seta
+    def get_reg_1r_noa(self):
+        return self.reg_1r_noa
+    def get_reg_2r_seta(self):
+        return self.reg_2r_seta
+    def get_reg_2r_noa(self):
+        return self.reg_2r_noa
+
+
+class Auth_content():
     def __init__(self):
-        Base_content.__init__(self)
         self.content = ["let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstring,uname:Uname,facetid:Facetid,callerid:Callerid,personaid:PersonaID,cntr:CNTR) =\n",
                         "((* one RP authenticate one user many times *)\n",
                         "	let pkAU = spk(skAU) in let testskAU = skAU in let testcntr = cntr in\n",
@@ -115,13 +133,3 @@ class Auth_content(Base_content):
                         ")\n"]
         self.insert_number = 12
         self.specific_operation_insert_number = 8
-    def reset_insert_number(self):
-        self.insert_number = 12
-    def add_specific_operation(self, specific_operation):
-        for line in specific_operation:
-            self.content.insert(self.specific_operation_insert_number, line)
-            self.specific_operation_insert_number += 1
-    def add_open_rp(self,open_rp):
-        for line in open_rp:
-            self.content.insert(self.insert_number, line)
-            self.insert_number += 1
