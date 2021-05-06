@@ -8,21 +8,23 @@ import time
 from threading import Timer
 from subprocess import Popen, PIPE
 import pickle
-from Content import Reg, Auth_content
-
+from Content import Reg,Reg_1b_seta, Auth_content
 
 
 def proverif(root_path,query_path): # activate proverif and analyze the temp.pv file
     output = Popen('proverif -lib "' + root_path + "UAF.pvl" + '" ' + query_path, stdout=PIPE, stderr=PIPE)
-    timer = Timer(20, lambda process: process.kill(), [output])
+    #timer = Timer(20, lambda process: process.kill(), [output])
     try:
-        timer.start()
+        #timer.start()
         stdout, stderr = output.communicate()
         return_code = output.returncode
     finally:
-        timer.cancel()
+        pass
+        #timer.cancel()
     i = stdout[0:-10].rfind(b'--------------------------------------------------------------') # find last results
     result = stdout[i:-1]
+    with open(root_path + "LOG/temptestchangehaha.log", "w") as f:
+        f.writelines(str(result))
     if result == b"" or len(result) == 0:
         result = stdout[-1000:-1]
     if (result.find(b'a trace has been found.') != -1):
@@ -59,11 +61,8 @@ def print_help():
     print("       auth_2r   : to analyze authentication process with 2R authenticator to step-up authentication.")
 
 def reg_analyze(root_path):
-    reg = Reg()
-    query_path = root_path + "reg_query_1b_seta.pv"
-    with open(query_path, "w") as f:
-        f.writelines(reg.get_reg_1b_seta())
-    proverif(root_path,query_path)
+    reg_1b_seta = Reg_1b_seta()
+    proverif(root_path,reg_1b_seta.get_file_name())
     pass
 
 def auth_analyze(root_path):

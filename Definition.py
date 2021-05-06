@@ -1,5 +1,7 @@
 
 class Query:
-    def __init__(self,name,query):
+    def __init__(self,name,head,content):
         self.name = name
-        self.query = query
+        self.head = head
+        self.content = content
+        self.query = head + content

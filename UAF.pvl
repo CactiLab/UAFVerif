@@ -101,6 +101,12 @@ fun ToFc(bitstring):Fchlg.
 fun facetid_to_appid(Facetid):Appid.
 
 (********************************************************************)
+(*                                            gen_skAU                                                *)
+(********************************************************************)
+fun gen_skAU(sskey,bitstring):sskey.
+fun gen_cntr(CNTR,bitstring):CNTR.
+fun gen_kid(KeyID,bitstring):KeyID.
+(********************************************************************)
 (*                                  table for database                                                    *)
 (********************************************************************)
 
@@ -397,86 +403,85 @@ let RegASM_2r_noa(MC:channel, MA:channel, token:bitstring, callerid:Callerid, pe
 (* 2. AuthServer to authentication                                                                *)
 (* Both of them use the same channel                                                           *)
 (********************************************************************)
-let RegAutr_1b(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =
+let RegAutr_1b(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =
 (
 	in(AM,m:msg);
 	let RegMAreq(uname,appid,ak,fc) = m in
-	new skAU:sskey;
-	new cntr:CNTR;
-	let testskAU = skAU in
-	let testcntr = cntr in
+	new skAU_seed:bitstring;
+    let skAU = gen_skAU(skAU_basic,skAU_seed) in
+	new cntr_seed:bitstring;
+    let cntr = gen_cntr(cntr_basic,cntr_seed) in
 	let pkAT = spk(skAT) in
 	let pkAU = spk(skAU) in
-    new kid:KeyID;
-    let testkid = kid in
+    new kid_seed:bitstring;
+    let kid = gen_kid(kid_basic, kid_seed) in
     let kh = senc((skAU,ak,uname,kid),wrapkey) in 
     let s = sign((aaid,fc,kid,cntr,pkAU),skAT) in
     event Autr_verify_reg(uname,appid,aaid,kid);
     out(AM,RegAMresp_12b(aaid,fc,kid,cntr,pkAT,pkAU,kh,s))
 ).
 
-let RegAutr_2b(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =
+let RegAutr_2b(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =
 (
 	in(AM,m:msg);
 	let RegMAreq(uname,appid,ak,fc) = m in
-	new skAU:sskey;
-	new cntr:CNTR;
-	let testskAU = skAU in
-	let testcntr = cntr in
+	new skAU_seed:bitstring;
+    let skAU = gen_skAU(skAU_basic,skAU_seed) in
+	new cntr_seed:bitstring;
+    let cntr = gen_cntr(cntr_basic,cntr_seed) in
 	let pkAT = spk(skAT) in
 	let pkAU = spk(skAU) in
-    new kid:KeyID;
-    let testkid = kid in
+    new kid_seed:bitstring;
+    let kid = gen_kid(kid_basic, kid_seed) in
     let kh = senc((skAU,ak,kid),wrapkey) in
     let s = sign((aaid,fc,kid,cntr,pkAU),skAT) in
     event Autr_verify_reg(uname,appid,aaid,kid);
     out(AM,RegAMresp_12b(aaid,fc,kid,cntr,pkAT,pkAU,kh,s))
 ).
 
-let RegAutr_1r(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =
+let RegAutr_1r(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =
 (
 	in(AM,m:msg);
 	let RegMAreq(uname,appid,ak,fc) = m in
-	new skAU:sskey;
-	new cntr:CNTR;
-	let testskAU = skAU in
-	let testcntr = cntr in
+	new skAU_seed:bitstring;
+    let skAU = gen_skAU(skAU_basic,skAU_seed) in
+	new cntr_seed:bitstring;
+    let cntr = gen_cntr(cntr_basic,cntr_seed) in
 	let pkAT = spk(skAT) in
 	let pkAU = spk(skAU) in
-    new kid:KeyID;
-    let testkid = kid in
+     new kid_seed:bitstring;
+    let kid = gen_kid(kid_basic, kid_seed) in
     let kh = senc((skAU,ak,uname,kid),wrapkey) in 
     let s = sign((aaid,fc,kid,cntr,pkAU),skAT) in
     event Autr_verify_reg(uname,appid,aaid,kid);
     out(AM,RegAMresp_12r(aaid,fc,kid,cntr,pkAT,pkAU,s))
 ).
 
-let RegAutr_2r(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =
+let RegAutr_2r(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =
 (
 	in(AM,m:msg);
 	let RegMAreq(uname,appid,ak,fc) = m in
-	new skAU:sskey;
-	new cntr:CNTR;
-	let testskAU = skAU in
-	let testcntr = cntr in
+	new skAU_seed:bitstring;
+    let skAU = gen_skAU(skAU_basic,skAU_seed) in
+	new cntr_seed:bitstring;
+    let cntr = gen_cntr(cntr_basic,cntr_seed) in
 	let pkAT = spk(skAT) in
 	let pkAU = spk(skAU) in
     let kh = senc((skAU,ak),wrapkey) in
     let kid = kh in
-    let testkid = kid in
     let s = sign((aaid,fc,kid,cntr,pkAU),skAT) in
     event Autr_verify_reg(uname,appid,aaid,kid);
     out(AM,RegAMresp_12r(aaid,fc,kid,cntr,pkAT,pkAU,s))
 ).
 
-let RegAutr_1b_seta(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =  RegAutr_1b(AM,aaid,skAT,wrapkey).
-let RegAutr_1b_noa(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =  RegAutr_1b(AM,aaid,skAT,wrapkey).
-let RegAutr_2b_seta(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =  RegAutr_2b(AM,aaid,skAT,wrapkey).
-let RegAutr_2b_noa(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =  RegAutr_2b(AM,aaid,skAT,wrapkey).
-let RegAutr_1r_seta(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =  RegAutr_1r(AM,aaid,skAT,wrapkey).
-let RegAutr_1r_noa(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =  RegAutr_1r(AM,aaid,skAT,wrapkey).
-let RegAutr_2r_seta(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =  RegAutr_2r(AM,aaid,skAT,wrapkey).
-let RegAutr_2r_noa(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =  RegAutr_2r(AM,aaid,skAT,wrapkey).
+let RegAutr_1b_seta(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =  RegAutr_1b(AM,aaid,skAT,wrapkey,skAU_basic,cntr_basic,kid_basic).
+let RegAutr_1b_noa(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =  RegAutr_1b(AM,aaid,skAT,wrapkey,skAU_basic,cntr_basic,kid_basic).
+let RegAutr_2b_seta(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =  RegAutr_2b(AM,aaid,skAT,wrapkey,skAU_basic,cntr_basic,kid_basic).
+let RegAutr_2b_noa(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =  RegAutr_2b(AM,aaid,skAT,wrapkey,skAU_basic,cntr_basic,kid_basic).
+let RegAutr_1r_seta(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =  RegAutr_1r(AM,aaid,skAT,wrapkey,skAU_basic,cntr_basic,kid_basic).
+let RegAutr_1r_noa(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =  RegAutr_1r(AM,aaid,skAT,wrapkey,skAU_basic,cntr_basic,kid_basic).
+let RegAutr_2r_seta(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =  RegAutr_2r(AM,aaid,skAT,wrapkey,skAU_basic,cntr_basic,kid_basic).
+let RegAutr_2r_noa(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =  RegAutr_2r(AM,aaid,skAT,wrapkey,skAU_basic,cntr_basic,kid_basic).
 
 (**************************message format 2*******************************)
 fun AuthSRreq_em(Appid,SData,Chlg):msg[data].
