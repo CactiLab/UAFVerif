@@ -1,7 +1,7 @@
 (**********************************)
 
-set reconstructTrace = true.
-set traceDisplay = short.
+set reconstructTrace = false.
+set traceDisplay = none.
 set displayDerivation = false.
 set verboseClauses = none.
 (********************************************************************)
@@ -535,7 +535,7 @@ const ok:bitstring.
 (********************************************************************)
 (*                                                  Auth US                                                        *)
 (********************************************************************)
-let AuthUS_seta_login(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) =
+let AuthUS_login_seta(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) =
 (
     in(SR, tlsdata:bitstring);
     new sdata:SData;
@@ -552,7 +552,7 @@ let AuthUS_seta_login(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID
     out(c,debug)
  ).
  
-let AuthUS_noa_login(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) =
+let AuthUS_login_noa(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) =
 (
     in(SR, tlsdata:bitstring);
     new sdata:SData;
@@ -569,7 +569,7 @@ let AuthUS_noa_login(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID,
     out(c,debug)
  ).
  
- let AuthUS_seta_stepup(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) =
+ let AuthUS_stepup_seta(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) =
 (
     in(SR, tlsdata:bitstring);
     new sdata:SData;
@@ -589,7 +589,7 @@ let AuthUS_noa_login(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID,
  ).
 
  
-let AuthUS_noa_stepup(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) =
+let AuthUS_stepup_noa(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) =
 (
     in(SR, tlsdata:bitstring);
     new sdata:SData;
@@ -607,12 +607,25 @@ let AuthUS_noa_stepup(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID
     event RP_success_tr(tr);
     out(c,debug)
  ).
+ 
+let AuthUS_1b_login_seta(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) = AuthUS_login_seta(SR, uname,appid,aaid,kid,pkAU,cntr,tr).
+let AuthUS_1b_login_noa(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) = AuthUS_login_noa(SR, uname,appid,aaid,kid,pkAU,cntr,tr).
+let AuthUS_1b_stepup_seta(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) = AuthUS_stepup_seta(SR, uname,appid,aaid,kid,pkAU,cntr,tr).
+let AuthUS_1b_stepup_noa(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) = AuthUS_stepup_noa(SR, uname,appid,aaid,kid,pkAU,cntr,tr).
+let AuthUS_2b_stepup_seta(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) = AuthUS_stepup_seta(SR, uname,appid,aaid,kid,pkAU,cntr,tr).
+let AuthUS_2b_stepup_noa(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) = AuthUS_stepup_noa(SR, uname,appid,aaid,kid,pkAU,cntr,tr).
+let AuthUS_1r_login_seta(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) = AuthUS_login_seta(SR, uname,appid,aaid,kid,pkAU,cntr,tr).
+let AuthUS_1r_login_noa(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) = AuthUS_login_noa(SR, uname,appid,aaid,kid,pkAU,cntr,tr).
+let AuthUS_1r_stepup_seta(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) = AuthUS_stepup_seta(SR, uname,appid,aaid,kid,pkAU,cntr,tr).
+let AuthUS_1r_stepup_noa(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) = AuthUS_stepup_noa(SR, uname,appid,aaid,kid,pkAU,cntr,tr).
+let AuthUS_2r_stepup_seta(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) = AuthUS_stepup_seta(SR, uname,appid,aaid,kid,pkAU,cntr,tr).
+let AuthUS_2r_stepup_noa(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) = AuthUS_stepup_noa(SR, uname,appid,aaid,kid,pkAU,cntr,tr).
 	
 (********************************************************************)
 (*                                                  AuthRP                                                        *)
 (********************************************************************)
     
-let AuthRP_seta_login(RS:channel,https:channel) = 
+let AuthRP_login_seta(RS:channel,https:channel) = 
 (
     in(https, tg:bitstring);
     let tlsdata = GetTLSdata(https) in
@@ -625,7 +638,7 @@ let AuthRP_seta_login(RS:channel,https:channel) =
     out(RS, AuthRSresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s))
 ).
 
-let AuthRP_noa_login(RS:channel,https:channel) = 
+let AuthRP_login_noa(RS:channel,https:channel) = 
 (
     in(https, tg:bitstring);
     let tlsdata = GetTLSdata(https) in
@@ -637,7 +650,7 @@ let AuthRP_noa_login(RS:channel,https:channel) =
     let AuthURresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s) = x in 
     out(RS, AuthRSresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s))
 ).
-let AuthRP_seta_stepup(RS:channel,https:channel) = 
+let AuthRP_stepup_seta(RS:channel,https:channel) = 
 (
     in(https, tg:bitstring);
     let tlsdata = GetTLSdata(https) in
@@ -649,7 +662,7 @@ let AuthRP_seta_stepup(RS:channel,https:channel) =
     let AuthURresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s) = x in 
     out(RS, AuthRSresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
 ).
-let AuthRP_noa_stepup(RS:channel,https:channel) = 
+let AuthRP_stepup_noa(RS:channel,https:channel) = 
 (
     in(https, tg:bitstring);
     let tlsdata = GetTLSdata(https) in
@@ -662,11 +675,25 @@ let AuthRP_noa_stepup(RS:channel,https:channel) =
     out(RS, AuthRSresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
 ).
 
+let AuthRP_1b_login_seta(RS:channel,https:channel) = AuthRP_login_seta(RS,https).
+let AuthRP_1b_login_noa(RS:channel,https:channel) = AuthRP_login_noa(RS,https).
+let AuthRP_1b_stepup_seta(RS:channel,https:channel) = AuthRP_stepup_seta(RS,https).
+let AuthRP_1b_stepup_noa(RS:channel,https:channel) = AuthRP_stepup_noa(RS,https).
+let AuthRP_2b_stepup_seta(RS:channel,https:channel) = AuthRP_stepup_seta(RS,https).
+let AuthRP_2b_stepup_noa(RS:channel,https:channel) = AuthRP_stepup_noa(RS,https).
+let AuthRP_1r_login_seta(RS:channel,https:channel) = AuthRP_login_seta(RS,https).
+let AuthRP_1r_login_noa(RS:channel,https:channel) = AuthRP_login_noa(RS,https).
+let AuthRP_1r_stepup_seta(RS:channel,https:channel) = AuthRP_stepup_seta(RS,https).
+let AuthRP_1r_stepup_noa(RS:channel,https:channel) = AuthRP_stepup_noa(RS,https).
+let AuthRP_2r_stepup_seta(RS:channel,https:channel) = AuthRP_stepup_seta(RS,https).
+let AuthRP_2r_stepup_noa(RS:channel,https:channel) = AuthRP_stepup_noa(RS,https).
+
+
 (********************************************************************)
 (*                                                  AuthUA                                                        *)
 (********************************************************************)
 
-let AuthUA_seta_login(https:channel,UC:channel,uname:Uname) =
+let AuthUA_login_seta(https:channel,UC:channel,uname:Uname) =
 (
     out(https,ok);
 	in(https,m:msg);
@@ -678,7 +705,7 @@ let AuthUA_seta_login(https:channel,UC:channel,uname:Uname) =
     let AuthCUresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s) = mm in
     out(https,AuthURresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s))
  ).
-let AuthUA_seta_stepup(https:channel,UC:channel,uname:Uname) =
+let AuthUA_stepup_seta(https:channel,UC:channel,uname:Uname) =
 (
     out(https,ok);
 	in(https,m:msg);
@@ -691,7 +718,7 @@ let AuthUA_seta_stepup(https:channel,UC:channel,uname:Uname) =
     let AuthCUresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s) = mm in
     out(https,AuthURresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
  ).
-let AuthUA_noa_login(https:channel,UC:channel,uname:Uname) =
+let AuthUA_login_noa(https:channel,UC:channel,uname:Uname) =
 (
     out(https,ok);
 	in(https,m:msg);
@@ -704,7 +731,7 @@ let AuthUA_noa_login(https:channel,UC:channel,uname:Uname) =
     out(https,AuthURresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s))
  ).
  
-let AuthUA_noa_stepup(https:channel,UC:channel,uname:Uname) =
+let AuthUA_stepup_noa(https:channel,UC:channel,uname:Uname) =
 (
     out(https,ok);
 	in(https,m:msg);
@@ -717,12 +744,25 @@ let AuthUA_noa_stepup(https:channel,UC:channel,uname:Uname) =
     let AuthCUresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s) = mm in
     out(https,AuthURresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
  ).
+ 
+let AuthUA_1b_login_seta(https:channel,UC:channel,uname:Uname) = AuthUA_login_seta(https,UC,uname).
+let AuthUA_1b_login_noa(https:channel,UC:channel,uname:Uname) = AuthUA_login_noa(https,UC,uname).
+let AuthUA_1b_stepup_seta(https:channel,UC:channel,uname:Uname) = AuthUA_stepup_seta(https,UC,uname).
+let AuthUA_1b_stepup_noa(https:channel,UC:channel,uname:Uname) = AuthUA_stepup_noa(https,UC,uname).
+let AuthUA_2b_stepup_seta(https:channel,UC:channel,uname:Uname) = AuthUA_stepup_seta(https,UC,uname).
+let AuthUA_2b_stepup_noa(https:channel,UC:channel,uname:Uname) = AuthUA_stepup_noa(https,UC,uname).
+let AuthUA_1r_login_seta(https:channel,UC:channel,uname:Uname) = AuthUA_login_seta(https,UC,uname).
+let AuthUA_1r_login_noa(https:channel,UC:channel,uname:Uname) = AuthUA_login_noa(https,UC,uname).
+let AuthUA_1r_stepup_seta(https:channel,UC:channel,uname:Uname) = AuthUA_stepup_seta(https,UC,uname).
+let AuthUA_1r_stepup_noa(https:channel,UC:channel,uname:Uname) = AuthUA_stepup_noa(https,UC,uname).
+let AuthUA_2r_stepup_seta(https:channel,UC:channel,uname:Uname) = AuthUA_stepup_seta(https,UC,uname).
+let AuthUA_2r_stepup_noa(https:channel,UC:channel,uname:Uname) = AuthUA_stepup_noa(https,UC,uname).
 
 (********************************************************************)
 (*                                                  AuthUC                                                        *)
 (********************************************************************)
 
-let AuthUC_seta_login(CU:channel,CM:channel,facetid:Facetid) =
+let AuthUC_login_seta(CU:channel,CM:channel,facetid:Facetid) =
 (
 	in(CU,m:msg);
      let AuthUCreq_em(appid,sdata,chlg,tlsdata) = m in
@@ -734,7 +774,7 @@ let AuthUC_seta_login(CU:channel,CM:channel,facetid:Facetid) =
     out(CU,AuthCUresp_em(sdata,aaid,nonce,fc,kid,xcntr,fcp,s))
 ).
 
-let AuthUC_seta_stepup(CU:channel,CM:channel,facetid:Facetid) =
+let AuthUC_stepup_seta(CU:channel,CM:channel,facetid:Facetid) =
 (
 	in(CU,m:msg);
      let AuthUCreq_st(appid,kid,sdata,chlg,tr,tlsdata) = m in
@@ -746,7 +786,7 @@ let AuthUC_seta_stepup(CU:channel,CM:channel,facetid:Facetid) =
     out(CU,AuthCUresp_st(sdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
 ).
 
-let AuthUC_noa_login(CU:channel,CM:channel,facetid:Facetid) =
+let AuthUC_login_noa(CU:channel,CM:channel,facetid:Facetid) =
 (
 	in(CU,m:msg);
     let AuthUCreq_em_null(sdata,chlg,tlsdata) = m in
@@ -758,7 +798,7 @@ let AuthUC_noa_login(CU:channel,CM:channel,facetid:Facetid) =
     out(CU,AuthCUresp_em(sdata,aaid,nonce,fc,kid,xcntr,fcp,s))
 ).
 
-let AuthUC_noa_stepup(CU:channel,CM:channel,facetid:Facetid) =
+let AuthUC_stepup_noa(CU:channel,CM:channel,facetid:Facetid) =
 (
 	in(CU,m:msg);
     let AuthUCreq_st_null(kid,sdata,chlg,tr,tlsdata) = m in
@@ -769,6 +809,19 @@ let AuthUC_noa_stepup(CU:channel,CM:channel,facetid:Facetid) =
     let AuthMCresp_st(aaid,nonce,fc,htr,xkid,xcntr,s) = mm in
     out(CU,AuthCUresp_st(sdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
 ).
+
+let AuthUC_1b_login_seta(CU:channel,CM:channel,facetid:Facetid) = AuthUC_login_seta(CU,CM,facetid).
+let AuthUC_1b_login_noa(CU:channel,CM:channel,facetid:Facetid) = AuthUC_login_noa(CU,CM,facetid).
+let AuthUC_1b_stepup_seta(CU:channel,CM:channel,facetid:Facetid) = AuthUC_stepup_seta(CU,CM,facetid).
+let AuthUC_1b_stepup_noa(CU:channel,CM:channel,facetid:Facetid) = AuthUC_stepup_noa(CU,CM,facetid).
+let AuthUC_2b_stepup_seta(CU:channel,CM:channel,facetid:Facetid) = AuthUC_stepup_seta(CU,CM,facetid).
+let AuthUC_2b_stepup_noa(CU:channel,CM:channel,facetid:Facetid) = AuthUC_stepup_noa(CU,CM,facetid).
+let AuthUC_1r_login_seta(CU:channel,CM:channel,facetid:Facetid) = AuthUC_login_seta(CU,CM,facetid).
+let AuthUC_1r_login_noa(CU:channel,CM:channel,facetid:Facetid) = AuthUC_login_noa(CU,CM,facetid).
+let AuthUC_1r_stepup_seta(CU:channel,CM:channel,facetid:Facetid) = AuthUC_stepup_seta(CU,CM,facetid).
+let AuthUC_1r_stepup_noa(CU:channel,CM:channel,facetid:Facetid) = AuthUC_stepup_noa(CU,CM,facetid).
+let AuthUC_2r_stepup_seta(CU:channel,CM:channel,facetid:Facetid) = AuthUC_stepup_seta(CU,CM,facetid).
+let AuthUC_2r_stepup_noa(CU:channel,CM:channel,facetid:Facetid) = AuthUC_stepup_noa(CU,CM,facetid).
 
 (********************************************************************)
 (*                                                  AuthASM                                                        *)
@@ -852,6 +905,19 @@ let AuthASM_2r_stepup(MC:channel,MA:channel,token:bitstring,callerid:Callerid,pe
     let AuthAMresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s) = mm in
     out(MC,AuthMCresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s))
 ).
+
+let AuthASM_1b_login_seta(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) = AuthASM_1b_login(MC,MA,token,callerid,personaid).
+let AuthASM_1b_login_noa(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) = AuthASM_1b_login(MC,MA,token,callerid,personaid).
+let AuthASM_1b_stepup_seta(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) = AuthASM_1b_stepup(MC,MA,token,callerid,personaid).
+let AuthASM_1b_stepup_noa(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) = AuthASM_1b_stepup(MC,MA,token,callerid,personaid).
+let AuthASM_2b_stepup_seta(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) = AuthASM_2b_stepup(MC,MA,token,callerid,personaid).
+let AuthASM_2b_stepup_noa(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) = AuthASM_2b_stepup(MC,MA,token,callerid,personaid).
+let AuthASM_1r_login_seta(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) = AuthASM_1r_login(MC,MA,token,callerid,personaid).
+let AuthASM_1r_login_noa(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) = AuthASM_1r_login(MC,MA,token,callerid,personaid).
+let AuthASM_1r_stepup_seta(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) = AuthASM_1r_stepup(MC,MA,token,callerid,personaid).
+let AuthASM_1r_stepup_noa(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) = AuthASM_1r_stepup(MC,MA,token,callerid,personaid).
+let AuthASM_2r_stepup_seta(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) = AuthASM_2r_stepup(MC,MA,token,callerid,personaid).
+let AuthASM_2r_stepup_noa(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) = AuthASM_2r_stepup(MC,MA,token,callerid,personaid).
 
 (********************************************************************)
 (*                                               Auth Authenticator                                                   *)
@@ -939,3 +1005,16 @@ let AuthAutr_2r_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
     event Autr_verify_tr(tr);
     out(AM,AuthAMresp_st(aaid,nonce,fc,htr,kid,cntr,s))
 ).
+
+let AuthAutr_1b_login_seta(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) = AuthAutr_1b_login(AM,aaid,wrapkey,cntr,tr).
+let AuthAutr_1b_login_noa(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) = AuthAutr_1b_login(AM,aaid,wrapkey,cntr,tr).
+let AuthAutr_1b_stepup_seta(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) = AuthAutr_1b_stepup(AM,aaid,wrapkey,cntr,tr).
+let AuthAutr_1b_stepup_noa(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) = AuthAutr_1b_stepup(AM,aaid,wrapkey,cntr,tr).
+let AuthAutr_2b_stepup_seta(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) = AuthAutr_2b_stepup(AM,aaid,wrapkey,cntr,tr).
+let AuthAutr_2b_stepup_noa(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) = AuthAutr_2b_stepup(AM,aaid,wrapkey,cntr,tr).
+let AuthAutr_1r_login_seta(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) = AuthAutr_1r_login(AM,aaid,wrapkey,cntr,tr).
+let AuthAutr_1r_login_noa(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) = AuthAutr_1r_login(AM,aaid,wrapkey,cntr,tr).
+let AuthAutr_1r_stepup_seta(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) = AuthAutr_1r_stepup(AM,aaid,wrapkey,cntr,tr).
+let AuthAutr_1r_stepup_noa(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) = AuthAutr_1r_stepup(AM,aaid,wrapkey,cntr,tr).
+let AuthAutr_2r_stepup_seta(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) = AuthAutr_2r_stepup(AM,aaid,wrapkey,cntr,tr).
+let AuthAutr_2r_stepup_noa(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) = AuthAutr_2r_stepup(AM,aaid,wrapkey,cntr,tr).
