@@ -2,8 +2,13 @@
 
 set reconstructTrace = false.
 set traceDisplay = none.
-set displayDerivation = false.
 set verboseClauses = none.
+set explainDerivation = false.
+set reconstructDerivation = false.
+set displayDerivation = false.
+set abbreviateClauses = false.
+set verboseEq = false.
+set verboseTerm = false.
 (********************************************************************)
 (*                           Messages Type declaration                                        	    *)
 (********************************************************************)
