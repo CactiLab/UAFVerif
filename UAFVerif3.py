@@ -90,7 +90,6 @@ class Parser:
         return False
     def jump(self,query):
         if self.is_in_secure_set(query):
-            print("jump secure set")
             return True
         return False
 
@@ -132,20 +131,24 @@ class Verif:
         return True  # return the results
 
     def proverif(self, query_path):
-        LOG_FILE = open(self.root_path + "LOG/all_log", "a")
         output = Popen('proverif -lib "' + root_path + "UAF.pvl" + '" ' + query_path, stdout=PIPE, stderr=PIPE)
-        timer = Timer(600, lambda process: process.kill(), [output])
+        timer = Timer(300, lambda process: process.kill(), [output])
         try:
             timer.start()
             stdout, stderr = output.communicate()
             return_code = output.returncode
         finally:
             timer.cancel()
+        LOG_FILE = open(self.root_path + "LOG/all_log", "a")
         LOG_FILE.writelines(str(stdout,encoding='utf-8'))
         LOG_FILE.close()
         i = stdout[0:-10].rfind(b'--------------------------------------------------------------')  # find last results
+        if i == -1:
+            ret = False
+        else:
+            ret = True
         result = stdout[i+89:-67]
-        return str(result,encoding='utf-8')  # return the results
+        return ret, str(result,encoding='utf-8')  # return the results
 
     def generate_file_name(self,case):
         query_path = self.root_path + "Query/" + case.get_scene_name() + ".pv"
@@ -160,7 +163,7 @@ class Verif:
         all_queries, content = case.get_content()
         counter = reboot
         log_file = open(root_path + "LOG/" + case.scene_name + ".log", "w")
-        result_file = open(root_path + "LOG/" + "result.log", "a")
+        result_file = open(root_path + "LOG/" + "result.log", "w")
         while counter < len(all_queries):
             query = all_queries[counter]
             log_msg = str(counter).ljust(6)
@@ -197,24 +200,28 @@ class Verif:
 
     def analyze_all(self,case,reboot):
         all_queries, content = case.get_content()
-        counter = 0
-        scene_log_file = open(root_path + "LOG/" + case.scene_name + ".log", "w")
+        counter = reboot
+        scene_log_file = open(root_path + "LOG/" + case.scene_name + ".log", "a")
         result_path = root_path + "LOG/" + case.scene_name + ".result"
         query_path = root_path + "QUERY/" + case.get_scene_name() + ".pv"
         while counter < len(all_queries):
             query = all_queries[counter]
+            log_content = ""
+            log_content += str(counter) + ", " + query.scene_name + ", " + query.query_name + ", "
             if self.parser.jump(query):
-                continue
-            with open(query_path, "w") as query_file:
-                query_file.writelines(query.content)
-                query_file.writelines(content)
-            result = self.proverif(query_path)
-            scene_log_file.writelines(str(counter) + ", ")
-            scene_log_file.writelines(query.scene_name + ", ")
-            scene_log_file.writelines(query.query_name + ", ")
-            scene_log_file.writelines(result)
+                log_content += "jump in secure set.\n\n"
+            else:
+                with open(query_path, "w") as query_file:
+                    query_file.writelines(query.content)
+                    query_file.writelines(content)
+                ret,result = self.proverif(query_path)
+                if ret == False:
+                    log_content += "time out!"
+                else:
+                    log_content += result
+                    self.parser.parser_record(query, result)
+            scene_log_file.writelines(log_content)
             scene_log_file.flush()
-            self.parser.parser_record(query,result)
             counter += 1
         scene_log_file.close()
 
@@ -242,21 +249,19 @@ def run(root_path):
     makedir(root_path)
     parser = Parser(root_path)
     verif = Verif(root_path,parser)
-    verif.analyze_all(Reg_1b_seta(),0)
-    #verif.analyze_all(Reg_1b_noa())
-    #verif.analyze_all(Reg_2b_seta())
-    #verif.analyze_all(Reg_2b_noa())
-    #verif.analyze_all(Reg_1r_seta())
-    #verif.analyze_all(Reg_1r_noa())
-    #verif.analyze_all(Reg_2r_seta())
-    #verif.analyze_all(Reg_2r_noa())
-    #verif.analyze_all(Auth_1b_login_seta())
-    #verif.analyze_all(Auth_1b_login_noa())
-    #verif.analyze_all(Auth_1b_stepup_seta())
-    #verif.analyze_all(Auth_1b_stepup_noa())
+    #verif.analyze_all(Reg_1b_seta(),0)
+    #verif.analyze_all(Reg_1b_noa(),0)
+    #verif.analyze_all(Reg_2b_seta(),0)
+    #verif.analyze_all(Reg_2b_noa(),0)
+    #verif.analyze_all(Reg_1r_seta(),0)
+    #verif.analyze_all(Reg_1r_noa(),0)
+    #verif.analyze_all(Reg_2r_seta(),0)
+    #verif.analyze_all(Reg_2r_noa(),0)
+    verif.analyze_all(Auth_1b_login_seta(),0)
+    #verif.analyze_all(Auth_1b_login_noa(),0)
+    verif.analyze_all(Auth_1b_stepup_seta(),0)
+    #verif.analyze_all(Auth_1b_stepup_noa(),0)
 
-    return False
-    pass
 
 if __name__ == "__main__":
     root_path = os.getcwd() + "/"
