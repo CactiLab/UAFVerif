@@ -8,6 +8,7 @@ import time
 from threading import Timer
 from subprocess import Popen, PIPE
 import pickle
+import shutil
 import re
 from Content import *
 
@@ -144,9 +145,9 @@ class Verif:
         LOG_FILE.close()
         i = stdout[0:-10].rfind(b'--------------------------------------------------------------')  # find last results
         if i == -1:
-            ret = False
+            ret = "false"
         else:
-            ret = True
+            ret = "True"
         result = stdout[i+89:-67]
         return ret, str(result,encoding='utf-8')  # return the results
 
@@ -216,7 +217,8 @@ class Verif:
                     query_file.writelines(content)
                 ret,result = self.proverif(query_path)
                 if ret == False:
-                    log_content += "time out!"
+                    log_content += "time out!\n\n"
+                    shutil.copy(query_path,query_path + str(counter) + "time_out.pv")
                 else:
                     log_content += result
                     self.parser.parser_record(query, result)
