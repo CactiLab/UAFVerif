@@ -6,7 +6,7 @@ set verboseClauses = none.
 set explainDerivation = false.
 set reconstructDerivation = false.
 set displayDerivation = false.
-set abbreviateClauses = false.
+set abbreviateClauses = true.
 set verboseEq = false.
 set verboseTerm = false.
 (********************************************************************)
@@ -193,7 +193,7 @@ fun RegAMresp_12r(AAID,Fchlg,KeyID,CNTR,spkey,spkey,bitstring):msg[data].
 (* 2. AuthServer to authentication                                                                 *)
 (********************************************************************)
 
-let RegUS_seta(SR:channel, appid:Appid) =
+let RegUS_seta(SR:channel, appid:Appid, facetid:Facetid) =
 (
 	in(SR, x:msg);
     let RegRSbegin(uname, tlsdata) = x in
@@ -202,8 +202,7 @@ let RegUS_seta(SR:channel, appid:Appid) =
 	out(SR, RegSRreq(uname,appid,sdata,chlg));
 	in(SR,m:msg);
 	let RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s) = m in
-	let FCParams(=appid,facetid,=chlg,=tlsdata) = fcp in
-	get AppList(=appid,=facetid) in
+	let FCParams(=appid,=facetid,=chlg,=tlsdata) = fcp in
 	if xsdata = sdata && fc = ToFc(hash(fcp)) then
 	if (aaid,fc,kid,cntr,pkAU) = checksign(s,pkAT) then
 	(
@@ -212,7 +211,7 @@ let RegUS_seta(SR:channel, appid:Appid) =
 	)	
 ).
 
-let RegUS_noa(SR:channel, appid:Appid) =
+let RegUS_noa(SR:channel, appid:Appid, facetid:Facetid) =
 (   
     in(SR, x:msg);
     let RegRSbegin(uname, tlsdata) = x in
@@ -221,23 +220,24 @@ let RegUS_noa(SR:channel, appid:Appid) =
     out(SR, RegSRreq_null(uname,sdata,chlg));
     in(SR,m:msg);
     let RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s) = m in
-    let FCParams(appid2,facetid,=chlg,=tlsdata) = fcp in
+    let FCParams(appid_new,=facetid,=chlg,=tlsdata) = fcp in
+	if appid_new = facetid_to_appid(facetid) then
     if xsdata = sdata && fc = ToFc(hash(fcp)) then
     if (aaid,fc,kid,cntr,pkAU) = checksign(s,pkAT) then
     (
-        event RP_success_reg(uname,appid2,aaid,kid);
+        event RP_success_reg(uname,appid_new,aaid,kid);
         out(c,debug)
     )	
 ).
 
-let RegUS_1b_seta(SR:channel, appid:Appid) = RegUS_seta(SR, appid).
-let RegUS_1b_noa(SR:channel, appid:Appid) = RegUS_noa(SR, appid).
-let RegUS_2b_seta(SR:channel, appid:Appid) = RegUS_seta(SR, appid).
-let RegUS_2b_noa(SR:channel, appid:Appid) = RegUS_noa(SR, appid).
-let RegUS_1r_seta(SR:channel, appid:Appid) = RegUS_seta(SR, appid).
-let RegUS_1r_noa(SR:channel, appid:Appid) = RegUS_noa(SR, appid).
-let RegUS_2r_seta(SR:channel, appid:Appid) = RegUS_seta(SR, appid).
-let RegUS_2r_noa(SR:channel, appid:Appid) = RegUS_noa(SR, appid).
+let RegUS_1b_seta(SR:channel, appid:Appid, facetid:Facetid) = RegUS_seta(SR, appid, facetid).
+let RegUS_1b_noa(SR:channel, appid:Appid, facetid:Facetid) = RegUS_noa(SR, appid, facetid).
+let RegUS_2b_seta(SR:channel, appid:Appid, facetid:Facetid) = RegUS_seta(SR, appid, facetid).
+let RegUS_2b_noa(SR:channel, appid:Appid, facetid:Facetid) = RegUS_noa(SR, appid, facetid).
+let RegUS_1r_seta(SR:channel, appid:Appid, facetid:Facetid) = RegUS_seta(SR, appid, facetid).
+let RegUS_1r_noa(SR:channel, appid:Appid, facetid:Facetid) = RegUS_noa(SR, appid, facetid).
+let RegUS_2r_seta(SR:channel, appid:Appid, facetid:Facetid) = RegUS_seta(SR, appid, facetid).
+let RegUS_2r_noa(SR:channel, appid:Appid, facetid:Facetid) = RegUS_noa(SR, appid, facetid).
 
 (********************************************************************)
 (*                                            Relying Party                                                 *)
@@ -548,7 +548,7 @@ let AuthUS_login_seta(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID
     out(SR,AuthSRreq_em(appid,sdata,chlg));
     in(SR,m:msg);
     let AuthRSresp_em(=sdata,=aaid,nonce,fc,=kid,xcntr,fcp,s) = m in
-    let FCParams(appid,facetid,=chlg,=tlsdata) = fcp in
+    let FCParams(=appid,facetid,=chlg,=tlsdata) = fcp in
     get AuthAppList(=appid,=facetid) in
     if fc = ToFc(hash(fcp)) then
     if (aaid,nonce,fc,kid,xcntr) = checksign(s,pkAU) then
@@ -565,12 +565,13 @@ let AuthUS_login_noa(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID,
     out(SR,AuthSRreq_em_null(sdata,chlg));
     in(SR,m:msg);
     let AuthRSresp_em(=sdata,=aaid,nonce,fc,=kid,xcntr,fcp,s) = m in
-    let FCParams(appid2,facetid,=chlg,=tlsdata) = fcp in
-    get AuthAppList(=appid2,=facetid) in
+    let FCParams(appid_new,facetid,=chlg,=tlsdata) = fcp in
+	if appid_new = facetid_to_appid(facetid) then
+    get AuthAppList(appid2,=facetid) in
     if fc = ToFc(hash(fcp)) then
     if (aaid,nonce,fc,kid,xcntr) = checksign(s,pkAU) then
     if xcntr = cntr then
-    event RP_success_auth(uname,appid2,aaid,kid);
+    event RP_success_auth(uname,appid_new,aaid,kid);
     out(c,debug)
  ).
  
@@ -602,13 +603,14 @@ let AuthUS_stepup_noa(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID
     out(SR,AuthSRreq_st_null(kid,sdata,chlg,tr));
     in(SR,m:msg);
     let AuthRSresp_st(=sdata,=aaid,nonce,fc,htr,=kid,xcntr,fcp,s) = m in
-    let FCParams(appid2,facetid,=chlg,=tlsdata) = fcp in
-    get AuthAppList(=appid2,=facetid) in
+    let FCParams(appid_new,facetid,=chlg,=tlsdata) = fcp in
+	if appid_new = facetid_to_appid(facetid) then
+    get AuthAppList(appid2,=facetid) in
     if fc = ToFc(hash(fcp)) then
     if htr = hash_tr(tr) then
     if (aaid,nonce,fc,htr,kid,xcntr) = checksign(s,pkAU) then
     if xcntr = cntr then
-    event RP_success_auth(uname,appid2,aaid,kid);
+    event RP_success_auth(uname,appid_new,aaid,kid);
     event RP_success_tr(tr);
     out(c,debug)
  ).
@@ -840,7 +842,6 @@ let AuthASM_1b_login(MC:channel,MA:channel,token:bitstring,callerid:Callerid,per
     get TrustCallerid(=callerid) in
     let fc = ToFc(hash(fcp)) in
     let ak = To_12b_token(appid,token,callerid,personaid) in 
-    let testak = ak in
     out(MA,AuthMAreq_1bem(ak,fc,appid,kh));
     in(MA,mm:msg);
     let AuthAMresp_em(aaid,nonce,xfc,xkid,xcntr,s) = mm in
@@ -854,7 +855,6 @@ let AuthASM_1b_stepup(MC:channel,MA:channel,token:bitstring,callerid:Callerid,pe
     get TrustCallerid(=callerid) in
     let fc = ToFc(hash(fcp)) in
     let ak = To_12b_token(appid,token,callerid,personaid) in 
-    let testak = ak in
     out(MA,AuthMAreq_1bst(ak,fc,appid,kh,tr));
     in(MA,mm:msg);
     let AuthAMresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s) = mm in
@@ -868,7 +868,6 @@ let AuthASM_2b_stepup(MC:channel,MA:channel,token:bitstring,callerid:Callerid,pe
     get TrustCallerid(=callerid) in
     let fc = ToFc(hash(fcp)) in
     let ak = To_12b_token(appid,token,callerid,personaid) in 
-    let testak = ak in
     out(MA,AuthMAreq_2bst(ak,fc,appid,kh,tr));
     in(MA,mm:msg);
     let AuthAMresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s) = mm in
@@ -880,7 +879,6 @@ let AuthASM_1r_login(MC:channel,MA:channel,token:bitstring,callerid:Callerid,per
     let AuthCMreq_em(appid,fcp) = m in
     let fc = ToFc(hash(fcp)) in
     let ak = To_12r_token(appid) in
-    let testak = ak in
     out(MA,AuthMAreq_1rem(ak,fc,appid));
     in(MA,mm:msg);
     let AuthAMresp_em(aaid,nonce,xfc,kid,xcntr,s) = mm in
@@ -892,7 +890,6 @@ let AuthASM_1r_stepup(MC:channel,MA:channel,token:bitstring,callerid:Callerid,pe
     let AuthCMreq_st(appid,fcp,kid,tr) = m in
     let fc = ToFc(hash(fcp)) in
     let ak = To_12r_token(appid) in
-    let testak = ak in
     out(MA,AuthMAreq_1rst(ak,fc,appid,kid,tr));
     in(MA,mm:msg);
     let AuthAMresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s) = mm in
@@ -904,7 +901,6 @@ let AuthASM_2r_stepup(MC:channel,MA:channel,token:bitstring,callerid:Callerid,pe
     let AuthCMreq_st(appid,fcp,kid,tr) = m in
     let fc = ToFc(hash(fcp)) in
     let ak = To_12r_token(appid) in
-    let testak = ak in
     out(MA,AuthMAreq_2rst(ak,fc,appid,kid,tr));
     in(MA,mm:msg);
     let AuthAMresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s) = mm in

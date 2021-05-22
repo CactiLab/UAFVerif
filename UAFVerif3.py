@@ -140,15 +140,15 @@ class Verif:
             return_code = output.returncode
         finally:
             timer.cancel()
-        LOG_FILE = open(self.root_path + "LOG/all_log", "a")
-        LOG_FILE.writelines(str(stdout,encoding='utf-8'))
-        LOG_FILE.close()
-        i = stdout[0:-10].rfind(b'--------------------------------------------------------------')  # find last results
-        if i == -1:
-            ret = "false"
+        with open(self.root_path + "LOG/all_log", "a") as LOG_FILE:
+            LOG_FILE.writelines(str(stdout,encoding='utf-8'))
+        if return_code != 0:
+            ret = False
+            result = stdout
         else:
-            ret = "True"
-        result = stdout[i+89:-67]
+            i = stdout[0:-10].rfind(b'--------------------------------------------------------------')  # find last results
+            ret = True
+            result = stdout[i+89:-67]
         return ret, str(result,encoding='utf-8')  # return the results
 
     def generate_file_name(self,case):
@@ -218,7 +218,9 @@ class Verif:
                 ret,result = self.proverif(query_path)
                 if ret == False:
                     log_content += "time out!\n\n"
-                    shutil.copy(query_path,query_path + str(counter) + "time_out.pv")
+                    shutil.copy(query_path, query_path + str(counter) + "time_out.pv")
+                    with open(query_path + str(counter) + "time_out.pv", "a") as f:
+                        f.writelines(result)
                 else:
                     log_content += result
                     self.parser.parser_record(query, result)
@@ -251,15 +253,15 @@ def run(root_path):
     makedir(root_path)
     parser = Parser(root_path)
     verif = Verif(root_path,parser)
-    #verif.analyze_all(Reg_1b_seta(),0)
-    #verif.analyze_all(Reg_1b_noa(),0)
+    verif.analyze_all(Reg_1b_seta(),0)
+    verif.analyze_all(Reg_1b_noa(),0)
     #verif.analyze_all(Reg_2b_seta(),0)
     #verif.analyze_all(Reg_2b_noa(),0)
     #verif.analyze_all(Reg_1r_seta(),0)
     #verif.analyze_all(Reg_1r_noa(),0)
     #verif.analyze_all(Reg_2r_seta(),0)
     #verif.analyze_all(Reg_2r_noa(),0)
-    verif.analyze_all(Auth_1b_login_seta(),0)
+    verif.analyze_all(Auth_1b_login_seta(),99)
     #verif.analyze_all(Auth_1b_login_noa(),0)
     verif.analyze_all(Auth_1b_stepup_seta(),0)
     #verif.analyze_all(Auth_1b_stepup_noa(),0)
