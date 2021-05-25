@@ -117,19 +117,25 @@ class Verif:
         self.reboot_number_path = root_path + "LOG/final_result"
         self.parser = parser
         self.secure_queries = []
-    def proverif_group_query(self, query_path, result_path):  # activate proverif and analyze the temp.pv file
-        file_result = open(result_path, "w")
+    def proverif_group_query(self, query_path):  # activate proverif and analyze the temp.pv file
+        file_result = open(query_path + "temp.result", "w")
         p = Popen('proverif -lib "' + self.root_path + "UAF.pvl" + '" ' + query_path, stdout=file_result, stderr=file_result,
                   shell=True)
-        all_output_content = b""
-        while p.poll() is None:
-            print("正在运行" + time.strftime("%M:%S", time.localtime()))
-            time.sleep(4)
-            # all_output_content += line
+        while True:
+            if p.poll() != None:
+                break
+            #print("正在运行" + time.strftime("%M:%S", time.localtime()))
         file_result.close()
-        # all_output_content, stderr = output.communicate()
-        # return_code = output.returncode
-        return True  # return the results
+        with open(query_path + "temp.result", "rb") as f:
+            out = f.read()
+        if p.poll() == 5:#timer kill
+            ret = False
+            result = out
+        else:
+            i = out[0:-10].rfind(b'--------------------------------------------------------------')  # find last results
+            ret = True
+            result = out[i + 89:-70]
+        return ret, str(result, encoding='utf-8')  # return the results
 
     def proverif(self, query_path):
         output = Popen('proverif -lib "' + root_path + "UAF.pvl" + '" ' + query_path, stdout=PIPE, stderr=PIPE)
@@ -148,7 +154,7 @@ class Verif:
         else:
             i = stdout[0:-10].rfind(b'--------------------------------------------------------------')  # find last results
             ret = True
-            result = stdout[i+89:-67]
+            result = stdout[i+89:-70]
         return ret, str(result,encoding='utf-8')  # return the results
 
     def generate_file_name(self,case):
@@ -204,26 +210,28 @@ class Verif:
         counter = reboot
         scene_log_file = open(root_path + "LOG/" + case.scene_name + ".log", "a")
         result_path = root_path + "LOG/" + case.scene_name + ".result"
-        query_path = root_path + "QUERY/" + case.get_scene_name() + ".pv"
         while counter < len(all_queries):
             query = all_queries[counter]
+            query_path = root_path + "QUERY/" + case.get_scene_name() + query.query_name + ".pv"
             log_content = ""
             log_content += str(counter) + ", " + query.scene_name + ", " + query.query_name + ", "
             if self.parser.jump(query):
-                log_content += "jump in secure set.\n\n"
+                log_content += "jump in secure set."
             else:
                 with open(query_path, "w") as query_file:
                     query_file.writelines(query.content)
                     query_file.writelines(content)
-                ret,result = self.proverif(query_path)
+                ret,result = self.proverif_group_query(query_path)
                 if ret == False:
-                    log_content += "time out!\n\n"
+                    log_content += "time out!"
                     shutil.copy(query_path, query_path + str(counter) + "time_out.pv")
                     with open(query_path + str(counter) + "time_out.pv", "a") as f:
                         f.writelines(result)
                 else:
                     log_content += result
                     self.parser.parser_record(query, result)
+            log_content += str(time.strftime("%H:%M:%S", time.localtime()))
+            log_content += "\n\n"
             scene_log_file.writelines(log_content)
             scene_log_file.flush()
             counter += 1
@@ -253,18 +261,18 @@ def run(root_path):
     makedir(root_path)
     parser = Parser(root_path)
     verif = Verif(root_path,parser)
-    verif.analyze_all(Reg_1b_seta(),0)
-    verif.analyze_all(Reg_1b_noa(),0)
+    #verif.analyze_all(Reg_1b_seta(),0)
+    #verif.analyze_all(Reg_1b_noa(),0)
     #verif.analyze_all(Reg_2b_seta(),0)
     #verif.analyze_all(Reg_2b_noa(),0)
     #verif.analyze_all(Reg_1r_seta(),0)
     #verif.analyze_all(Reg_1r_noa(),0)
     #verif.analyze_all(Reg_2r_seta(),0)
     #verif.analyze_all(Reg_2r_noa(),0)
-    verif.analyze_all(Auth_1b_login_seta(),99)
-    #verif.analyze_all(Auth_1b_login_noa(),0)
+    verif.analyze_all(Auth_1b_login_seta(),0)
+    verif.analyze_all(Auth_1b_login_noa(),0)
     verif.analyze_all(Auth_1b_stepup_seta(),0)
-    #verif.analyze_all(Auth_1b_stepup_noa(),0)
+    verif.analyze_all(Auth_1b_stepup_noa(),0)
 
 
 if __name__ == "__main__":

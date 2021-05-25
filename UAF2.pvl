@@ -1,17 +1,27 @@
-(**********************************)
 
-set reconstructTrace = true.
-set traceDisplay = short.
-set displayDerivation = false.
+set traceDisplay = none.
+set reconstructTrace = false.
 set verboseClauses = none.
+set explainDerivation = false.
+set reconstructDerivation = false.
+set displayDerivation = false.
+set abbreviateClauses = true.
+set verboseEq = false.
+set verboseTerm = false.
 (********************************************************************)
 (*                           Messages Type declaration                                        	    *)
 (********************************************************************)
 type msg.
-type Atype. (* indicate the type of the autheticator *)
-type Ltype. (* indicate if it is the first time login or step-up authentication *)
-type Ftype. (* indicate if the appid is NULL or not *)
-type Scene.
+type msg_RS.
+type msg_SR.
+type msg_UR.
+type msg_RU.
+type msg_UC.
+type msg_CU.
+type msg_CM.
+type msg_MC.
+type msg_MA.
+type msg_AM.
 
 type Uname.
 type Appid.
@@ -27,6 +37,7 @@ type AAID.
 type CNTR.
 type Nonce.
 type KeyID.
+type TLSData.
 
 (********************************************************************)
 (*                                  Symmetric encryption     		                         	        *)
@@ -66,13 +77,13 @@ fun hash_tr(Tr): Tr.
 (*              Final Challenge Params function to compute a FCP params               *)
 (********************************************************************)
 
-fun FCParams(Appid,Facetid,Chlg,bitstring):bitstring[data].
+fun FCParams(Appid,Facetid,Chlg,TLSData):bitstring[data].
 
 (********************************************************************)
 (*                                     Get TLSDATA from channel               	                *)
 (********************************************************************)
 
-fun GetTLSdata(channel):bitstring.
+fun GetTLSdata(channel,channel):TLSData.
   
 (********************************************************************)
 (*                         Increasing counter value                                                    *)
@@ -101,6 +112,12 @@ fun ToFc(bitstring):Fchlg.
 fun facetid_to_appid(Facetid):Appid.
 
 (********************************************************************)
+(*                                            gen_skAU                                                *)
+(********************************************************************)
+fun gen_skAU(sskey,bitstring):sskey.
+fun gen_cntr(CNTR,bitstring):CNTR.
+fun gen_kid(KeyID,bitstring):KeyID.
+(********************************************************************)
 (*                                  table for database                                                    *)
 (********************************************************************)
 
@@ -118,16 +135,7 @@ free c:channel.
 (********************************************************************)
 (*                                   const declarations                                                   *)
 (********************************************************************)
-const autr_1b:Atype.
-const autr_2b:Atype.
-const autr_1r:Atype.
-const autr_2r:Atype.
-const empty:Ltype.
-const stepup:Ltype.
-const null:Ftype.
-const hasset:Ftype.
-const software:Scene.
-const hardware:Scene.
+
 const debug:bitstring[private].
 const reg_cntr:CNTR[private].
 const auth_cntr:CNTR[private].
@@ -138,8 +146,10 @@ const auth_cntr:CNTR[private].
 event RP_success_reg(Uname,Appid,AAID,KeyID).
 event UA_init_reg(Uname).
 event Autr_verify_reg(Uname,Appid,AAID,KeyID).
+
 event malicious_RP_to_US().
 event malicious_US_to_RP().
+event malicious_RP_to_UA().
 event malicious_UC_to_UA().
 event malicious_UA_to_RP().
 event malicious_UA_to_UC().
@@ -147,26 +157,32 @@ event malicious_ASM_to_UC().
 event malicious_UC_to_ASM().
 event malicious_Autr_to_ASM().
 event malicious_ASM_to_Autr().
+event leak_token().
+event leak_kw().
+event leak_skat().
+event leak_skau().
+event leak_cntr().
+event leak_kid().
 
 (********************************************************************)
 (*                              Registration message format                                        *)
 (********************************************************************)
-fun InputUandP(Uname, bitstring):msg[data].
-fun RegRSbegin(Uname, bitstring):msg[data].
-fun RegSRreq(Uname,Appid,SData,Chlg):msg[data].
-fun RegSRreq_null(Uname,SData,Chlg):msg[data].
-fun RegRSresp(SData,AAID,Fchlg,KeyID,CNTR,spkey,spkey,bitstring,bitstring):msg[data].
-fun RegRUreq(Uname,Appid,SData,Chlg):msg[data].
-fun RegRUreq_null(Uname,SData,Chlg):msg[data].
-fun RegURresp(SData,AAID,Fchlg,KeyID,CNTR,spkey,spkey,bitstring,bitstring):msg[data].
-fun RegUCreq(Uname,Appid,SData,Chlg,bitstring):msg[data].
-fun RegUCreq_null(Uname,SData,Chlg,bitstring):msg[data].
-fun RegCUresp(SData,AAID,Fchlg,KeyID,CNTR,spkey,spkey,bitstring,bitstring):msg[data].
-fun RegCMreq(Uname,Appid,bitstring):msg[data].
-fun RegMCresp(AAID,Fchlg,KeyID,CNTR,spkey,spkey,bitstring):msg[data].
-fun RegMAreq(Uname,Appid,Token,Fchlg):msg[data].
-fun RegAMresp_12b(AAID,Fchlg,KeyID,CNTR,spkey,spkey,KeyID,bitstring):msg[data].
-fun RegAMresp_12r(AAID,Fchlg,KeyID,CNTR,spkey,spkey,bitstring):msg[data].
+fun InputUandP(Uname, bitstring):msg_UR[data].
+fun RegRSbegin(Uname, TLSData):msg_RS[data].
+fun RegSRreq(Uname,Appid,SData,Chlg):msg_SR[data].
+fun RegSRreq_null(Uname,SData,Chlg):msg_SR[data].
+fun RegRSresp(SData,AAID,Fchlg,KeyID,CNTR,spkey,spkey,bitstring,bitstring):msg_RS[data].
+fun RegRUreq(Uname,Appid,SData,Chlg):msg_RU[data].
+fun RegRUreq_null(Uname,SData,Chlg):msg_RU[data].
+fun RegURresp(SData,AAID,Fchlg,KeyID,CNTR,spkey,spkey,bitstring,bitstring):msg_UR[data].
+fun RegUCreq(Uname,Appid,SData,Chlg,TLSData):msg_UC[data].
+fun RegUCreq_null(Uname,SData,Chlg,TLSData):msg_UC[data].
+fun RegCUresp(SData,AAID,Fchlg,KeyID,CNTR,spkey,spkey,bitstring,bitstring):msg_CU[data].
+fun RegCMreq(Uname,Appid,bitstring):msg_CM[data].
+fun RegMCresp(AAID,Fchlg,KeyID,CNTR,spkey,spkey,bitstring):msg_MC[data].
+fun RegMAreq(Uname,Appid,Token,Fchlg):msg_MA[data].
+fun RegAMresp_12b(AAID,Fchlg,KeyID,CNTR,spkey,spkey,KeyID,bitstring):msg_AM[data].
+fun RegAMresp_12r(AAID,Fchlg,KeyID,CNTR,spkey,spkey,bitstring):msg_AM[data].
 
 (********************************************************************)
 (*                                            FIDO Server                                                 *)
@@ -174,17 +190,14 @@ fun RegAMresp_12r(AAID,Fchlg,KeyID,CNTR,spkey,spkey,bitstring):msg[data].
 (* 2. AuthServer to authentication                                                                 *)
 (********************************************************************)
 
-let RegUS_seta(SR:channel, appid:Appid) =
+let RegUS_seta(ch_US:channel, appid:Appid, facetid:Facetid) =
 (
-	in(SR, x:msg);
-    let RegRSbegin(uname, tlsdata) = x in
+	in(ch_US, RegRSbegin(uname, tlsdata));
     new sdata:SData;
 	new chlg:Chlg;
-	out(SR, RegSRreq(uname,appid,sdata,chlg));
-	in(SR,m:msg);
-	let RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s) = m in
-	let FCParams(=appid,facetid,=chlg,=tlsdata) = fcp in
-	get AppList(=appid,=facetid) in
+	out(ch_US, RegSRreq(uname,appid,sdata,chlg));
+	in(ch_US,RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s));
+	let FCParams(=appid,=facetid,=chlg,=tlsdata) = fcp in
 	if xsdata = sdata && fc = ToFc(hash(fcp)) then
 	if (aaid,fc,kid,cntr,pkAU) = checksign(s,pkAT) then
 	(
@@ -193,152 +206,174 @@ let RegUS_seta(SR:channel, appid:Appid) =
 	)	
 ).
 
-let RegUS_noa(SR:channel, appid:Appid) =
+let RegUS_noa(ch_US:channel, appid:Appid, facetid:Facetid) =
 (   
-    in(SR, x:msg);
-    let RegRSbegin(uname, tlsdata) = x in
+    in(ch_US, RegRSbegin(uname, tlsdata));
     new sdata:SData;
 	new chlg:Chlg;
-    out(SR, RegSRreq_null(uname,sdata,chlg));
-    in(SR,m:msg);
-    let RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s) = m in
-    let FCParams(appid2,facetid,=chlg,=tlsdata) = fcp in
+    out(ch_US, RegSRreq_null(uname,sdata,chlg));
+    in(ch_US,RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s));
+    let FCParams(appid_new,=facetid,=chlg,=tlsdata) = fcp in
+	if appid_new = facetid_to_appid(facetid) then
     if xsdata = sdata && fc = ToFc(hash(fcp)) then
     if (aaid,fc,kid,cntr,pkAU) = checksign(s,pkAT) then
     (
-        event RP_success_reg(uname,appid2,aaid,kid);
+        event RP_success_reg(uname,appid_new,aaid,kid);
         out(c,debug)
-    )	
+    )
 ).
 
+let RegUS_1b_seta(ch_US:channel, appid:Appid, facetid:Facetid) = RegUS_seta(ch_US, appid, facetid).
+let RegUS_1b_noa(ch_US:channel, appid:Appid, facetid:Facetid) = RegUS_noa(ch_US, appid, facetid).
+let RegUS_2b_seta(ch_US:channel, appid:Appid, facetid:Facetid) = RegUS_seta(ch_US, appid, facetid).
+let RegUS_2b_noa(ch_US:channel, appid:Appid, facetid:Facetid) = RegUS_noa(ch_US, appid, facetid).
+let RegUS_1r_seta(ch_US:channel, appid:Appid, facetid:Facetid) = RegUS_seta(ch_US, appid, facetid).
+let RegUS_1r_noa(ch_US:channel, appid:Appid, facetid:Facetid) = RegUS_noa(ch_US, appid, facetid).
+let RegUS_2r_seta(ch_US:channel, appid:Appid, facetid:Facetid) = RegUS_seta(ch_US, appid, facetid).
+let RegUS_2r_noa(ch_US:channel, appid:Appid, facetid:Facetid) = RegUS_noa(ch_US, appid, facetid).
 
 (********************************************************************)
 (*                                            Relying Party                                                 *)
 (********************************************************************)
-let RegRP_seta(RS:channel, https:channel, uname:Uname, password:bitstring) =
+let RegRP_seta(ch_RP:channel, uname:Uname, password:bitstring) =
 (
-	in(https,up:msg);
+	in(ch_RP,up:msg_UR);
 	let InputUandP(=uname, =password) = up in
-    let tlsdata = GetTLSdata(https) in
-    out(RS,RegRSbegin(uname, tlsdata));
-    in(RS,m:msg);
-    let RegSRreq(uname,appid,sdata,chlg) = m in
-    out(https,RegRUreq(uname,appid,sdata,chlg));
-    in(https,x:msg);
-    let RegURresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s) = x in
-    out(RS, RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
+    in(ch_RP,tlsdata:TLSData);
+    out(ch_RP,RegRSbegin(uname, tlsdata));
+    in(ch_RP,RegSRreq(uname,appid,sdata,chlg));
+    out(ch_RP,RegRUreq(uname,appid,sdata,chlg));
+    in(ch_RP,RegURresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s));
+    out(ch_RP, RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
 ).
 
-let RegRP_noa(RS:channel, https:channel, uname:Uname, password:bitstring) =
+let RegRP_noa(ch_RP:channel, uname:Uname, password:bitstring) =
 (
-	in(https,up:msg);
+	in(ch_RP,up:msg_UR);
 	let InputUandP(=uname, =password) = up in
-    let tlsdata = GetTLSdata(https) in
-    out(RS,RegRSbegin(uname, tlsdata));
-    in(RS,m:msg);
-    let RegSRreq_null(uname,sdata,chlg) = m in
-    out(https,RegRUreq_null(uname,sdata,chlg));
-    in(https,x:msg);
-    let RegURresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s) = x in
-    out(RS, RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
+    in(ch_RP,tlsdata:TLSData);
+    out(ch_RP,RegRSbegin(uname, tlsdata));
+    in(ch_RP,RegSRreq_null(uname,sdata,chlg));
+    out(ch_RP,RegRUreq_null(uname,sdata,chlg));
+    in(ch_RP,RegURresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s));
+    out(ch_RP, RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
 ).
+
+let RegRP_1b_seta(ch_RP:channel, uname:Uname, password:bitstring) = RegRP_seta(ch_RP, uname, password).
+let RegRP_1b_noa(ch_RP:channel, uname:Uname, password:bitstring) = RegRP_noa(ch_RP, uname, password).
+let RegRP_2b_seta(ch_RP:channel, uname:Uname, password:bitstring) = RegRP_seta(ch_RP, uname, password).
+let RegRP_2b_noa(ch_RP:channel, uname:Uname, password:bitstring) = RegRP_noa(ch_RP, uname, password).
+let RegRP_1r_seta(ch_RP:channel, uname:Uname, password:bitstring) = RegRP_seta(ch_RP, uname, password).
+let RegRP_1r_noa(ch_RP:channel, uname:Uname, password:bitstring) = RegRP_noa(ch_RP, uname, password).
+let RegRP_2r_seta(ch_RP:channel, uname:Uname, password:bitstring) = RegRP_seta(ch_RP, uname, password).
+let RegRP_2r_noa(ch_RP:channel, uname:Uname, password:bitstring) = RegRP_noa(ch_RP, uname, password).
 
 (********************************************************************)
 (*                                             User Agent                                                   *)
 (* 1.  only represent a honest user agent                     					                *)
 (* 2. it can visit a fake website                                                                       *)
 (********************************************************************)
-let RegUA_seta(https:channel,UC:channel,uname:Uname,password:bitstring) =
+let RegUA_seta(ch_UA:channel,uname:Uname,password:bitstring) =
 (
 	event UA_init_reg(uname);
-	out(https,InputUandP(uname,password));
-	in(https, m:msg);
-    let RegRUreq(xuname,appid,sdata,chlg) = m in
-    (
-        let tlsdata = GetTLSdata(https) in
-        out(UC,RegUCreq(xuname,appid,sdata,chlg,tlsdata));
-        in(UC, mm:msg);
-        
-        let RegCUresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s)  = mm in
-        out(https,RegURresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
-    )
+	out(ch_UA,InputUandP(uname,password));
+	in(ch_UA, RegRUreq(xuname,appid,sdata,chlg));
+    in(ch_UA,tlsdata:TLSData);
+    out(ch_UA, RegUCreq(xuname,appid,sdata,chlg,tlsdata));
+    in(ch_UA, RegCUresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s));
+    out(ch_UA,RegURresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
 ).
 
-let RegUA_noa(https:channel,UC:channel,uname:Uname,password:bitstring) =
+let RegUA_noa(ch_UA:channel,uname:Uname,password:bitstring) =
 (
 	event UA_init_reg(uname);
-	out(https,InputUandP(uname,password));
-	in(https, m:msg);
-    let RegRUreq_null(xuname,sdata,chlg) = m in
-    (
-        
-        let tlsdata = GetTLSdata(https) in
-        out(UC,RegUCreq_null(xuname,sdata,chlg,tlsdata));
-        in(UC, mm:msg);
-        let RegCUresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s)  = mm in
-        out(https,RegURresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
-    )
+	out(ch_UA,InputUandP(uname,password));
+	in(ch_UA, RegRUreq_null(xuname,sdata,chlg));
+    in(ch_UA,tlsdata:TLSData);
+    out(ch_UA,RegUCreq_null(xuname,sdata,chlg,tlsdata));
+    in(ch_UA, RegCUresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s));
+    out(ch_UA,RegURresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
 ).
+
+
+let RegUA_1b_seta(ch_UA:channel,uname:Uname,password:bitstring) = RegUA_seta(ch_UA,uname,password).
+let RegUA_1b_noa(ch_UA:channel,uname:Uname,password:bitstring) = RegUA_noa(ch_UA,uname,password).
+let RegUA_2b_seta(ch_UA:channel,uname:Uname,password:bitstring) = RegUA_seta(ch_UA,uname,password).
+let RegUA_2b_noa(ch_UA:channel,uname:Uname,password:bitstring) = RegUA_noa(ch_UA,uname,password).
+let RegUA_1r_seta(ch_UA:channel,uname:Uname,password:bitstring) = RegUA_seta(ch_UA,uname,password).
+let RegUA_1r_noa(ch_UA:channel,uname:Uname,password:bitstring) = RegUA_noa(ch_UA,uname,password).
+let RegUA_2r_seta(ch_UA:channel,uname:Uname,password:bitstring) = RegUA_seta(ch_UA,uname,password).
+let RegUA_2r_noa(ch_UA:channel,uname:Uname,password:bitstring) = RegUA_noa(ch_UA,uname,password).
 
 (********************************************************************)
 (*                                             FIDO Client                                                  *)
 (* 1. FIDO UAF client                   				                                                    *)
 (********************************************************************)
-let RegUC_seta(CU:channel,CM:channel,facetid:Facetid) =
+let RegUC_seta(ch_UC:channel,facetid:Facetid) =
 (
-	in(CU,m:msg);
-    let RegUCreq(uname,appid,sdata,chlg,tlsdata) = m in
+	in(ch_UC,RegUCreq(uname,appid,sdata,chlg,tlsdata));
     get AppList(=appid, =facetid) in
     let fcp = FCParams(appid,facetid,chlg,tlsdata) in
-    out(CM,RegCMreq(uname,appid,fcp));
-    in(CM,mm:msg);
-    let RegMCresp(aaid,fc,kid,cntr,pkAT,pkAU,s) = mm in
-    out(CU,RegCUresp(sdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
+    out(ch_UC,RegCMreq(uname,appid,fcp));
+    in(ch_UC,RegMCresp(aaid,fc,kid,cntr,pkAT,pkAU,s));
+    out(ch_UC,RegCUresp(sdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
 ).
 
-let RegUC_noa(CU:channel,CM:channel,facetid:Facetid) =
+let RegUC_noa(ch_UC:channel,facetid:Facetid) =
 (
-	in(CU,m:msg);
-    let RegUCreq_null(uname,sdata,chlg,tlsdata) = m in
+	in(ch_UC,RegUCreq_null(uname,sdata,chlg,tlsdata));
     let appid = facetid_to_appid(facetid) in
     let fcp = FCParams(appid,facetid,chlg,tlsdata) in
-    out(CM,RegCMreq(uname,appid,fcp));
-    in(CM,mm:msg);
-    let RegMCresp(aaid,fc,kid,cntr,pkAT,pkAU,s) = mm in
-    out(CU,RegCUresp(sdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
+    out(ch_UC,RegCMreq(uname,appid,fcp));
+    in(ch_UC,RegMCresp(aaid,fc,kid,cntr,pkAT,pkAU,s));
+    out(ch_UC,RegCUresp(sdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
 ).
+
+let RegUC_1b_seta(ch_UC:channel,facetid:Facetid) = RegUC_seta(ch_UC,facetid).
+let RegUC_1b_noa(ch_UC:channel,facetid:Facetid) = RegUC_noa(ch_UC,facetid).
+let RegUC_2b_seta(ch_UC:channel,facetid:Facetid) = RegUC_seta(ch_UC,facetid).
+let RegUC_2b_noa(ch_UC:channel,facetid:Facetid) = RegUC_noa(ch_UC,facetid).
+let RegUC_1r_seta(ch_UC:channel,facetid:Facetid) = RegUC_seta(ch_UC,facetid).
+let RegUC_1r_noa(ch_UC:channel,facetid:Facetid) = RegUC_noa(ch_UC,facetid).
+let RegUC_2r_seta(ch_UC:channel,facetid:Facetid) = RegUC_seta(ch_UC,facetid).
+let RegUC_2r_noa(ch_UC:channel,facetid:Facetid) = RegUC_noa(ch_UC,facetid).
+
 
 (********************************************************************)
 (*                                                  ASM                                                        *)
 (********************************************************************)
-let RegASM_1b2b(MC:channel, MA:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) =
+let RegASM_1b2b(ch_ASM:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) =
 (
-	in(MC, m:msg);
-	let RegCMreq(uname,appid,fcp) = m in
+	in(ch_ASM, RegCMreq(uname,appid,fcp));
 	let fc = ToFc(hash(fcp)) in
     (* bound authenticator send keyhandle and store it into the ASM *)
     let ak = To_12b_token(appid,token,callerid,personaid) in
     let testak = ak in
-    out(MA,RegMAreq(uname,appid,ak,fc));
-    in(MA,mm:msg);
-    let RegAMresp_12b(aaid,fc2,kid,cntr,pkAT,pkAU,kh,s) = mm in
-    out(MC,RegMCresp(aaid,fc2,kid,cntr,pkAT,pkAU,s))
+    out(ch_ASM,RegMAreq(uname,appid,ak,fc));
+    in(ch_ASM,RegAMresp_12b(aaid,fc2,kid,cntr,pkAT,pkAU,kh,s));
+    out(ch_ASM,RegMCresp(aaid,fc2,kid,cntr,pkAT,pkAU,s))
 ).
 
-let RegASM_1r2r(MC:channel, MA:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) =
+let RegASM_1r2r(ch_ASM:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) =
 (
-	in(MC, m:msg);
-	let RegCMreq(uname,appid,fcp) = m in
+	in(ch_ASM, RegCMreq(uname,appid,fcp));
 	let fc = ToFc(hash(fcp)) in
     let ak = To_12r_token(appid) in
     let testak = ak in
     (* roaming authenticators don't send the keyhandle *)
-    out(MA,RegMAreq(uname,appid,ak,fc));
-    in(MA,mm:msg);
-    let RegAMresp_12r(aaid,fc2,kid,cntr,pkAT,pkAU,s) = mm in
-    out(MC,RegMCresp(aaid,fc2,kid,cntr,pkAT,pkAU,s))
+    out(ch_ASM,RegMAreq(uname,appid,ak,fc));
+    in(ch_ASM,RegAMresp_12r(aaid,fc2,kid,cntr,pkAT,pkAU,s));
+    out(ch_ASM,RegMCresp(aaid,fc2,kid,cntr,pkAT,pkAU,s))
 ).
 
+let RegASM_1b_seta(ch_ASM:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) = RegASM_1b2b(ch_ASM, token, callerid, personaid).
+let RegASM_1b_noa(ch_ASM:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) = RegASM_1b2b(ch_ASM, token, callerid, personaid).
+let RegASM_2b_seta(ch_ASM:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) = RegASM_1b2b(ch_ASM, token, callerid, personaid).
+let RegASM_2b_noa(ch_ASM:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) = RegASM_1b2b(ch_ASM, token, callerid, personaid).
+let RegASM_1r_seta(ch_ASM:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) = RegASM_1r2r(ch_ASM, token, callerid, personaid).
+let RegASM_1r_noa(ch_ASM:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) = RegASM_1r2r(ch_ASM, token, callerid, personaid).
+let RegASM_2r_seta(ch_ASM:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) = RegASM_1r2r(ch_ASM, token, callerid, personaid).
+let RegASM_2r_noa(ch_ASM:channel,  token:bitstring, callerid:Callerid, personaid:PersonaID) = RegASM_1r2r(ch_ASM, token, callerid, personaid).
 
 
 (********************************************************************)
@@ -347,531 +382,194 @@ let RegASM_1r2r(MC:channel, MA:channel, token:bitstring, callerid:Callerid, pers
 (* 2. AuthServer to authentication                                                                *)
 (* Both of them use the same channel                                                           *)
 (********************************************************************)
-let RegAutr_1b(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =
+let RegAutr_1b(ch_autr:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =
 (
-	in(AM,m:msg);
-	let RegMAreq(uname,appid,ak,fc) = m in
-	new skAU:sskey;
-	new cntr:CNTR;
-	let testskAU = skAU in
-	let testcntr = cntr in
+	in(ch_autr,RegMAreq(uname,appid,ak,fc));
+	new skAU_seed:bitstring;
+    let skAU = gen_skAU(skAU_basic,skAU_seed) in
+	new cntr_seed:bitstring;
+    let cntr = gen_cntr(cntr_basic,cntr_seed) in
 	let pkAT = spk(skAT) in
 	let pkAU = spk(skAU) in
-    new kid:KeyID;
-    let testkid = kid in
+    new kid_seed:bitstring;
+    let kid = gen_kid(kid_basic, kid_seed) in
     let kh = senc((skAU,ak,uname,kid),wrapkey) in 
     let s = sign((aaid,fc,kid,cntr,pkAU),skAT) in
     event Autr_verify_reg(uname,appid,aaid,kid);
-    out(AM,RegAMresp_12b(aaid,fc,kid,cntr,pkAT,pkAU,kh,s))
+    out(ch_autr,RegAMresp_12b(aaid,fc,kid,cntr,pkAT,pkAU,kh,s))
 ).
 
-let RegAutr_2b(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =
+let RegAutr_2b(ch_autr:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =
 (
-	in(AM,m:msg);
-	let RegMAreq(uname,appid,ak,fc) = m in
-	new skAU:sskey;
-	new cntr:CNTR;
-	let testskAU = skAU in
-	let testcntr = cntr in
+	in(ch_autr,RegMAreq(uname,appid,ak,fc) );
+	new skAU_seed:bitstring;
+    let skAU = gen_skAU(skAU_basic,skAU_seed) in
+	new cntr_seed:bitstring;
+    let cntr = gen_cntr(cntr_basic,cntr_seed) in
 	let pkAT = spk(skAT) in
 	let pkAU = spk(skAU) in
-    new kid:KeyID;
-    let testkid = kid in
+    new kid_seed:bitstring;
+    let kid = gen_kid(kid_basic, kid_seed) in
     let kh = senc((skAU,ak,kid),wrapkey) in
     let s = sign((aaid,fc,kid,cntr,pkAU),skAT) in
     event Autr_verify_reg(uname,appid,aaid,kid);
-    out(AM,RegAMresp_12b(aaid,fc,kid,cntr,pkAT,pkAU,kh,s))
+    out(ch_autr,RegAMresp_12b(aaid,fc,kid,cntr,pkAT,pkAU,kh,s))
 ).
 
-let RegAutr_1r(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =
+let RegAutr_1r(ch_autr:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =
 (
-	in(AM,m:msg);
-	let RegMAreq(uname,appid,ak,fc) = m in
-	new skAU:sskey;
-	new cntr:CNTR;
-	let testskAU = skAU in
-	let testcntr = cntr in
+	in(ch_autr,RegMAreq(uname,appid,ak,fc));
+	new skAU_seed:bitstring;
+    let skAU = gen_skAU(skAU_basic,skAU_seed) in
+	new cntr_seed:bitstring;
+    let cntr = gen_cntr(cntr_basic,cntr_seed) in
 	let pkAT = spk(skAT) in
 	let pkAU = spk(skAU) in
-    new kid:KeyID;
-    let testkid = kid in
+     new kid_seed:bitstring;
+    let kid = gen_kid(kid_basic, kid_seed) in
     let kh = senc((skAU,ak,uname,kid),wrapkey) in 
     let s = sign((aaid,fc,kid,cntr,pkAU),skAT) in
     event Autr_verify_reg(uname,appid,aaid,kid);
-    out(AM,RegAMresp_12r(aaid,fc,kid,cntr,pkAT,pkAU,s))
+    out(ch_autr,RegAMresp_12r(aaid,fc,kid,cntr,pkAT,pkAU,s))
 ).
 
-let RegAutr_2r(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key) =
+let RegAutr_2r(ch_autr:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =
 (
-	in(AM,m:msg);
-	let RegMAreq(uname,appid,ak,fc) = m in
-	new skAU:sskey;
-	new cntr:CNTR;
-	let testskAU = skAU in
-	let testcntr = cntr in
+	in(ch_autr,RegMAreq(uname,appid,ak,fc));
+	new skAU_seed:bitstring;
+    let skAU = gen_skAU(skAU_basic,skAU_seed) in
+	new cntr_seed:bitstring;
+    let cntr = gen_cntr(cntr_basic,cntr_seed) in
 	let pkAT = spk(skAT) in
 	let pkAU = spk(skAU) in
     let kh = senc((skAU,ak),wrapkey) in
     let kid = kh in
-    let testkid = kid in
     let s = sign((aaid,fc,kid,cntr,pkAU),skAT) in
     event Autr_verify_reg(uname,appid,aaid,kid);
-    out(AM,RegAMresp_12r(aaid,fc,kid,cntr,pkAT,pkAU,s))
+    out(ch_autr,RegAMresp_12r(aaid,fc,kid,cntr,pkAT,pkAU,s))
 ).
 
-(**************************message format 2*******************************)
-fun AuthSRreq_em(Appid,SData,Chlg):msg[data].
-fun AuthSRreq_em_null(SData,Chlg):msg[data].
-fun AuthRSresp_em(SData,AAID,Nonce,Fchlg,KeyID,CNTR,bitstring,bitstring):msg[data].
-fun AuthSRreq_st(Appid,KeyID,SData,Chlg,Tr):msg[data].
-fun AuthSRreq_st_null(KeyID,SData,Chlg,Tr):msg[data].
-fun AuthRSresp_st(SData,AAID,Nonce,Fchlg,Tr,KeyID,CNTR,bitstring,bitstring):msg[data].
-fun AuthRUreq_em(Appid,SData,Chlg):msg[data].
-fun AuthRUreq_em_null(SData,Chlg):msg[data].
-fun AuthURresp_em(SData,AAID,Nonce,Fchlg,KeyID,CNTR,bitstring,bitstring):msg[data].
-fun AuthRUreq_st(Appid,KeyID,SData,Chlg,Tr):msg[data].
-fun AuthRUreq_st_null(KeyID,SData,Chlg,Tr):msg[data].
-fun AuthURresp_st(SData,AAID,Nonce,Fchlg,Tr,KeyID,CNTR,bitstring,bitstring):msg[data].
-fun AuthUCreq_em(Appid,SData,Chlg,bitstring):msg[data].
-fun AuthUCreq_em_null(SData,Chlg,bitstring):msg[data].
-fun AuthCUresp_em(SData,AAID,Nonce,Fchlg,KeyID,CNTR,bitstring,bitstring):msg[data].
-fun AuthUCreq_st(Appid,KeyID,SData,Chlg,Tr,bitstring):msg[data].
-fun AuthUCreq_st_null(KeyID,SData,Chlg,Tr,bitstring):msg[data].
-fun AuthCUresp_st(SData,AAID,Nonce,Fchlg,Tr,KeyID,CNTR,bitstring,bitstring):msg[data].
-fun AuthCMreq_em(Appid,bitstring):msg[data].
-fun AuthMCresp_em(AAID,Nonce,Fchlg,KeyID,CNTR,bitstring):msg[data].
-fun AuthCMreq_st(Appid,bitstring,KeyID,Tr):msg[data].
-fun AuthMCresp_st(AAID,Nonce,Fchlg,Tr,KeyID,CNTR,bitstring):msg[data].
-fun AuthMAreq_1bem(Token,Fchlg,Appid,KeyID):msg[data].
-fun AuthMAreq_1bst(Token,Fchlg,Appid,KeyID,Tr):msg[data].
-fun AuthMAreq_2bst(Token,Fchlg,Appid,KeyID,Tr):msg[data].
-fun AuthMAreq_1rem(Token,Fchlg,Appid):msg[data].
-fun AuthMAreq_1rst(Token,Fchlg,Appid,KeyID,Tr):msg[data].
-fun AuthMAreq_2rst(Token,Fchlg,Appid,KeyID,Tr):msg[data].
-fun AuthAMresp_em(AAID,Nonce,Fchlg,KeyID,CNTR,bitstring):msg[data].
-fun AuthAMresp_st(AAID,Nonce,Fchlg,Tr,KeyID,CNTR,bitstring):msg[data].
+let RegAutr_1b_seta(ch_autr:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =  RegAutr_1b(ch_autr,aaid,skAT,wrapkey,skAU_basic,cntr_basic,kid_basic).
+let RegAutr_1b_noa(ch_autr:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =  RegAutr_1b(ch_autr,aaid,skAT,wrapkey,skAU_basic,cntr_basic,kid_basic).
+let RegAutr_2b_seta(ch_autr:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =  RegAutr_2b(ch_autr,aaid,skAT,wrapkey,skAU_basic,cntr_basic,kid_basic).
+let RegAutr_2b_noa(ch_autr:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =  RegAutr_2b(ch_autr,aaid,skAT,wrapkey,skAU_basic,cntr_basic,kid_basic).
+let RegAutr_1r_seta(ch_autr:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =  RegAutr_1r(ch_autr,aaid,skAT,wrapkey,skAU_basic,cntr_basic,kid_basic).
+let RegAutr_1r_noa(ch_autr:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =  RegAutr_1r(ch_autr,aaid,skAT,wrapkey,skAU_basic,cntr_basic,kid_basic).
+let RegAutr_2r_seta(ch_autr:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =  RegAutr_2r(ch_autr,aaid,skAT,wrapkey,skAU_basic,cntr_basic,kid_basic).
+let RegAutr_2r_noa(ch_autr:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =  RegAutr_2r(ch_autr,aaid,skAT,wrapkey,skAU_basic,cntr_basic,kid_basic).
 
 (********************************************************************)
-(*                                               Event                                                          *)
+(*                                       Registration system                                               *)
 (********************************************************************)
-
-event RP_success_auth(Uname,Appid,AAID,KeyID).
-event RP_success_tr(Tr).
-event UA_launch_auth(Uname).
-event UA_launch_auth_tr(Tr).
-event Autr_verify_auth_1br(Uname,Appid,AAID,KeyID).
-event Autr_verify_auth_2br(Appid,AAID,KeyID).
-event Autr_verify_tr(Tr).
-
-const ok:bitstring.
-
-(********************************************************************)
-(**************************main process*******************************)
-(********************************************************************)
-(********************************************************************)
-(*                                                  Auth US                                                        *)
-(********************************************************************)
-let AuthUS_seta_login(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) =
+let Reg_system(ch_autr:channel,ch_ASM:channel,ch_UC:channel,ch_UA:channel,ch_RP:channel,ch_US:channel) =
 (
-    in(SR, tlsdata:bitstring);
-    new sdata:SData;
-	new chlg:Chlg;
-    out(SR,AuthSRreq_em(appid,sdata,chlg));
-    in(SR,m:msg);
-    let AuthRSresp_em(=sdata,=aaid,nonce,fc,=kid,xcntr,fcp,s) = m in
-    let FCParams(appid,facetid,=chlg,=tlsdata) = fcp in
-    get AuthAppList(=appid,=facetid) in
-    if fc = ToFc(hash(fcp)) then
-    if (aaid,nonce,fc,kid,xcntr) = checksign(s,pkAU) then
-    if xcntr = cntr then
-    event RP_success_auth(uname,appid,aaid,kid);
-    out(c,debug)
- ).
- 
-let AuthUS_noa_login(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) =
 (
-    in(SR, tlsdata:bitstring);
-    new sdata:SData;
-	new chlg:Chlg;
-    out(SR,AuthSRreq_em_null(sdata,chlg));
-    in(SR,m:msg);
-    let AuthRSresp_em(=sdata,=aaid,nonce,fc,=kid,xcntr,fcp,s) = m in
-    let FCParams(appid2,facetid,=chlg,=tlsdata) = fcp in
-    get AuthAppList(=appid2,=facetid) in
-    if fc = ToFc(hash(fcp)) then
-    if (aaid,nonce,fc,kid,xcntr) = checksign(s,pkAU) then
-    if xcntr = cntr then
-    event RP_success_auth(uname,appid2,aaid,kid);
-    out(c,debug)
- ).
- 
- let AuthUS_seta_stepup(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) =
+    in(ch_RP, RegRSbegin(uname, tlsdata));
+    out(ch_US, RegRSbegin(uname, tlsdata));
+    in(ch_US,RegSRreq(uname,appid,sdata,chlg));
+    out(ch_RP,RegSRreq(uname,appid,sdata,chlg));
+    in(ch_RP,RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s));
+    out(ch_US,RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
+)|
 (
-    in(SR, tlsdata:bitstring);
-    new sdata:SData;
-	new chlg:Chlg;
-     out(SR,AuthSRreq_st(appid,kid,sdata,chlg,tr));
-    in(SR,m:msg);
-    let AuthRSresp_st(=sdata,=aaid,nonce,fc,htr,=kid,xcntr,fcp,s) = m in
-    let FCParams(=appid,facetid,=chlg,=tlsdata) = fcp in
-    get AuthAppList(=appid,=facetid) in
-    if fc = ToFc(hash(fcp)) then
-    if htr = hash_tr(tr) then
-    if (aaid,nonce,fc,htr,kid,xcntr) = checksign(s,pkAU) then
-    if xcntr = cntr then
-    event RP_success_auth(uname,appid,aaid,kid);
-    event RP_success_tr(tr);
-    out(c,debug)
- ).
-
- 
-let AuthUS_noa_stepup(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) =
+    event malicious_US_to_RP();
+    in(ch_RP, RegRSbegin(uname, tlsdata));
+    out(c, RegRSbegin(uname, tlsdata));
+    in(c,RegSRreq(uname,appid,sdata,chlg));
+    out(ch_RP,RegSRreq(uname,appid,sdata,chlg));
+    in(ch_RP,RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s));
+    out(c,RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
+)|
 (
-    in(SR, tlsdata:bitstring);
-    new sdata:SData;
-	new chlg:Chlg;
-    out(SR,AuthSRreq_st_null(kid,sdata,chlg,tr));
-    in(SR,m:msg);
-    let AuthRSresp_st(=sdata,=aaid,nonce,fc,htr,=kid,xcntr,fcp,s) = m in
-    let FCParams(appid2,facetid,=chlg,=tlsdata) = fcp in
-    get AuthAppList(=appid2,=facetid) in
-    if fc = ToFc(hash(fcp)) then
-    if htr = hash_tr(tr) then
-    if (aaid,nonce,fc,htr,kid,xcntr) = checksign(s,pkAU) then
-    if xcntr = cntr then
-    event RP_success_auth(uname,appid2,aaid,kid);
-    event RP_success_tr(tr);
-    out(c,debug)
- ).
-	
-(********************************************************************)
-(*                                                  AuthRP                                                        *)
-(********************************************************************)
+    event malicious_RP_to_US();
+    in(c, RegRSbegin(uname, tlsdata));
+    out(ch_US, RegRSbegin(uname, tlsdata));
+    in(ch_US,RegSRreq(uname,appid,sdata,chlg));
+    out(c,RegSRreq(uname,appid,sdata,chlg));
+    in(c,RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s));
+    out(ch_US,RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
+)|
+(
+    in(ch_UA, InputUandP(uname, password));
+    out(ch_RP,InputUandP(uname, password));
+    out(ch_RP,GetTLSdata(ch_UA,ch_RP));
+    in(ch_RP,RegRUreq(uname,appid,sdata,chlg));
+    out(ch_UA,RegRUreq(uname,appid,sdata,chlg));
+    out(ch_UA,GetTLSdata(ch_UA,ch_RP));
+    in(ch_UA,RegURresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s));
+    out(ch_RP,RegURresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
     
-let AuthRP_seta_login(RS:channel,https:channel) = 
+)|
 (
-    in(https, tg:bitstring);
-    let tlsdata = GetTLSdata(https) in
-    out(RS, tlsdata);
-    in(RS,m:msg);
-    let AuthSRreq_em(appid,sdata,chlg) = m in
-    out(https,AuthRUreq_em(appid,sdata,chlg));
-    in(https,x:msg);
-    let AuthURresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s) = x in 
-    out(RS, AuthRSresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s))
+    event malicious_UA_to_RP();
+    in(c, InputUandP(uname, password));
+    out(ch_RP,InputUandP(uname, password));
+    out(ch_RP,GetTLSdata(c,ch_RP));
+    in(ch_RP,RegRUreq(uname,appid,sdata,chlg));
+    out(c,RegRUreq(uname,appid,sdata,chlg));
+    out(c,GetTLSdata(c,ch_RP));
+    in(c,RegURresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s));
+    out(ch_RP,RegURresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
+)|
+(
+    in(ch_UA, RegUCreq(xuname,appid,sdata,chlg,tlsdata));
+    out(ch_UC,RegUCreq(xuname,appid,sdata,chlg,tlsdata));
+    in(ch_UC,RegCUresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s));
+    out(ch_UA,RegCUresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
+)|
+(
+    event malicious_UA_to_UC();
+    in(c, RegUCreq(xuname,appid,sdata,chlg,tlsdata));
+    out(ch_UC,RegUCreq(xuname,appid,sdata,chlg,tlsdata));
+    in(ch_UC,RegCUresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s));
+    out(c,RegCUresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
+)|
+(
+    event malicious_UC_to_UA();
+    in(ch_UA, RegUCreq(xuname,appid,sdata,chlg,tlsdata));
+    out(c,RegUCreq(xuname,appid,sdata,chlg,tlsdata));
+    in(c,RegCUresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s));
+    out(ch_UA,RegCUresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
+)|
+(
+    in(ch_UC, RegCMreq(uname,appid,fcp));
+    out(ch_ASM,RegCMreq(uname,appid,fcp));
+    in(ch_ASM,RegMCresp(aaid,fc,kid,cntr,pkAT,pkAU,s));
+    out(ch_UC,RegMCresp(aaid,fc,kid,cntr,pkAT,pkAU,s))
+)|
+(
+    event malicious_UC_to_ASM();
+    in(c, RegCMreq(uname,appid,fcp));
+    out(ch_ASM,RegCMreq(uname,appid,fcp));
+    in(ch_ASM,RegMCresp(aaid,fc,kid,cntr,pkAT,pkAU,s));
+    out(c,RegMCresp(aaid,fc,kid,cntr,pkAT,pkAU,s))
+)|
+(
+    event malicious_ASM_to_UC();
+    in(ch_UC, RegCMreq(uname,appid,fcp));
+    out(c,RegCMreq(uname,appid,fcp));
+    in(c,RegMCresp(aaid,fc,kid,cntr,pkAT,pkAU,s));
+    out(ch_UC,RegMCresp(aaid,fc,kid,cntr,pkAT,pkAU,s))
+)|
+(
+    in(ch_ASM, RegMAreq(uname,appid,ak,fc));
+    out(ch_autr,RegMAreq(uname,appid,ak,fc));
+    in(ch_autr,RegAMresp_12b(aaid,fc2,kid,cntr,pkAT,pkAU,kh,s));
+    out(ch_ASM,RegAMresp_12b(aaid,fc2,kid,cntr,pkAT,pkAU,kh,s))
+)|
+(
+    event malicious_ASM_to_Autr();
+    in(c, RegMAreq(uname,appid,ak,fc));
+    out(ch_autr,RegMAreq(uname,appid,ak,fc));
+    in(ch_autr,RegAMresp_12b(aaid,fc2,kid,cntr,pkAT,pkAU,kh,s));
+    out(c,RegAMresp_12b(aaid,fc2,kid,cntr,pkAT,pkAU,kh,s))
+)|
+(
+    event malicious_Autr_to_ASM();
+    in(ch_ASM, RegMAreq(uname,appid,ak,fc));
+    out(c,RegMAreq(uname,appid,ak,fc));
+    in(c,RegAMresp_12b(aaid,fc2,kid,cntr,pkAT,pkAU,kh,s));
+    out(ch_ASM,RegAMresp_12b(aaid,fc2,kid,cntr,pkAT,pkAU,kh,s))
+)
 ).
 
-let AuthRP_noa_login(RS:channel,https:channel) = 
-(
-    in(https, tg:bitstring);
-    let tlsdata = GetTLSdata(https) in
-    out(RS, tlsdata);
-    in(RS,m:msg);
-    let AuthSRreq_em_null(sdata,chlg) = m in
-    out(https,AuthRUreq_em_null(sdata,chlg));
-    in(https,x:msg);
-    let AuthURresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s) = x in 
-    out(RS, AuthRSresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s))
-).
-let AuthRP_seta_stepup(RS:channel,https:channel) = 
-(
-    in(https, tg:bitstring);
-    let tlsdata = GetTLSdata(https) in
-    out(RS, tlsdata);
-    in(RS,m:msg);
-    let AuthSRreq_st(appid,kid,sdata,chlg,tr) = m in
-    out(https,AuthRUreq_st(appid,kid,sdata,chlg,tr));
-    in(https,x:msg);
-    let AuthURresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s) = x in 
-    out(RS, AuthRSresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
-).
-let AuthRP_noa_stepup(RS:channel,https:channel) = 
-(
-    in(https, tg:bitstring);
-    let tlsdata = GetTLSdata(https) in
-    out(RS, tlsdata);
-    in(RS,m:msg);
-    let AuthSRreq_st_null(kid,sdata,chlg,tr) = m in
-    out(https,AuthRUreq_st_null(kid,sdata,chlg,tr));
-    in(https,x:msg);
-    let AuthURresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s) = x in 
-    out(RS, AuthRSresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
-).
-
-(********************************************************************)
-(*                                                  AuthUA                                                        *)
-(********************************************************************)
-
-let AuthUA_seta_login(https:channel,UC:channel,uname:Uname) =
-(
-    out(https,ok);
-	in(https,m:msg);
-    let AuthRUreq_em(appid,sdata,chlg) = m in
-    event UA_launch_auth(uname);
-    let tlsdata = GetTLSdata(https) in
-    out(UC,AuthUCreq_em(appid,sdata,chlg,tlsdata));
-    in(UC,mm:msg);
-    let AuthCUresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s) = mm in
-    out(https,AuthURresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s))
- ).
-let AuthUA_seta_stepup(https:channel,UC:channel,uname:Uname) =
-(
-    out(https,ok);
-	in(https,m:msg);
-    let AuthRUreq_st(appid,kid,sdata,chlg,tr2) = m in
-    event UA_launch_auth(uname);
-    event UA_launch_auth_tr(tr2);
-    let tlsdata = GetTLSdata(https) in
-    out(UC,AuthUCreq_st(appid,kid,sdata,chlg,tr2,tlsdata));
-    in(UC,mm:msg);
-    let AuthCUresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s) = mm in
-    out(https,AuthURresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
- ).
-let AuthUA_noa_login(https:channel,UC:channel,uname:Uname) =
-(
-    out(https,ok);
-	in(https,m:msg);
-    let AuthRUreq_em_null(sdata,chlg) = m in
-    event UA_launch_auth(uname);
-    let tlsdata = GetTLSdata(https) in
-    out(UC,AuthUCreq_em_null(sdata,chlg,tlsdata));
-    in(UC,mm:msg);
-    let AuthCUresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s) = mm in
-    out(https,AuthURresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s))
- ).
- 
-let AuthUA_noa_stepup(https:channel,UC:channel,uname:Uname) =
-(
-    out(https,ok);
-	in(https,m:msg);
-    let AuthRUreq_st_null(kid,sdata,chlg,tr2) = m in
-    event UA_launch_auth(uname);
-    event UA_launch_auth_tr(tr2);
-    let tlsdata = GetTLSdata(https) in
-    out(UC,AuthUCreq_st_null(kid,sdata,chlg,tr2,tlsdata));
-    in(UC,mm:msg);
-    let AuthCUresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s) = mm in
-    out(https,AuthURresp_st(xsdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
- ).
-
-(********************************************************************)
-(*                                                  AuthUC                                                        *)
-(********************************************************************)
-
-let AuthUC_seta_login(CU:channel,CM:channel,facetid:Facetid) =
-(
-	in(CU,m:msg);
-     let AuthUCreq_em(appid,sdata,chlg,tlsdata) = m in
-    get AuthAppList(=appid,=facetid) in
-    let fcp = FCParams(appid,facetid,chlg,tlsdata) in
-    out(CM,AuthCMreq_em(appid,fcp));
-    in(CM,mm:msg);
-    let AuthMCresp_em(aaid,nonce,fc,kid,xcntr,s) = mm in
-    out(CU,AuthCUresp_em(sdata,aaid,nonce,fc,kid,xcntr,fcp,s))
-).
-
-let AuthUC_seta_stepup(CU:channel,CM:channel,facetid:Facetid) =
-(
-	in(CU,m:msg);
-     let AuthUCreq_st(appid,kid,sdata,chlg,tr,tlsdata) = m in
-    get AuthAppList(=appid,=facetid) in
-    let fcp = FCParams(appid,facetid,chlg,tlsdata) in
-    out(CM,AuthCMreq_st(appid,fcp,kid,tr));
-    in(CM,mm:msg);
-    let AuthMCresp_st(aaid,nonce,fc,htr,xkid,xcntr,s) = mm in
-    out(CU,AuthCUresp_st(sdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
-).
-
-let AuthUC_noa_login(CU:channel,CM:channel,facetid:Facetid) =
-(
-	in(CU,m:msg);
-    let AuthUCreq_em_null(sdata,chlg,tlsdata) = m in
-    let appid = facetid_to_appid(facetid) in
-    let fcp = FCParams(appid,facetid,chlg,tlsdata) in
-    out(CM,AuthCMreq_em(appid,fcp));
-    in(CM,mm:msg);
-    let AuthMCresp_em(aaid,nonce,fc,kid,xcntr,s) = mm in
-    out(CU,AuthCUresp_em(sdata,aaid,nonce,fc,kid,xcntr,fcp,s))
-).
-
-let AuthUC_noa_stepup(CU:channel,CM:channel,facetid:Facetid) =
-(
-	in(CU,m:msg);
-    let AuthUCreq_st_null(kid,sdata,chlg,tr,tlsdata) = m in
-    let appid = facetid_to_appid(facetid) in
-    let fcp = FCParams(appid,facetid,chlg,tlsdata) in
-    out(CM,AuthCMreq_st(appid,fcp,kid,tr));
-    in(CM,mm:msg);
-    let AuthMCresp_st(aaid,nonce,fc,htr,xkid,xcntr,s) = mm in
-    out(CU,AuthCUresp_st(sdata,aaid,nonce,fc,htr,xkid,xcntr,fcp,s))
-).
-
-(********************************************************************)
-(*                                                  AuthASM                                                        *)
-(********************************************************************)
-
-let AuthASM_1b_login(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) =
-(
-	in(MC,m:msg);
-    let AuthCMreq_em(appid,fcp) = m in
-    get ASMDB(=appid,kid,kh) in
-    get TrustCallerid(=callerid) in
-    let fc = ToFc(hash(fcp)) in
-    let ak = To_12b_token(appid,token,callerid,personaid) in 
-    let testak = ak in
-    out(MA,AuthMAreq_1bem(ak,fc,appid,kh));
-    in(MA,mm:msg);
-    let AuthAMresp_em(aaid,nonce,xfc,xkid,xcntr,s) = mm in
-    out(MC,AuthMCresp_em(aaid,nonce,xfc,xkid,xcntr,s))
-).
-let AuthASM_1b_stepup(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) =
-(
-	in(MC,m:msg);
-    let AuthCMreq_st(appid,fcp,kid,tr) = m in
-    get ASMDB(appid2,=kid,kh) in
-    get TrustCallerid(=callerid) in
-    let fc = ToFc(hash(fcp)) in
-    let ak = To_12b_token(appid,token,callerid,personaid) in 
-    let testak = ak in
-    out(MA,AuthMAreq_1bst(ak,fc,appid,kh,tr));
-    in(MA,mm:msg);
-    let AuthAMresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s) = mm in
-    out(MC,AuthMCresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s))
-).
-let AuthASM_2b_stepup(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) =
-(
-	in(MC,m:msg);
-    let AuthCMreq_st(appid,fcp,kid,tr) = m in
-    get ASMDB(=appid,=kid,kh) in
-    get TrustCallerid(=callerid) in
-    let fc = ToFc(hash(fcp)) in
-    let ak = To_12b_token(appid,token,callerid,personaid) in 
-    let testak = ak in
-    out(MA,AuthMAreq_2bst(ak,fc,appid,kh,tr));
-    in(MA,mm:msg);
-    let AuthAMresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s) = mm in
-    out(MC,AuthMCresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s))
-).
-let AuthASM_1r_login(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) =
-(
-	in(MC,m:msg);
-    let AuthCMreq_em(appid,fcp) = m in
-    let fc = ToFc(hash(fcp)) in
-    let ak = To_12r_token(appid) in
-    let testak = ak in
-    out(MA,AuthMAreq_1rem(ak,fc,appid));
-    in(MA,mm:msg);
-    let AuthAMresp_em(aaid,nonce,xfc,kid,xcntr,s) = mm in
-    out(MC,AuthMCresp_em(aaid,nonce,xfc,kid,xcntr,s))
-).
-let AuthASM_1r_stepup(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) =
-(
-	in(MC,m:msg);
-    let AuthCMreq_st(appid,fcp,kid,tr) = m in
-    let fc = ToFc(hash(fcp)) in
-    let ak = To_12r_token(appid) in
-    let testak = ak in
-    out(MA,AuthMAreq_1rst(ak,fc,appid,kid,tr));
-    in(MA,mm:msg);
-    let AuthAMresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s) = mm in
-    out(MC,AuthMCresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s))
-).
-let AuthASM_2r_stepup(MC:channel,MA:channel,token:bitstring,callerid:Callerid,personaid:PersonaID) =
-(
-	in(MC,m:msg);
-    let AuthCMreq_st(appid,fcp,kid,tr) = m in
-    let fc = ToFc(hash(fcp)) in
-    let ak = To_12r_token(appid) in
-    let testak = ak in
-    out(MA,AuthMAreq_2rst(ak,fc,appid,kid,tr));
-    in(MA,mm:msg);
-    let AuthAMresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s) = mm in
-    out(MC,AuthMCresp_st(aaid,nonce,xfc,htr,xkid,xcntr,s))
-).
-
-(********************************************************************)
-(*                                               Auth Authenticator                                                   *)
-(********************************************************************)
-
-let AuthAutr_1b_login(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
-(
-	in(AM,m:msg);
-    let AuthMAreq_1bem(ak,fc,appid,kh) = m in
-    let (skAU:sskey,aka:Token,uname:Uname,kid:KeyID) = sdec(kh,wrapkey) in
-    if f1(ak,appid) = aka then
-    let pkAU = spk(skAU) in
-    new nonce:Nonce;
-    let s = sign((aaid,nonce,fc,kid,cntr),skAU) in
-    event Autr_verify_auth_1br(uname,appid,aaid,kid);
-    out(AM,AuthAMresp_em(aaid,nonce,fc,kid,cntr,s))
-).
-let AuthAutr_1b_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
-(
-	in(AM,m:msg);
-    let AuthMAreq_1bst(ak,fc,appid,kh,=tr) = m in
-    let (skAU:sskey,aka:Token,uname:Uname,kid:KeyID) = sdec(kh,wrapkey) in
-    if f1(ak,appid) = aka then
-    let pkAU = spk(skAU) in
-    let htr = hash_tr(tr) in
-    new nonce:Nonce;
-    let s = sign((aaid,nonce,fc,htr,kid,cntr),skAU) in
-    event Autr_verify_auth_1br(uname,appid,aaid,kid);
-    event Autr_verify_tr(tr);
-    out(AM,AuthAMresp_st(aaid,nonce,fc,htr,kid,cntr,s))
-).
-let AuthAutr_2b_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
-(
-	in(AM,m:msg);
-    let AuthMAreq_2bst(ak,fc,appid,kh,=tr) = m in
-    let (skAU:sskey,aka:Token,kid:KeyID) = sdec(kh,wrapkey) in
-    if f1(ak,appid) = aka then
-    let pkAU = spk(skAU) in
-    let htr = hash_tr(tr) in
-    new nonce:Nonce;
-    let s = sign((aaid,nonce,fc,htr,kid,cntr),skAU) in
-    event Autr_verify_auth_2br(appid,aaid,kid);
-    event Autr_verify_tr(tr);
-    out(AM,AuthAMresp_st(aaid,nonce,fc,htr,kid,cntr,s))
-).
-let AuthAutr_1r_login(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
-(
-	in(AM,m:msg);
-    let AuthMAreq_1rem(ak,fc,appid) = m in
-    get AutrDB(=appid,xkid,kh) in
-    let (skAU:sskey,aka:Token,uname:Uname,kid:KeyID) = sdec(kh,wrapkey) in
-    if f1(ak,appid) = aka then
-    let pkAU = spk(skAU) in
-    new nonce:Nonce;
-    let s = sign((aaid,nonce,fc,kid,cntr),skAU) in 
-    event Autr_verify_auth_1br(uname,appid,aaid,kid);
-    out(AM,AuthAMresp_em(aaid,nonce,fc,kid,cntr,s))
-).
-let AuthAutr_1r_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
-(
-	in(AM,m:msg);
-    let AuthMAreq_1rst(ak,fc,appid,kid,=tr) = m in
-    get AutrDB(=appid,=kid,kh) in
-    let (skAU:sskey,aka:Token,uname:Uname,xkid:KeyID) = sdec(kh,wrapkey) in
-    if f1(ak,appid) = aka then
-    let pkAU = spk(skAU) in
-    let htr = hash_tr(tr) in
-    new nonce:Nonce;
-    let s = sign((aaid,nonce,fc,htr,kid,cntr),skAU) in
-    event Autr_verify_auth_1br(uname,appid,aaid,kid);
-    event Autr_verify_tr(tr);
-    out(AM,AuthAMresp_st(aaid,nonce,fc,htr,kid,cntr,s))
-).
-let AuthAutr_2r_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr) =
-(
-	in(AM,m:msg);
-    let AuthMAreq_2rst(ak,fc,appid,kid,=tr) = m in
-    let (skAU:sskey,aka:Token) = sdec(kid,wrapkey) in
-    if f1(ak,appid) = aka then
-    let pkAU = spk(skAU) in
-    let htr = hash_tr(tr) in
-    new nonce:Nonce;
-    let s = sign((aaid,nonce,fc,htr,kid,cntr),skAU) in
-    event Autr_verify_auth_2br(appid,aaid,kid);
-    event Autr_verify_tr(tr);
-    out(AM,AuthAMresp_st(aaid,nonce,fc,htr,kid,cntr,s))
-).
