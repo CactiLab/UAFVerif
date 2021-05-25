@@ -62,6 +62,7 @@ class Content:
                         query_temp += ".\n"
                         temp_one_query += query_temp
                         self.all_queries.append(Query(self.scene_name, basic_query.name, temp_one_query, events))
+        self.all_queries.reverse()
     def get_scene_name(self):
         return self.scene_name
     def get_content(self):
@@ -109,9 +110,9 @@ class Reg(Content):
                         "\tsystem(appid,aaid,skAT,uname,password,facetid,callerid,personaid,token,wrapkey)\n"
                         ")\n"]
         self.basic_queries = [
-                            #Basic_Query("s-skau","query seed:bitstring; ","attacker(gen_skAU(new skAUbasic,seed))"),
-                            #Basic_Query("s-cntr","query seed:bitstring;","attacker(gen_cntr(new cntrbasic,seed))"),
-                            #Basic_Query("s-skat", "query ","attacker(new skAT)"),
+                            Basic_Query("s-skau","query seed:bitstring; ","attacker(gen_skAU(new skAUbasic,seed))"),
+                            Basic_Query("s-cntr","query seed:bitstring;","attacker(gen_cntr(new cntrbasic,seed))"),
+                            Basic_Query("s-skat", "query ","attacker(new skAT)"),
                             Basic_Query("Rauth", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; ","inj-event(RP_success_reg(u,a,aa,kid)) ==> (inj-event(Autr_verify_reg(u,a,aa,kid)) ==>inj-event(UA_init_reg(u)))")]
         self.query_test = ["event(leak_token)",
                            "event(leak_kw)",
@@ -124,7 +125,8 @@ class Reg(Content):
                            "event(malicious_UC_to_ASM)",
                            "event(malicious_ASM_to_UC)",
                            "event(malicious_ASM_to_Autr)",
-                           "event(malicious_Autr_to_ASM)",]
+                           "event(malicious_Autr_to_ASM)"
+                           ]
         self.all_queries = []
         self.scene_name = "has_not_set"
         self.if_set_type = False

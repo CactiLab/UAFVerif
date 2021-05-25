@@ -23,9 +23,11 @@ class Parser:
         self.result_path = root_path + "LOG/FINAL_RESULT.log"
         self.result_pattern = re.compile("Query.*==>.*\.")
         self.secure_pattern = re.compile("Query.*==>.*true\.")
+        self.false_pattern = re.compile("Query.*==>.*proved|false\.")
         self.event_pattern = re.compile("event\([^)]*\)")
         self.secure_result_pattern = re.compile(".*Query.*==>.*true\.")
         self.secure_set = []
+        self.false_set = []
         self.reboot()
 
     def reboot(self):
@@ -82,6 +84,20 @@ class Parser:
                     f.writelines(secure_query.scene_name + ", ")
                     f.writelines(secure_query.query_name + ", ")
                     f.writelines(secure_query.content + "\n\n")
+    def parser_record_false(self,query,proverif_result):
+        false_result = self.false_pattern.findall(proverif_result)
+        for false_result_item in false_result:
+            assumptions_content = self.get_query_and_assumptions(false_result_item)
+            secure_assumptiosn = self.event_pattern.findall(assumptions_content)
+            false_query = Query(query.scene_name, query.query_name, false_result_item, secure_assumptiosn)
+            if self.is_in_false_set(false_query):
+                continue
+            else:
+                self.false_set.append(false_query)
+                with open(self.result_path, "a") as f:
+                    f.writelines(false_query.scene_name + ", ")
+                    f.writelines(false_query.query_name + ", ")
+                    f.writelines(false_query.content + "\n\n")
 
     def is_in_secure_set(self,cur_secure_query):
         for secure_query in self.secure_set:
@@ -89,10 +105,18 @@ class Parser:
                 if set(secure_query.assumptions).issubset(set(cur_secure_query.assumptions)):
                     return True
         return False
+    def is_in_false_set(self,cur_query):
+        for false_query in self.false_set:
+            if false_query.is_same_query(cur_query):
+                if set(cur_query.assumptions).issubset(set(false_query.assumptions)):
+                    return True
+        return False
     def jump(self,query):
         if self.is_in_secure_set(query):
-            return True
-        return False
+            return "true"
+        if self.is_in_false_set(query):
+            return "false"
+        return "nojump"
 
     def get_query_and_assumptions(self,secure_result_item):
         if secure_result_item.find("attacker(") != -1:
@@ -166,34 +190,6 @@ class Verif:
         result_path = self.root_path + "LOG/" + case.get_scene_name() + ".result"
         return query_path, result_path
 
-    def analyze(self,case,reboot):
-        all_queries, content = case.get_content()
-        counter = reboot
-        log_file = open(root_path + "LOG/" + case.scene_name + ".log", "w")
-        result_file = open(root_path + "LOG/" + "result.log", "w")
-        while counter < len(all_queries):
-            query = all_queries[counter]
-            log_msg = str(counter).ljust(6)
-            log_msg += case.scene_name + ", "
-            log_msg += query.content + " "
-            if self.is_query_in_secure_assumptions(query):
-                log_msg += "jump in secure set"
-            else:
-                query_path = self.write_query_file(query,content,case)
-                ret, result = self.proverif(query_path)
-                if ret == "true":
-                    self.add_secure_assumptions(query)
-                    print(log_msg, file = result_file)
-                    result_file.flush()
-                log_msg += ret + " "
-            log_msg += time.strftime('%Y.%m.%d %H:%M ', time.localtime(time.time()))
-            print(log_msg, file = log_file)
-            log_file.flush()
-            counter += 1
-            reboot = counter
-        log_file.close()
-        result_file.close()
-
     def analyze_group_queries(self,case):
         all_queries, content = case.get_content()
         query_path = root_path + "QUERY/" + case.get_scene_name() + ".pv"
@@ -215,8 +211,11 @@ class Verif:
             query_path = root_path + "QUERY/" + case.get_scene_name() + query.query_name + ".pv"
             log_content = ""
             log_content += str(counter) + ", " + query.scene_name + ", " + query.query_name + ", "
-            if self.parser.jump(query):
-                log_content += "jump in secure set."
+            jump_ret = self.parser.jump(query)
+            #if jump_ret == "true":
+                #log_content += "jump in secure set."
+            if jump_ret == "false":
+                log_content += "jump in false set."
             else:
                 with open(query_path, "w") as query_file:
                     query_file.writelines(query.content)
@@ -229,7 +228,10 @@ class Verif:
                         f.writelines(result)
                 else:
                     log_content += result
-                    self.parser.parser_record(query, result)
+                    if query.query_name[0] == 's':
+                        self.parser.parser_record(query,result)
+                    else:
+                        self.parser.parser_record_false(query, result)
             log_content += str(time.strftime("%H:%M:%S", time.localtime()))
             log_content += "\n\n"
             scene_log_file.writelines(log_content)
@@ -261,8 +263,8 @@ def run(root_path):
     makedir(root_path)
     parser = Parser(root_path)
     verif = Verif(root_path,parser)
-    #verif.analyze_all(Reg_1b_seta(),0)
-    #verif.analyze_all(Reg_1b_noa(),0)
+    verif.analyze_all(Reg_1b_seta(),0)
+    verif.analyze_all(Reg_1b_noa(),0)
     #verif.analyze_all(Reg_2b_seta(),0)
     #verif.analyze_all(Reg_2b_noa(),0)
     #verif.analyze_all(Reg_1r_seta(),0)
