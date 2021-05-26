@@ -153,11 +153,14 @@ class Verif:
         with open(query_path + "temp.result", "rb") as f:
             out = f.read()
         if p.poll() == 5:#timer kill
-            ret = False
+            ret = "abort or time out"
             result = out
         else:
             i = out[0:-10].rfind(b'--------------------------------------------------------------')  # find last results
-            ret = True
+            if i == -1:
+                ret = "could not find ----- in result"
+            else:
+                ret = "True"
             result = out[i + 89:-70]
         return ret, str(result, encoding='utf-8')  # return the results
 
@@ -221,10 +224,10 @@ class Verif:
                     query_file.writelines(query.content)
                     query_file.writelines(content)
                 ret,result = self.proverif_group_query(query_path)
-                if ret == False:
-                    log_content += "time out!"
-                    shutil.copy(query_path, query_path + str(counter) + "time_out.pv")
-                    with open(query_path + str(counter) + "time_out.pv", "a") as f:
+                if ret != "True":
+                    log_content += ret
+                    shutil.copy(query_path, query_path + str(counter) + "abort.pv")
+                    with open(query_path + str(counter) + "abort.pv", "a") as f:
                         f.writelines(result)
                 else:
                     log_content += result
@@ -263,7 +266,7 @@ def run(root_path):
     makedir(root_path)
     parser = Parser(root_path)
     verif = Verif(root_path,parser)
-    verif.analyze_all(Reg_1b_seta(),0)
+    #verif.analyze_all(Reg_1b_seta(),0)
     verif.analyze_all(Reg_1b_noa(),0)
     #verif.analyze_all(Reg_2b_seta(),0)
     #verif.analyze_all(Reg_2b_noa(),0)
