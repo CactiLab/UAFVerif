@@ -215,10 +215,10 @@ class Verif:
             log_content = ""
             log_content += str(counter) + ", " + query.scene_name + ", " + query.query_name + ", "
             jump_ret = self.parser.jump(query)
-            #if jump_ret == "true":
-                #log_content += "jump in secure set."
-            if jump_ret == "false":
-                log_content += "jump in false set."
+            if jump_ret == "true":
+                log_content += "jump in secure set."
+            #if jump_ret == "false":
+                # og_content += "jump in false set."
             else:
                 with open(query_path, "w") as query_file:
                     query_file.writelines(query.content)
@@ -231,10 +231,10 @@ class Verif:
                         f.writelines(result)
                 else:
                     log_content += result
-                    if query.query_name[0] == 's':
-                        self.parser.parser_record(query,result)
-                    else:
-                        self.parser.parser_record_false(query, result)
+                    #if query.query_name[0] == 's':
+                    self.parser.parser_record(query,result)
+                    #else:
+                        #self.parser.parser_record_false(query, result)
             log_content += str(time.strftime("%H:%M:%S", time.localtime()))
             log_content += "\n\n"
             scene_log_file.writelines(log_content)
@@ -266,18 +266,18 @@ def run(root_path):
     makedir(root_path)
     parser = Parser(root_path)
     verif = Verif(root_path,parser)
-    #verif.analyze_all(Reg_1b_seta(),0)
+    verif.analyze_all(Reg_1b_seta(),0)
     verif.analyze_all(Reg_1b_noa(),0)
-    #verif.analyze_all(Reg_2b_seta(),0)
-    #verif.analyze_all(Reg_2b_noa(),0)
-    #verif.analyze_all(Reg_1r_seta(),0)
-    #verif.analyze_all(Reg_1r_noa(),0)
-    #verif.analyze_all(Reg_2r_seta(),0)
-    #verif.analyze_all(Reg_2r_noa(),0)
-    verif.analyze_all(Auth_1b_login_seta(),0)
-    verif.analyze_all(Auth_1b_login_noa(),0)
-    verif.analyze_all(Auth_1b_stepup_seta(),0)
-    verif.analyze_all(Auth_1b_stepup_noa(),0)
+    verif.analyze_all(Reg_2b_seta(),0)
+    verif.analyze_all(Reg_2b_noa(),0)
+    verif.analyze_all(Reg_1r_seta(),0)
+    verif.analyze_all(Reg_1r_noa(),0)
+    verif.analyze_all(Reg_2r_seta(),0)
+    verif.analyze_all(Reg_2r_noa(),0)
+    #verif.analyze_all(Auth_1b_login_seta(),0)
+    #verif.analyze_all(Auth_1b_login_noa(),0)
+    #verif.analyze_all(Auth_1b_stepup_seta(),0)
+    #verif.analyze_all(Auth_1b_stepup_noa(),0)
 
 
 if __name__ == "__main__":

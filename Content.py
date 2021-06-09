@@ -27,8 +27,8 @@ class Content:
                     self.all_queries.append(Query(self.scene_name,basic_query.name,query_temp,events))
     def get_group_queries(self):
         for basic_query in self.basic_queries:#遍历所有的基本询问语句
-            if basic_query.name.find("auth") == -1: #secrecy properties
-            #if True:
+            #if basic_query.name.find("auth") == -1: #secrecy properties
+            if True:
                 temp_group_query = basic_query.head + "\n"
                 for num in range(len(self.query_test) + 1): #遍历每种增加的个数
                     for events in itertools.combinations((self.query_test), num):#遍历每种num数量下的event
@@ -62,7 +62,7 @@ class Content:
                         query_temp += ".\n"
                         temp_one_query += query_temp
                         self.all_queries.append(Query(self.scene_name, basic_query.name, temp_one_query, events))
-        self.all_queries.reverse()
+        #self.all_queries.reverse()
     def get_scene_name(self):
         return self.scene_name
     def get_content(self):

@@ -1,5 +1,5 @@
 (**********************************)
-
+set ignoreTypes = false.
 set reconstructTrace = false.
 set traceDisplay = none.
 set verboseClauses = none.
@@ -13,11 +13,6 @@ set verboseTerm = false.
 (*                           Messages Type declaration                                        	    *)
 (********************************************************************)
 type msg.
-type Atype. (* indicate the type of the autheticator *)
-type Ltype. (* indicate if it is the first time login or step-up authentication *)
-type Ftype. (* indicate if the appid is NULL or not *)
-type Scene.
-
 type Uname.
 type Appid.
 type Facetid.
@@ -56,7 +51,6 @@ fun spk(sskey):spkey.
 fun sign(bitstring, sskey): bitstring.
 reduc forall m: bitstring, ssk: sskey; checksign(sign(m,ssk),spk(ssk)) = m.
 reduc forall m: bitstring, ssk: sskey; getmess(sign(m,ssk)) = m.
-
 
 
 (********************************************************************)
@@ -129,16 +123,7 @@ free c:channel.
 (********************************************************************)
 (*                                   const declarations                                                   *)
 (********************************************************************)
-const autr_1b:Atype.
-const autr_2b:Atype.
-const autr_1r:Atype.
-const autr_2r:Atype.
-const empty:Ltype.
-const stepup:Ltype.
-const null:Ftype.
-const hasset:Ftype.
-const software:Scene.
-const hardware:Scene.
+
 const debug:bitstring[private].
 const reg_cntr:CNTR[private].
 const auth_cntr:CNTR[private].
