@@ -1,7 +1,7 @@
 (**********************************)
 
 set ignoreTypes = false.
-set reconstructTrace = false.
+(*set reconstructTrace = false.
 set traceDisplay = none.
 set verboseClauses = none.
 set explainDerivation = true.
@@ -9,7 +9,7 @@ set reconstructDerivation = false.
 set displayDerivation = false.
 set abbreviateClauses = true.
 set verboseEq = false.
-set verboseTerm = false.(**)
+set verboseTerm = false.*)
 (********************************************************************)
 (*                           Messages Type declaration                                        	    *)
 (********************************************************************)
@@ -543,17 +543,6 @@ let AuthUS_login_seta(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID
     out(c,debug)
  ).
  
- let Auth_malicious_US_to_RP(SR:channel) = 
-(
-	event malicious_US_to_RP();
-	in(SR,tlsdata:bitstring);
-	out(c,tlsdata);
-	in(c,x:msg);
-	out(SR,x);
-	in(SR,x2:msg);
-	out(c,x2)
-).
- 
 let AuthUS_login_noa(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID, pkAU:spkey, cntr:CNTR, tr:Tr) =
 (
     in(SR, tlsdata:bitstring);
@@ -642,27 +631,6 @@ let AuthRP_login_seta(RS:channel,https:channel) =
     out(RS, AuthRSresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s))
 ).
 
-let Auth_malicious_RP_to_US(RS:channel) =
-(
-	event malicious_RP_to_US();
-	in(c,x:bitstring);
-	out(RS,x);
-	in(RS,x2:msg);
-	out(c,x2);
-	in(c,x3:msg);
-	out(c,x3)
-).
-
-let Auth_malicious_RP_to_UA(https:channel) =
-(
-	event malicious_RP_to_UA();
-	in(https,okk:bitstring);
-	in(c,x:msg);
-	out(https,x);
-	in(https,x2:msg);
-	out(c,x2)
-).
-
 let AuthRP_login_noa(RS:channel,https:channel) = 
 (
     in(https, tg:bitstring);
@@ -730,26 +698,6 @@ let AuthUA_login_seta(https:channel,UC:channel,uname:Uname) =
     let AuthCUresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s) = mm in
     out(https,AuthURresp_em(xsdata,aaid,nonce,fc,kid,xcntr,fcp,s))
  ).
- 
- let Auth_malicious_UA_to_RP(https:channel) = 
- (
-	event malicious_UA_to_RP();
-	 out(https,ok);
-	 in(https,x:msg);
-	 out(c,x);
-	 in(c,x2:msg);
-	 out(https,x2)
- ).
- 
- let Auth_malicious_UA_to_UC(UC:channel) =
- (
-	event malicious_UA_to_UC();
-	in(c,x:msg);
-	out(UC,x);
-	in(UC,x2:msg);
-	out(c,x2)
- ).
- 
 let AuthUA_stepup_seta(https:channel,UC:channel,uname:Uname) =
 (
     out(https,ok);
@@ -819,24 +767,6 @@ let AuthUC_login_seta(CU:channel,CM:channel,facetid:Facetid) =
     out(CU,AuthCUresp_em(sdata,aaid,nonce,fc,kid,xcntr,fcp,s))
 ).
 
-let Auth_malicious_UC_to_UA(CU:channel) = 
-(
-	event malicious_UC_to_UA();
-	in(CU,x:msg);
-	out(c,x);
-	in(c,x2:msg);
-	out(CU,x2)
-).
-
-let Auth_malicious_UC_to_ASM(CM:channel) = 
-(
-	event malicious_UC_to_ASM();
-	in(c,x:msg);
-	out(CM,x);
-	in(CM,x2:msg);
-	out(c,x2)
-).
-
 let AuthUC_stepup_seta(CU:channel,CM:channel,facetid:Facetid) =
 (
 	in(CU,m:msg);
@@ -902,23 +832,6 @@ let AuthASM_1b_login(MC:channel,MA:channel,token:bitstring,callerid:Callerid,tru
     in(MA,mm:msg);
     let AuthAMresp_em(aaid,nonce,xfc,xkid,xcntr,s) = mm in
     out(MC,AuthMCresp_em(aaid,nonce,xfc,xkid,xcntr,s))
-).
-
-let Auth_malicious_ASM_to_UC(MC:channel) = 
-(
-	 event malicious_ASM_to_UC();
-	 in(MC,x:msg);
-	 out(c,x);
-	 in(c,x2:msg);
-	 out(MC,x2)
-).
-let Auth_malicious_ASM_to_Autr(MA:channel) = 
-(
-	event malicious_ASM_to_Autr();
-	 in(c,x:msg);
-	 out(MA,x);
-	 in(MA,x2:msg);
-	 out(c,x2)
 ).
 let AuthASM_1b_stepup(MC:channel,MA:channel,token:bitstring,callerid:Callerid,trust_callerid:Callerid,personaid:PersonaID,trust_appid:Appid,trust_kid:KeyID,kh:KeyID) =
 (
@@ -1011,16 +924,6 @@ let AuthAutr_1b_login(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_app
     event Autr_verify_auth_1br(uname,appid,aaid,kid);
     out(AM,AuthAMresp_em(aaid,nonce,fc,kid,cntr,s))
 ).
-
-let Auth_malicious_Autr_to_ASM(AM:channel) =
-(
-	event malicious_Autr_to_ASM();
-	in(AM,x:msg);
-	out(c,x);
-	in(c,x2:msg);
-	out(AM,x2)
-).
-
 let AuthAutr_1b_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_appid:Appid,kh:KeyID) =
 (
 	in(AM,m:msg);
@@ -1104,5 +1007,4 @@ let AuthAutr_1r_stepup_seta(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,tru
 let AuthAutr_1r_stepup_noa(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_appid:Appid,kh:KeyID) = AuthAutr_1r_stepup(AM,aaid,wrapkey,cntr,tr,trust_appid,kh).
 let AuthAutr_2r_stepup_seta(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_appid:Appid,kh:KeyID) = AuthAutr_2r_stepup(AM,aaid,wrapkey,cntr,tr,trust_appid,kh).
 let AuthAutr_2r_stepup_noa(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_appid:Appid,kh:KeyID) = AuthAutr_2r_stepup(AM,aaid,wrapkey,cntr,tr,trust_appid,kh).
-
 

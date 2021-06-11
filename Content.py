@@ -82,7 +82,7 @@ class Reg(Content):
                         "\tnew fakefacetid:Facetid; new fakecallerid:Callerid; new fakepersonaid:PersonaID;\n" ,
                         "\t(* the attacker has access to following fields *)\n" ,
                         "\tout(c,(uname,appid,facetid,callerid,fakefacetid,personaid,fakepersonaid,aaid,pkAT));\n" ,
-                        "\tinsert AppList(appid,facetid);\n",
+                        "\t(*insert AppList(appid,facetid);*)\n",
                         "\t(event leak_token();out(c,token))|\n",
                         "\t(event leak_kw(); out(c,wrapkey))|\n",
                         "\t(event leak_skat(); out(c,skAT))|\n",
@@ -93,7 +93,7 @@ class Reg(Content):
                         "\t(event malicious_UC_to_UA();RegUA_(https, c, uname,password))|\n",
                         "\t(event malicious_UC_to_ASM();RegASM_(c, AM, token, fakecallerid, fakepersonaid))|\n",
                         "\t(event malicious_ASM_to_UC();RegUC_(CU, c, facetid))|\n",
-                        "\t(event malicious_ASM_to_Autr();RegAutr_(c, aaid, skAT, wrapkey,skAUbasic,cntrbasic,kidbasic))|\n",
+                        "\t(event 1441malicious_ASM_to_Autr();RegAutr_(c, aaid, skAT, wrapkey,skAUbasic,cntrbasic,kidbasic))|\n",
                         "\t(event malicious_Autr_to_ASM();RegASM_(MC, c, token, callerid, personaid))|\n",
                         "\tRegUS_(SR, appid, facetid)|\n",
                         "\tRegRP_(SR, https, uname, password)|\n",
@@ -104,8 +104,8 @@ class Reg(Content):
                         ").\n" ,
                         "process\n" ,
                         "( \n" ,
-                        "\tnew appid:Appid; new aaid:AAID; new facetid:Facetid;  new callerid:Callerid;  new personaid:PersonaID; new skAT:sskey;  new wrapkey:key; new token:bitstring;\n" ,
-                        "\tnew uname:Uname; new password:bitstring;\n" ,
+                        "\tnew appid:Appid; new aaid:AAID; new callerid:Callerid;  new personaid:PersonaID; new skAT:sskey;  new wrapkey:key; new token:bitstring;\n" ,
+                        "\tnew uname:Uname; new password:bitstring; let facetid = find_facetid(appid) in\n" ,
                         "\t(* User 1 registers in RP 1 *)\n" ,
                         "\tsystem(appid,aaid,skAT,uname,password,facetid,callerid,personaid,token,wrapkey)\n"
                         ")\n"]
@@ -233,24 +233,24 @@ class Auth(Content):
                         "\t\t(event malicious_UA_to_RP(); AuthRP_(SR,c))|\n",
                         "\t\t(event malicious_UA_to_UC(); AuthUC_(c, MC, fakefacetid))|\n",
                         "\t\t(event malicious_UC_to_UA(); AuthUA_(https, c, uname))|\n",
-                        "\t\t(event malicious_UC_to_ASM(); AuthASM_(c,AM,token,fakecallerid,fakepersonaid))|\n",
+                        "\t\t(event malicious_UC_to_ASM(); AuthASM_(c,AM,token,fakecallerid,callerid,fakepersonaid,appid,kid,kh))|\n",
                         "\t\t(event malicious_ASM_to_UC(); AuthUC_(CU, c, facetid))|\n",
-                        "\t\t(event malicious_ASM_to_Autr(); AuthAutr_(c,aaid,wrapkey,cntr,tr))|\n",
-                        "\t\t(event malicious_Autr_to_ASM(); AuthASM_(MC,c,token,callerid,personaid))|\n",
+                        "\t\t(event malicious_ASM_to_Autr(); AuthAutr_(c,aaid,wrapkey,cntr,tr,appid,kh))|\n",
+                        "\t\t(event malicious_Autr_to_ASM(); AuthASM_(MC,c,token,callerid,callerid,personaid,appid,kid,kh))|\n",
                         "\t\tAuthUS_(SR, uname, appid, aaid,kid,pkAU,cntr,tr)|\n",
                         "\t\tAuthRP_(SR, https)|\n",
                         "\t\tAuthRP_(SR, c)|\n",
                         "\t\tAuthUA_(https, CU,uname)|\n",
                         "\t\tAuthUC_(CU, MC, facetid)|\n",
-                        "\t\tAuthASM_(MC,AM,token,callerid,personaid)|\n",
-                        "\t\tAuthAutr_(AM,aaid,wrapkey,cntr,tr)\n",
+                        "\t\tAuthASM_(MC,AM,token,callerid,callerid,personaid,appid,kid,kh)|\n",
+                        "\t\tAuthAutr_(AM,aaid,wrapkey,cntr,tr,appid,kh)\n",
                         "\t)\n",
                         ").\n",
                         "process\n",
                         "(\n",
-                        "\tnew appid:Appid; new aaid:AAID; new skAU:sskey;  new keyid:KeyID; new wrapkey:key;	 new token:bitstring; new uname:Uname; new cntr:CNTR;\n",
-                        "\tnew facetid:Facetid; insert AuthAppList(appid,facetid);\n",
-                        "\tnew callerid:Callerid; insert TrustCallerid(callerid);\n",
+                        "\tnew appid:Appid; new aaid:AAID; new skAU:sskey;  new keyid:KeyID; new wrapkey:key;new token:bitstring; new uname:Uname; new cntr:CNTR;\n",
+                        "\tlet facetid = find_facetid(appid) in\n",
+                        "\tnew callerid:Callerid;\n",
                         "\tnew personaid:PersonaID;\n",
                         "\t(* User 1 authenticates in RP 1 *)\n",
                         "\tsystem(appid,aaid,skAU,keyid,wrapkey,token,uname,facetid,callerid,personaid,cntr)\n",
@@ -296,7 +296,7 @@ class Auth_1b_login_seta(Auth):
         self.specific_operation = ["\t\tlet ak = To_12b_token(appid,token,callerid,personaid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
-                                   "\t\tinsert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);\n"]
+                                   "\t\t(*insert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);*)\n"]
         self.add_open_rp()
         self.add_specific_operation()
         self.set_type("1b_login_seta")
@@ -313,7 +313,7 @@ class Auth_1b_login_noa(Auth):
         self.specific_operation = ["\t\tlet ak = To_12b_token(facetid_to_appid(facetid),token,callerid,personaid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
-                                   "\t\tinsert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);\n"]
+                                   "\t\t(*insert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);*)\n"]
         self.add_open_rp()
         self.add_specific_operation()
         self.set_type("1b_login_noa")
@@ -330,7 +330,7 @@ class Auth_1b_stepup_seta(Auth):
         self.specific_operation = ["\t\tlet ak = To_12b_token(appid,token,callerid,personaid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
-                                   "\t\tinsert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);\n"]
+                                   "\t\t(*insert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);*)\n"]
         self.add_specific_operation()
         self.set_type("1b_login_noa")
         self.basic_queries.append(
@@ -348,7 +348,7 @@ class Auth_1b_stepup_noa(Auth):
         self.specific_operation = ["\t\tlet ak = To_12b_token(facetid_to_appid(facetid),token,callerid,personaid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
-                                   "\t\tinsert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);\n"]
+                                   "\t\t(*insert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);*)\n"]
         self.add_specific_operation()
         self.set_type("1b_stepup_noa")
         self.basic_queries.append(
@@ -367,7 +367,7 @@ class Auth_2b_stepup_seta(Auth):
         self.specific_operation = ["\t\tlet ak = To_12b_token(appid,token,callerid,personaid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,appid),keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
-                                   "\t\tinsert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);\n"]
+                                   "\t\t(*insert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);*)\n"]
         self.add_specific_operation()
         self.set_type("2b_stepup_seta")
         self.basic_queries.append(
@@ -386,7 +386,7 @@ class Auth_2b_stepup_noa(Auth):
         self.specific_operation = ["\t\tlet ak = To_12b_token(facetid_to_appid(facetid),token,callerid,personaid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
-                                   "\t\tinsert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);\n"]
+                                   "\t\t(*insert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);*)\n"]
         self.add_specific_operation()
         self.set_type("2b_stepup_noa")
         self.basic_queries.append(
@@ -405,7 +405,7 @@ class Auth_1r_login_seta(Auth):
         self.specific_operation = ["\t\tlet ak = To_12r_token(appid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
-                                   "\t\tinsert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);\n"]
+                                   "\t\t(*insert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);*)\n"]
         self.add_open_rp()
         self.add_specific_operation()
         self.set_type("1r_login_seta")
@@ -423,7 +423,7 @@ class Auth_1r_login_noa(Auth):
         self.specific_operation = ["\t\tlet ak = To_12r_token(facetid_to_appid(facetid)) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
-                                   "\t\tinsert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);\n"]
+                                   "\t\t(*insert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);*)\n"]
         self.add_open_rp()
         self.add_specific_operation()
         self.set_type("1r_login_noa")
@@ -442,7 +442,7 @@ class Auth_1r_stepup_seta(Auth):
         self.specific_operation = ["\t\tlet ak = To_12r_token(appid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
-                                   "\t\tinsert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);\n"]
+                                   "\t\t(*insert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);*)\n"]
         self.add_specific_operation()
         self.set_type("1r_stepup_seta")
         self.basic_queries.append(
@@ -464,7 +464,7 @@ class Auth_1r_stepup_noa(Auth):
         self.specific_operation = ["\t\tlet ak = To_12r_token(facetid_to_appid(facetid)) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
-                                   "\t\tinsert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);\n"]
+                                   "\t\t(*insert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);*)\n"]
         self.add_specific_operation()
         self.set_type("1r_stepup_noa")
         self.basic_queries.append(
@@ -484,7 +484,7 @@ class Auth_2r_stepup_seta(Auth):
         self.specific_operation = ["\t\tlet ak = To_12r_token(appid) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,appid)),wrapkey) in\n",
                                    "\t\tlet kid = kh in\n",
-                                   "\t\tinsert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);\n"]
+                                   "\t\t(*insert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);*)\n"]
         self.add_specific_operation()
         self.set_type("2r_stepup_seta")
         self.basic_queries.append(
@@ -503,7 +503,7 @@ class Auth_2r_stepup_noa(Auth):
         self.specific_operation = ["\t\tlet ak = To_12r_token(facetid_to_appid(facetid)) in\n",
                                    "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid))),wrapkey) in\n",
                                    "\t\tlet kid = kh in\n",
-                                   "\t\tinsert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);\n"]
+                                   "\t\t(*insert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);*)\n"]
         self.add_specific_operation()
         self.set_type("2r_stepup_seta")
         self.basic_queries.append(
