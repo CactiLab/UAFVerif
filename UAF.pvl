@@ -197,6 +197,16 @@ let RegUS_seta(SR:channel, appid:Appid, facetid:Facetid) =
 	)	
 ).
 
+let Reg_malicious_US_to_RP(SR:channel) = 
+(
+	in(SR,x:msg);
+	out(c,x);
+	in(c,x2:msg);
+	out(SR,x2);
+	in(SR,x3:msg);
+	out(c,x3)
+).
+
 let RegUS_noa(SR:channel, appid:Appid, facetid:Facetid) =
 (   
     in(SR, x:msg);
@@ -242,6 +252,25 @@ let RegRP_seta(RS:channel, https:channel, uname:Uname, password:bitstring) =
     out(RS, RegRSresp(xsdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
 ).
 
+let Reg_malicious_RP_to_US(RS:channel) =
+(
+	in(c,x:msg);
+	out(RS,x);
+	in(RS,x2:msg);
+	out(c,x2);
+	in(c,x3:msg);
+	out(RS,x3)
+).
+
+let Reg_malicious_RP_to_UA(https:channel) =
+(
+	in(https,up:msg);
+	in(c,x:msg);
+	out(https,x);
+	in(https,x2:msg);
+	out(c,x2)
+).
+
 let RegRP_noa(RS:channel, https:channel, uname:Uname, password:bitstring) =
 (
 	in(https,up:msg);
@@ -285,6 +314,24 @@ let RegUA_seta(https:channel,UC:channel,uname:Uname,password:bitstring) =
     )
 ).
 
+let Reg_malicious_UA_to_RP(https:channel) = 
+(
+	 in(c,up:msg);
+	 out(https,up);
+	 in(https,x:msg);
+	 out(c,x);
+	 in(c,x2:msg);
+	 out(https,x2)
+).
+ 
+ let Reg_malicious_UA_to_UC(UC:channel) =
+ (
+	in(c,x:msg);
+	out(UC,x);
+	in(UC,x2:msg);
+	out(c,x2)
+ ).
+ 
 let RegUA_noa(https:channel,UC:channel,uname:Uname,password:bitstring) =
 (
 	event UA_init_reg(uname);
@@ -326,6 +373,22 @@ let RegUC_seta(CU:channel,CM:channel,facetid:Facetid) =
     out(CU,RegCUresp(sdata,aaid,fc,kid,cntr,pkAT,pkAU,fcp,s))
 ).
 
+let Reg_malicious_UC_to_UA(CU:channel) = 
+(
+	in(CU,x:msg);
+	out(c,x);
+	in(c,x2:msg);
+	out(CU,x2)
+).
+
+let Reg_malicious_UC_to_ASM(CM:channel) = 
+(
+	in(c,x:msg);
+	out(CM,x);
+	in(CM,x2:msg);
+	out(c,x2)
+).
+
 let RegUC_noa(CU:channel,CM:channel,facetid:Facetid) =
 (
 	in(CU,m:msg);
@@ -363,6 +426,21 @@ let RegASM_1b2b(MC:channel, MA:channel, token:bitstring, callerid:Callerid, pers
     in(MA,mm:msg);
     let RegAMresp_12b(aaid,fc2,kid,cntr,pkAT,pkAU,kh,s) = mm in
     out(MC,RegMCresp(aaid,fc2,kid,cntr,pkAT,pkAU,s))
+).
+
+let Reg_malicious_ASM_to_UC(MC:channel) = 
+(
+	 in(MC,x:msg);
+	 out(c,x);
+	 in(c,x2:msg);
+	 out(MC,x2)
+).
+let Reg_malicious_ASM_to_Autr(MA:channel) = 
+(
+	 in(c,x:msg);
+	 out(MA,x);
+	 in(MA,x2:msg);
+	 out(c,x2)
 ).
 
 let RegASM_1r2r(MC:channel, MA:channel, token:bitstring, callerid:Callerid, personaid:PersonaID) =
@@ -411,6 +489,13 @@ let RegAutr_1b(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr
     let s = sign((aaid,fc,kid,cntr,pkAU),skAT) in
     event Autr_verify_reg(uname,appid,aaid,kid);
     out(AM,RegAMresp_12b(aaid,fc,kid,cntr,pkAT,pkAU,kh,s))
+).
+let Reg_malicious_Autr_to_ASM(AM:channel) =
+(
+	in(AM,x:msg);
+	out(c,x);
+	in(c,x2:msg);
+	out(AM,x2)
 ).
 
 let RegAutr_2b(AM:channel,aaid:AAID,skAT:sskey,wrapkey:key,skAU_basic:sskey,cntr_basic:CNTR,kid_basic:KeyID) =

@@ -143,11 +143,10 @@ class Verif:
         self.secure_queries = []
     def proverif_group_query(self, query_path):  # activate proverif and analyze the temp.pv file
         file_result = open(query_path + "temp.result", "w")
-        p = Popen('proverif -lib "' + self.root_path + "UAF.pvl" + '" ' + query_path, stdout=file_result, stderr=file_result,
-                  shell=True)
-        while True:
-            if p.poll() != None:
-                break
+        p = Popen('proverif -lib "' + self.root_path + "UAF.pvl" + '" ' + query_path, stdout=file_result, stderr=file_result)
+        #stdout, stderr = p.communicate()
+        while p.poll() is None:
+            continue
             #print("正在运行" + time.strftime("%M:%S", time.localtime()))
         file_result.close()
         with open(query_path + "temp.result", "rb") as f:
@@ -266,7 +265,7 @@ def run(root_path):
     makedir(root_path)
     parser = Parser(root_path)
     verif = Verif(root_path,parser)
-    #verif.analyze_all(Reg_1b_seta(),0)
+    verif.analyze_all(Reg_1b_seta(),0)
     #verif.analyze_all(Reg_1b_noa(),0)
     #verif.analyze_all(Reg_2b_seta(),0)
     #verif.analyze_all(Reg_2b_noa(),0)
