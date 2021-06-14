@@ -143,7 +143,7 @@ class Verif:
         self.secure_queries = []
     def proverif_group_query(self, query_path):  # activate proverif and analyze the temp.pv file
         file_result = open(query_path + "temp.result", "w")
-        p = Popen('proverif -lib "' + self.root_path + "UAF.pvl" + '" ' + query_path, stdout=file_result, stderr=file_result)
+        p = Popen('proverif -lib "' + self.root_path + "UAF.pvl" + '" ' + query_path, stdout=file_result, stderr=file_result,shell=True)
         #stdout, stderr = p.communicate()
         while p.poll() is None:
             continue
@@ -163,7 +163,9 @@ class Verif:
             result = out[i + 89:-70]
         return ret, str(result, encoding='utf-8')  # return the results
 
-    def proverif(self, query_path):
+    def proverif3(self,query_path):
+        output = os.popen('proverif -lib "' + root_path + "UAF.pvl" + '" ' + query_path)
+    def proverif(self, query_path):#这个版本子进程或莫名其妙地卡住
         output = Popen('proverif -lib "' + root_path + "UAF.pvl" + '" ' + query_path, stdout=PIPE, stderr=PIPE)
         timer = Timer(300, lambda process: process.kill(), [output])
         try:
@@ -210,7 +212,7 @@ class Verif:
         result_path = root_path + "LOG/" + case.scene_name + ".result"
         while counter < len(all_queries):
             query = all_queries[counter]
-            query_path = root_path + "QUERY/" + case.get_scene_name() + query.query_name + ".pv"
+            query_path = root_path + "QUERY/" + case.get_scene_name() + "-" + query.query_name + ".pv"
             log_content = ""
             log_content += str(counter) + ", " + query.scene_name + ", " + query.query_name + ", "
             jump_ret = self.parser.jump(query)
@@ -266,15 +268,15 @@ def run(root_path):
     parser = Parser(root_path)
     verif = Verif(root_path,parser)
     verif.analyze_all(Reg_1b_seta(),0)
-    #verif.analyze_all(Reg_1b_noa(),0)
-    #verif.analyze_all(Reg_2b_seta(),0)
-    #verif.analyze_all(Reg_2b_noa(),0)
-    #verif.analyze_all(Reg_1r_seta(),0)
-    #verif.analyze_all(Reg_1r_noa(),0)
-    #verif.analyze_all(Reg_2r_seta(),0)
-    #verif.analyze_all(Reg_2r_noa(),0)
-    verif.analyze_all(Auth_1b_login_seta(),0)
-    verif.analyze_all(Auth_1b_login_noa(),0)
+    verif.analyze_all(Reg_1b_noa(),0)
+    verif.analyze_all(Reg_2b_seta(),0)
+    verif.analyze_all(Reg_2b_noa(),0)
+    verif.analyze_all(Reg_1r_seta(),0)
+    verif.analyze_all(Reg_1r_noa(),0)
+    verif.analyze_all(Reg_2r_seta(),0)
+    verif.analyze_all(Reg_2r_noa(),0)
+    #verif.analyze_all(Auth_1b_login_seta(),0)
+    #verif.analyze_all(Auth_1b_login_noa(),0)
     #verif.analyze_all(Auth_1b_stepup_seta(),0)
     #verif.analyze_all(Auth_1b_stepup_noa(),0)
 
