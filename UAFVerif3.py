@@ -74,8 +74,8 @@ class Parser:
         secure_result = self.secure_pattern.findall(proverif_result)
         for secure_result_item in secure_result:
             assumptions_content = self.get_query_and_assumptions(secure_result_item)
-            secure_assumptiosn = self.event_pattern.findall(assumptions_content)
-            secure_query = Query(query.scene_name,query.query_name,secure_result_item,secure_assumptiosn)
+            secure_assumptions = self.event_pattern.findall(assumptions_content)
+            secure_query = Query(query.scene_name,query.query_name,secure_result_item,secure_assumptions)
             if self.is_in_secure_set(secure_query):
                 continue
             else:
@@ -84,6 +84,7 @@ class Parser:
                     f.writelines(secure_query.scene_name + ", ")
                     f.writelines(secure_query.query_name + ", ")
                     f.writelines(secure_query.content + "\n\n")
+
     def parser_record_false(self,query,proverif_result):
         false_result = self.false_pattern.findall(proverif_result)
         for false_result_item in false_result:
@@ -119,7 +120,7 @@ class Parser:
         return "nojump"
 
     def get_query_and_assumptions(self,secure_result_item):
-        if secure_result_item.find("attacker(") != -1:
+        if secure_result_item.find("attacker") != -1:
             index = secure_result_item.find("==>") + 3
         else:
             index = secure_result_item.find("||") + 2
@@ -158,9 +159,10 @@ class Verif:
             i = out[0:-10].rfind(b'--------------------------------------------------------------')  # find last results
             if i == -1:
                 ret = "could not find ----- in result"
+                result = out
             else:
                 ret = "True"
-            result = out[i + 89:-70]
+                result = out[i + 89:-70]
         return ret, str(result, encoding='utf-8')  # return the results
 
     def proverif3(self,query_path):
@@ -227,7 +229,7 @@ class Verif:
                 ret,result = self.proverif_group_query(query_path)
                 if ret != "True":
                     log_content += ret
-                    shutil.copy(query_path, query_path + str(counter) + "abort.pv")
+                    shutil.copy(query_path, query_path + "-" + str(counter) + "-error.pv")
                     with open(query_path + str(counter) + "abort.pv", "a") as f:
                         f.writelines(result)
                 else:
@@ -267,15 +269,15 @@ def run(root_path):
     makedir(root_path)
     parser = Parser(root_path)
     verif = Verif(root_path,parser)
-    verif.analyze_all(Reg_1b_seta(),0)
-    verif.analyze_all(Reg_1b_noa(),0)
-    verif.analyze_all(Reg_2b_seta(),0)
-    verif.analyze_all(Reg_2b_noa(),0)
-    verif.analyze_all(Reg_1r_seta(),0)
-    verif.analyze_all(Reg_1r_noa(),0)
-    verif.analyze_all(Reg_2r_seta(),0)
-    verif.analyze_all(Reg_2r_noa(),0)
-    #verif.analyze_all(Auth_1b_login_seta(),0)
+    #verif.analyze_all(Reg_1b_seta(),0)
+    #verif.analyze_all(Reg_1b_noa(),0)
+    #verif.analyze_all(Reg_2b_seta(),0)
+    #verif.analyze_all(Reg_2b_noa(),0)
+    #verif.analyze_all(Reg_1r_seta(),0)
+    #verif.analyze_all(Reg_1r_noa(),0)
+    #verif.analyze_all(Reg_2r_seta(),0)
+    #verif.analyze_all(Reg_2r_noa(),0)
+    verif.analyze_all(Auth_1b_login_seta(),0)
     #verif.analyze_all(Auth_1b_login_noa(),0)
     #verif.analyze_all(Auth_1b_stepup_seta(),0)
     #verif.analyze_all(Auth_1b_stepup_noa(),0)

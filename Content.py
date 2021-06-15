@@ -81,26 +81,26 @@ class Reg(Content):
                         "\tnew skAUbasic:sskey; new cntrbasic:CNTR; new kidbasic:KeyID;\n" ,
                         "\tnew fakefacetid:Facetid; new fakecallerid:Callerid; new fakepersonaid:PersonaID;\n" ,
                         "\t(* the attacker has access to following fields *)\n" ,
-                        "\tout(c,(uname,appid,facetid,callerid,fakefacetid,personaid,fakepersonaid,aaid,pkAT));\n" ,
+                        "\tout(c,(uname,appid,facetid,callerid,fakefacetid,personaid,fakepersonaid,aaid,skAT,pkAT));\n" ,
                         "\t(*insert AppList(appid,facetid);*)\n",
                         "\t(event leak_token();out(c,token))|\n",
                         "\t(event leak_kw(); out(c,wrapkey))|\n",
-                        "\t(event leak_skat(); out(c,skAT))|\n",
-                        "\t(event malicious_RP_to_US();Reg_malicious_RP_to_US(SR))|\n",
-                        "\t(event malicious_US_to_RP();Reg_malicious_US_to_RP(SR))|\n",
-                        "\t(event malicious_UA_to_RP(); Reg_malicious_UA_to_RP(https))|\n",
-                        "\t(event malicious_UA_to_UC();Reg_malicious_UA_to_UC(CU))|\n",
-                        "\t(event malicious_UC_to_UA();Reg_malicious_UC_to_UA(CU))|\n",
-                        "\t(event malicious_UC_to_ASM();Reg_malicious_UC_to_ASM(MC))|\n",
-                        "\t(event malicious_ASM_to_UC();Reg_malicious_ASM_to_UC(MC))|\n",
-                        "\t(event malicious_ASM_to_Autr();Reg_malicious_ASM_to_Autr(AM))|\n",
-                        "\t(event malicious_Autr_to_ASM();Reg_malicious_Autr_to_ASM(AM))|\n",
+                        "\t(*(event leak_skat(); out(c,skAT))|*)\n",
+                        "\t(event malicious_RP_to_US();RegUS_(c, appid, facetid))|\n",
+                        "\t(event malicious_US_to_RP();RegRP_(c, https, uname, password))|\n",
+                        "\t(event malicious_UA_to_RP(); RegRP_(SR, c, uname, password))|\n",
+                        "\t(event malicious_UA_to_UC();RegUC_(c,MC,facetid))|\n",
+                        "\t(event malicious_UC_to_UA();RegUA_(https, c, uname, password))|\n",
+                        "\t(event malicious_UC_to_ASM();RegASM_(c,AM,token, callerid, personaid))|\n",
+                        "\t(event malicious_ASM_to_UC();RegUC_(CU,c,facetid))|\n",
+                        "\t(event malicious_ASM_to_Autr();RegAutr_(c,aaid, skAT, wrapkey,skAUbasic,cntrbasic,kidbasic))|\n",
+                        "\t(event malicious_Autr_to_ASM();RegASM_(MC,c,token, callerid, personaid))|\n",
                         "\tRegUS_(SR, appid, facetid)|\n",
                         "\tRegRP_(SR, https, uname, password)|\n",
-                        "\tRegUA_(https, CU,uname, password,facetid)|\n",
-                        "\tRegUC_(CU, MC, callerid)|\n",
-                        "\tRegASM_(MC, AM, token, callerid, personaid)|\n",
-                        "\tRegAutr_(AM, aaid, skAT, wrapkey,skAUbasic,cntrbasic,kidbasic)\n" ,
+                        "\tRegUA_(https, CU, uname, password)|\n",
+                        "\tRegUC_(CU,MC,facetid)|\n",
+                        "\tRegASM_(MC,AM,token, callerid, personaid)|\n",
+                        "\tRegAutr_(AM,aaid, skAT, wrapkey,skAUbasic,cntrbasic,kidbasic)\n" ,
                         ").\n" ,
                         "process\n" ,
                         "( \n" ,
@@ -116,7 +116,7 @@ class Reg(Content):
                             Basic_Query("Rauth", "query u:Uname,a:Appid,aa:AAID,kid:KeyID; ","inj-event(RP_success_reg(u,a,aa,kid)) ==> (inj-event(Autr_verify_reg(u,a,aa,kid)) ==>inj-event(UA_init_reg(u)))")]
         self.query_test = ["event(leak_token)",
                            "event(leak_kw)",
-                           "event(leak_skat)",
+                           #"event(leak_skat)",
                            "event(malicious_US_to_RP)",
                            "event(malicious_RP_to_US)",
                            "event(malicious_UA_to_RP)",
@@ -130,8 +130,8 @@ class Reg(Content):
         self.all_queries = []
         self.scene_name = "has_not_set"
         self.if_set_type = False
-        self.need_type_row = 21
-        self.need_type_num = 6
+        self.need_type_row = 12
+        self.need_type_num = 15
 
 class Reg_1b_seta(Reg):
     def __init__(self):
@@ -148,7 +148,7 @@ class Reg_1b_noa(Reg):
         self.scene_name = "Reg_1b_noa"
         self.set_type("1b_noa")
         self.basic_queries.append(
-            Basic_Query("s-ak", "query ", "attacker(To_12b_token(facetid_to_appid(new facetid),new token,new callerid,new personaid))"))
+            Basic_Query("s-ak", "query ", "attacker(To_12b_token(facetid_to_appid(find_facetid(new appid)),new token,new callerid,new personaid))"))
         self.basic_queries.append(Basic_Query("s-kid","query seed:bitstring,ak:bitstring;","attacker(gen_kid(new kidbasic,seed))"))
         self.get_group_queries()
 
@@ -168,7 +168,7 @@ class Reg_2b_noa(Reg):
         self.scene_name = "Reg_2b_noa"
         self.set_type("2b_noa")
         self.basic_queries.append(
-            Basic_Query("s-ak", "query ", "attacker(To_12b_token(facetid_to_appid(new facetid),new token,new callerid,new personaid))"))
+            Basic_Query("s-ak", "query ", "attacker(To_12b_token(facetid_to_appid(find_facetid(new appid)),new token,new callerid,new personaid))"))
         self.basic_queries.append(Basic_Query("s-kid","query seed:bitstring,ak:bitstring;","attacker(gen_kid(new kidbasic,seed))"))
         self.get_group_queries()
 
@@ -188,7 +188,7 @@ class Reg_1r_noa(Reg):
         self.scene_name = "Reg_1r_noa"
         self.set_type("1r_noa")
         self.basic_queries.append(
-            Basic_Query("s-ak", "query ", "attacker(To_12r_token(facetid_to_appid(new facetid)))"))
+            Basic_Query("s-ak", "query ", "attacker(To_12r_token(facetid_to_appid(find_facetid(new appid))))"))
         self.basic_queries.append(Basic_Query("s-kid","query seed:bitstring,ak:bitstring;","attacker(gen_kid(new kidbasic,seed))"))
         self.get_group_queries()
 
@@ -208,7 +208,7 @@ class Reg_2r_noa(Reg):
         self.scene_name = "Reg_2r_noa"
         self.set_type("2r_noa")
         self.basic_queries.append(
-            Basic_Query("s-ak", "query ", "attacker(To_12r_token(facetid_to_appid(new facetid)))"))
+            Basic_Query("s-ak", "query ", "attacker(To_12r_token(facetid_to_appid(find_facetid(new appid))))"))
         self.basic_queries.append(Basic_Query("s-kid","query seed:bitstring,ak:bitstring;","attacker(senc((gen_skAU(new skAUbasic,seed),ak),new wrapkey))"))
         self.get_group_queries()
 
@@ -228,15 +228,15 @@ class Auth(Content):
                         "\t\t(*(event leak_skau(); out(c,skAU))|*)\n",
                         "\t\t(*(event leak_cntr(); out(c,cntr))|*)\n",
                         "\t\t(event leak_kid(); out(c,kid))|\n",
-                        "\t\t(event malicious_RP_to_US(); !Auth_malicious_RP_to_US(SR))|\n",
-                        "\t\t(event malicious_US_to_RP();  !Auth_malicious_US_to_RP(SR))|\n",
-                        "\t\t(event malicious_UA_to_RP(); !Auth_malicious_UA_to_RP(https))|\n",
-                        "\t\t(event malicious_UA_to_UC(); !Auth_malicious_UA_to_UC(CU))|\n",
-                        "\t\t(event malicious_UC_to_UA();  !Auth_malicious_UC_to_UA(CU))|\n",
-                        "\t\t(event malicious_UC_to_ASM();  !Auth_malicious_UC_to_ASM(MC))|\n",
-                        "\t\t(event malicious_ASM_to_UC(); !Auth_malicious_ASM_to_UC(MC))|\n",
-                        "\t\t(event malicious_ASM_to_Autr(); !Auth_malicious_ASM_to_Autr(AM))|\n",
-                        "\t\t(event malicious_Autr_to_ASM(); !Auth_malicious_Autr_to_ASM(AM))|\n",
+                        "\t\t(event malicious_RP_to_US(); !AuthUS_(c, uname, appid, aaid,kid,pkAU,cntr,tr))|\n",
+                        "\t\t(event malicious_US_to_RP();  !AuthRP_(c, https))|\n",
+                        "\t\t(*(event malicious_UA_to_RP(); !AuthRP_(SR, c))|*)\n",
+                        "\t\t(event malicious_UA_to_UC(); !AuthUC_(c, MC, fakefacetid))|\n",
+                        "\t\t(event malicious_UC_to_UA();  !AuthUA_(https, c,uname))|\n",
+                        "\t\t(event malicious_UC_to_ASM();  !AuthASM_(c,AM,token,fakecallerid,callerid,personaid,appid,kid,kh))|\n",
+                        "\t\t(event malicious_ASM_to_UC(); !AuthUC_(CU, c, facetid))|\n",
+                        "\t\t(event malicious_ASM_to_Autr(); !AuthAutr_(c,aaid,wrapkey,cntr,tr,appid,kh))|\n",
+                        "\t\t(event malicious_Autr_to_ASM(); !AuthASM_(MC,c,token,callerid,callerid,personaid,appid,kid,kh))|\n",
                         "\t\tAuthUS_(SR, uname, appid, aaid,kid,pkAU,cntr,tr)|\n",
                         "\t\tAuthRP_(SR, https)|\n",
                         "\t\tAuthRP_(SR, c)|\n",
@@ -260,7 +260,7 @@ class Auth(Content):
                                 ]
         self.query_test = ["event(malicious_US_to_RP)",
                            "event(malicious_RP_to_US)",
-                           "event(malicious_UA_to_RP)",
+                           #"event(malicious_UA_to_RP)",
                            "event(malicious_UA_to_UC)",
                            "event(malicious_UC_to_UA)",
                            "event(malicious_UC_to_ASM)",
@@ -278,24 +278,24 @@ class Auth(Content):
         self.scene_name = "has_not_set"
         self.if_set_type = False
         self.need_specific_operation_row = 3
-        self.need_type_row = 22
-        self.need_type_num = 7
+        self.need_type_row = 13
+        self.need_type_num = 16
 
     def add_specific_operation(self):
         for i in range(len(self.specific_operation)):
             self.content.insert(self.need_specific_operation_row + i, self.specific_operation[i])
             self.need_type_row += 1
     def add_open_rp(self):
-        self.content.insert(self.need_type_row - 3,
-                            "\t\t(event malicious_RP_to_UA(); !Auth_malicious_RP_to_UA(https))|\n")
-        self.need_type_row += 1
+        self.content.insert(self.need_type_row + 1,
+                            "\t\t(event malicious_RP_to_UA(); !AuthUA_(c,CU,uname))|\n")
+        self.need_type_num += 1
 
 class Auth_1b_login_seta(Auth):
     def __init__(self):
         Auth.__init__(self)
         self.scene_name = "Auth_1b_login_seta"
         self.specific_operation = ["\t\tlet ak = To_12b_token(appid,token,callerid,personaid) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
+                                   "\t\tlet kh = senc((skAU,ak,uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
                                    "\t\t(*insert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);*)\n"]
         self.add_open_rp()
@@ -311,7 +311,7 @@ class Auth_1b_login_noa(Auth):
         Auth.__init__(self)
         self.scene_name = "Auth_1b_login_noa"
         self.specific_operation = ["\t\tlet ak = To_12b_token(facetid_to_appid(facetid),token,callerid,personaid) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),uname,keyid),wrapkey) in\n",
+                                   "\t\tlet kh = senc((skAU,ak,uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
                                    "\t\t(*insert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);*)\n"]
         self.add_open_rp()
@@ -328,7 +328,7 @@ class Auth_1b_stepup_seta(Auth):
         Auth.__init__(self)
         self.scene_name = "Auth_1b_stepup_seta"
         self.specific_operation = ["\t\tlet ak = To_12b_token(appid,token,callerid,personaid) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
+                                   "\t\tlet kh = senc((skAU,ak,uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
                                    "\t\t(*insert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);*)\n"]
         self.add_specific_operation()
@@ -346,7 +346,7 @@ class Auth_1b_stepup_noa(Auth):
         Auth.__init__(self)
         self.scene_name = "Auth_1b_stepup_noa"
         self.specific_operation = ["\t\tlet ak = To_12b_token(facetid_to_appid(facetid),token,callerid,personaid) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),uname,keyid),wrapkey) in\n",
+                                   "\t\tlet kh = senc((skAU,ak,uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
                                    "\t\t(*insert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);*)\n"]
         self.add_specific_operation()
@@ -365,7 +365,7 @@ class Auth_2b_stepup_seta(Auth):
         Auth.__init__(self)
         self.scene_name = "Auth_2b_stepup_seta"
         self.specific_operation = ["\t\tlet ak = To_12b_token(appid,token,callerid,personaid) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,appid),keyid),wrapkey) in\n",
+                                   "\t\tlet kh = senc((skAU,ak,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
                                    "\t\t(*insert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);*)\n"]
         self.add_specific_operation()
@@ -384,7 +384,7 @@ class Auth_2b_stepup_noa(Auth):
         Auth.__init__(self)
         self.scene_name = "Auth_2b_stepup_noa"
         self.specific_operation = ["\t\tlet ak = To_12b_token(facetid_to_appid(facetid),token,callerid,personaid) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),keyid),wrapkey) in\n",
+                                   "\t\tlet kh = senc((skAU,ak,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
                                    "\t\t(*insert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);*)\n"]
         self.add_specific_operation()
@@ -403,7 +403,7 @@ class Auth_1r_login_seta(Auth):
         Auth.__init__(self)
         self.scene_name = "Auth_1r_login_seta"
         self.specific_operation = ["\t\tlet ak = To_12r_token(appid) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
+                                   "\t\tlet kh = senc((skAU,ak,uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
                                    "\t\t(*insert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);*)\n"]
         self.add_open_rp()
@@ -421,7 +421,7 @@ class Auth_1r_login_noa(Auth):
         Auth.__init__(self)
         self.scene_name = "Auth_1r_login_noa"
         self.specific_operation = ["\t\tlet ak = To_12r_token(facetid_to_appid(facetid)) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),uname,keyid),wrapkey) in\n",
+                                   "\t\tlet kh = senc((skAU,ak,uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
                                    "\t\t(*insert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);*)\n"]
         self.add_open_rp()
@@ -440,7 +440,7 @@ class Auth_1r_stepup_seta(Auth):
         Auth.__init__(self)
         self.scene_name = "Auth_1r_stepup_seta"
         self.specific_operation = ["\t\tlet ak = To_12r_token(appid) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,appid),uname,keyid),wrapkey) in\n",
+                                   "\t\tlet kh = senc((skAU,ak,uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
                                    "\t\t(*insert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);*)\n"]
         self.add_specific_operation()
@@ -462,7 +462,7 @@ class Auth_1r_stepup_noa(Auth):
         Auth.__init__(self)
         self.scene_name = "Auth_1r_stepup_noa"
         self.specific_operation = ["\t\tlet ak = To_12r_token(facetid_to_appid(facetid)) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid)),uname,keyid),wrapkey) in\n",
+                                   "\t\tlet kh = senc((skAU,ak,uname,keyid),wrapkey) in\n",
                                    "\t\tlet kid = keyid in\n",
                                    "\t\t(*insert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);*)\n"]
         self.add_specific_operation()
@@ -482,7 +482,7 @@ class Auth_2r_stepup_seta(Auth):
         Auth.__init__(self)
         self.scene_name = "Auth_2r_stepup_seta"
         self.specific_operation = ["\t\tlet ak = To_12r_token(appid) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,appid)),wrapkey) in\n",
+                                   "\t\tlet kh = senc((skAU,ak),wrapkey) in\n",
                                    "\t\tlet kid = kh in\n",
                                    "\t\t(*insert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);*)\n"]
         self.add_specific_operation()
@@ -501,7 +501,7 @@ class Auth_2r_stepup_noa(Auth):
         Auth.__init__(self)
         self.scene_name = "Auth_2r_stepup_noa"
         self.specific_operation = ["\t\tlet ak = To_12r_token(facetid_to_appid(facetid)) in\n",
-                                   "\t\tlet kh = senc((skAU,f1(ak,facetid_to_appid(facetid))),wrapkey) in\n",
+                                   "\t\tlet kh = senc((skAU,ak,wrapkey) in\n",
                                    "\t\tlet kid = kh in\n",
                                    "\t\t(*insert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);*)\n"]
         self.add_specific_operation()
