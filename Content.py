@@ -224,22 +224,20 @@ class Auth(Content):
                         "\t\tnew fakecallerid:Callerid; new fakefacetid:Facetid; new fakepersonaid:PersonaID;\n",
                         "\t\tnew tr:Tr;\n",
                         "\t\t(event leak_token(); out(c,token))|\n",
-                        "\t\t(*(event leak_kw(); out(c,wrapkey))|*)\n",
-                        "\t\t(*(event leak_skau(); out(c,skAU))|*)\n",
-                        "\t\t(*(event leak_cntr(); out(c,cntr))|*)\n",
+                        "\t\t(event leak_kw(); out(c,wrapkey))|\n",
+                        "\t\t(event leak_skau(); out(c,skAU))|\n",
+                        "\t\t(event leak_cntr(); out(c,cntr))|\n",
                         "\t\t(event leak_kid(); out(c,kid))|\n",
-                        "\t\t(event malicious_RP_to_US(); !AuthUS_(c, uname, appid, aaid,kid,pkAU,cntr,tr))|\n",
-                        "\t\t(event malicious_US_to_RP();  !AuthRP_(c, https))|\n",
-                        "\t\t(*(event malicious_UA_to_RP(); !AuthRP_(SR, c))|*)\n",
-                        "\t\t(event malicious_UA_to_UC(); !AuthUC_(c, MC, fakefacetid))|\n",
-                        "\t\t(event malicious_UC_to_UA();  !AuthUA_(https, c,uname))|\n",
-                        "\t\t(event malicious_UC_to_ASM();  !AuthASM_(c,AM,token,fakecallerid,callerid,personaid,appid,kid,kh))|\n",
-                        "\t\t(event malicious_ASM_to_UC(); !AuthUC_(CU, c, facetid))|\n",
-                        "\t\t(event malicious_ASM_to_Autr(); !AuthAutr_(c,aaid,wrapkey,cntr,tr,appid,kh))|\n",
-                        "\t\t(event malicious_Autr_to_ASM(); !AuthASM_(MC,c,token,callerid,callerid,personaid,appid,kid,kh))|\n",
+                        "\t\t(event malicious_RP_to_US(); AuthUS_(c, uname, appid, aaid,kid,pkAU,cntr,tr))|\n",
+                        "\t\t(event malicious_US_to_RP();  AuthRP_(c, https))|\n",
+                        "\t\t(event malicious_UA_to_UC(); AuthUC_(c, MC, fakefacetid))|\n",
+                        "\t\t(event malicious_UC_to_UA();  AuthUA_(https, c,uname))|\n",
+                        "\t\t(event malicious_UC_to_ASM();  AuthASM_(c,AM,token,fakecallerid,callerid,personaid,appid,kid,kh))|\n",
+                        "\t\t(event malicious_ASM_to_UC(); AuthUC_(CU, c, facetid))|\n",
+                        "\t\t(event malicious_ASM_to_Autr(); AuthAutr_(c,aaid,wrapkey,cntr,tr,appid,kh))|\n",
+                        "\t\t(event malicious_Autr_to_ASM(); AuthASM_(MC,c,token,callerid,callerid,personaid,appid,kid,kh))|\n",
                         "\t\tAuthUS_(SR, uname, appid, aaid,kid,pkAU,cntr,tr)|\n",
                         "\t\tAuthRP_(SR, https)|\n",
-                        "\t\tAuthRP_(SR, c)|\n",
                         "\t\tAuthUA_(https, CU,uname)|\n",
                         "\t\tAuthUC_(CU, MC, facetid)|\n",
                         "\t\tAuthASM_(MC,AM,token,callerid,callerid,personaid,appid,kid,kh)|\n",
@@ -253,13 +251,14 @@ class Auth(Content):
                         "\tnew callerid:Callerid;\n",
                         "\tnew personaid:PersonaID;\n",
                         "\t(* User 1 authenticates in RP 1 *)\n",
-                        "\tsystem(appid,aaid,skAU,keyid,wrapkey,token,uname,facetid,callerid,personaid,cntr)\n",
+                        "\t!system(appid,aaid,skAU,keyid,wrapkey,token,uname,facetid,callerid,personaid,cntr)\n",
                         ")\n"]
         self.basic_queries = [Basic_Query("s-skau", "query ", "attacker(new skAU)"),
                               Basic_Query("s-cntr", "query ", "attacker(new cntr)")
                                 ]
         self.query_test = ["event(malicious_US_to_RP)",
                            "event(malicious_RP_to_US)",
+                           #"event(malicious_RP_to_UA)",
                            #"event(malicious_UA_to_RP)",
                            "event(malicious_UA_to_UC)",
                            "event(malicious_UC_to_UA)",
@@ -267,11 +266,10 @@ class Auth(Content):
                            "event(malicious_ASM_to_UC)",
                            "event(malicious_ASM_to_Autr)",
                            "event(malicious_Autr_to_ASM)",
-                           "event(malicious_RP_to_UA)",
                            "event(leak_token)",
-                           #"event(leak_kw)",
-                           #"event(leak_skau)",
-                           #"event(leak_cntr)",
+                           "event(leak_kw)",
+                           "event(leak_skau)",
+                           "event(leak_cntr)",
                            "event(leak_kid)"
                            ]
         self.all_queries = []
@@ -279,7 +277,7 @@ class Auth(Content):
         self.if_set_type = False
         self.need_specific_operation_row = 3
         self.need_type_row = 13
-        self.need_type_num = 16
+        self.need_type_num = 14
 
     def add_specific_operation(self):
         for i in range(len(self.specific_operation)):
@@ -288,7 +286,9 @@ class Auth(Content):
     def add_open_rp(self):
         self.content.insert(self.need_type_row + 1,
                             "\t\t(event malicious_RP_to_UA(); !AuthUA_(c,CU,uname))|\n")
-        self.need_type_num += 1
+        self.content.insert(self.need_type_row + 2, "\t\t(event malicious_UA_to_RP(); !AuthRP_(SR,c))|\n")
+        self.query_test.append("event(malicious_RP_to_UA)")
+        self.need_type_num += 2
 
 class Auth_1b_login_seta(Auth):
     def __init__(self):
