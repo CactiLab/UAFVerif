@@ -21,11 +21,11 @@ class Parser:
     def __init__(self,root_path):
         self.root_path = root_path
         self.result_path = root_path + "LOG/FINAL_RESULT.log"
-        self.result_pattern = re.compile("Query.*==>.*\.")
-        self.secure_pattern = re.compile("Query.*==>.*true\.")
-        self.false_pattern = re.compile("Query.*==>.*proved|false\.")
+        self.result_pattern = re.compile("Query.*\.")
+        self.secure_pattern = re.compile("Query.*true\.")
+        self.false_pattern = re.compile("Query.*proved|false\.")
         self.event_pattern = re.compile("event\([^)]*\)")
-        self.secure_result_pattern = re.compile(".*Query.*==>.*true\.")
+        self.secure_result_pattern = re.compile(".*Query.*true\.")
         self.secure_set = []
         self.false_set = []
         self.reboot()
@@ -121,9 +121,15 @@ class Parser:
 
     def get_query_and_assumptions(self,secure_result_item):
         if secure_result_item.find("attacker") != -1:
-            index = secure_result_item.find("==>") + 3
+            index = secure_result_item.find("==>")
+            if index == -1:
+                assumptions = ""
+                return assumptions
+            else:
+                begin = index + 3
         else:
-            index = secure_result_item.find("||") + 2
+            index = secure_result_item.find("||")
+            begin = index + 2
         assumptions = secure_result_item[index:] #assumptions
         #query_name = secure_result_item[0:index-1]
         return assumptions
@@ -278,9 +284,17 @@ def run(root_path):
     #verif.analyze_all(Reg_2r_seta(),0)
     #verif.analyze_all(Reg_2r_noa(),0)
     verif.analyze_all(Auth_1b_login_seta(),0)
-    #verif.analyze_all(Auth_1b_login_noa(),0)
-    #verif.analyze_all(Auth_1b_stepup_seta(),0)
-    #verif.analyze_all(Auth_1b_stepup_noa(),0)
+    verif.analyze_all(Auth_1b_login_noa(),0)
+    verif.analyze_all(Auth_1b_stepup_seta(),0)
+    verif.analyze_all(Auth_1b_stepup_noa(),0)
+    verif.analyze_all(Auth_2b_stepup_seta(), 0)
+    verif.analyze_all(Auth_2b_stepup_noa(), 0)
+    verif.analyze_all(Auth_1r_login_seta(), 0)
+    verif.analyze_all(Auth_1r_login_noa(), 0)
+    verif.analyze_all(Auth_1r_stepup_seta(), 0)
+    verif.analyze_all(Auth_1r_stepup_noa(), 0)
+    verif.analyze_all(Auth_2r_stepup_seta(), 0)
+    verif.analyze_all(Auth_2r_stepup_noa(), 0)
 
 
 if __name__ == "__main__":

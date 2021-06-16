@@ -518,6 +518,7 @@ let AuthUS_login_noa(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID,
 	new chlg:Chlg;
     out(SR,AuthSRreq_em_null(sdata,chlg));
     in(SR,AuthRSresp_em(new_sdata,new_aaid,nonce,fc,new_kid,xcntr,fcp,s));
+	out(c,debug);
     if new_sdata = sdata then
     if new_aaid = aaid then
     if new_kid = kid then
@@ -759,7 +760,7 @@ let AuthUC_2r_stepup_noa(CU:channel,CM:channel,facetid:Facetid) = AuthUC_stepup_
 let AuthASM_1b_login(MC:channel,MA:channel,token:bitstring,callerid:Callerid,trust_callerid:Callerid,personaid:PersonaID,trust_appid:Appid,trust_kid:KeyID,kh:KeyID) =
 (
 	in(MC,AuthCMreq_em(appid,fcp) );
-	if appid = trust_appid then
+	(*if appid = trust_appid then*)
     if callerid = trust_callerid then
     let fc = ToFc(hash(fcp)) in
     let ak = To_12b_token(appid,token,callerid,personaid) in 
@@ -770,7 +771,7 @@ let AuthASM_1b_login(MC:channel,MA:channel,token:bitstring,callerid:Callerid,tru
 let AuthASM_1b_stepup(MC:channel,MA:channel,token:bitstring,callerid:Callerid,trust_callerid:Callerid,personaid:PersonaID,trust_appid:Appid,trust_kid:KeyID,kh:KeyID) =
 (
 	in(MC,AuthCMreq_st(appid,fcp,kid,tr) );
-	if appid = trust_appid then
+	(*if appid = trust_appid then*)
 	if kid = trust_kid then
      if callerid = trust_callerid then
     let fc = ToFc(hash(fcp)) in
@@ -782,7 +783,7 @@ let AuthASM_1b_stepup(MC:channel,MA:channel,token:bitstring,callerid:Callerid,tr
 let AuthASM_2b_stepup(MC:channel,MA:channel,token:bitstring,callerid:Callerid,trust_callerid:Callerid,personaid:PersonaID,trust_appid:Appid,trust_kid:KeyID,kh:KeyID) =
 (
 	in(MC,AuthCMreq_st(appid,fcp,kid,tr));
-    if appid = trust_appid then
+   (*if appid = trust_appid then*)
 	if kid = trust_kid then
     if callerid = trust_callerid then
     let fc = ToFc(hash(fcp)) in
@@ -850,7 +851,7 @@ let AuthAutr_1b_login(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_app
 let AuthAutr_1b_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_appid:Appid,kh:KeyID) =
 (
 	in(AM,AuthMAreq_1bst(ak,fc,appid,in_kh,in_tr));
-    if in_tr = tr then
+    (*if in_tr = tr then*)
     let (skAU:sskey,=ak,uname:Uname,kid:KeyID) = sdec(in_kh,wrapkey) in
     (*if f1(ak,appid) = aka then*)
     let pkAU = spk(skAU) in
@@ -864,7 +865,7 @@ let AuthAutr_1b_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_ap
 let AuthAutr_2b_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_appid:Appid,kh:KeyID) =
 (
 	in(AM,AuthMAreq_2bst(ak,fc,appid,in_kh,in_tr));
-    if in_tr = tr then
+    (*if in_tr = tr then*)
     let (skAU:sskey,=ak,kid:KeyID) = sdec(in_kh,wrapkey) in
     (*if f1(ak,appid) = aka then*)
     let pkAU = spk(skAU) in
@@ -890,7 +891,7 @@ let AuthAutr_1r_login(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_app
 let AuthAutr_1r_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_appid:Appid,kh:KeyID) =
 (
 	in(AM,AuthMAreq_1rst(ak,fc,appid,kid,in_tr) );
-    if in_tr = tr then
+    (*if in_tr = tr then*)
 	if appid = trust_appid then
     let (skAU:sskey,=ak,uname:Uname,xkid:KeyID) = sdec(kh,wrapkey) in
     (*if f1(ak,appid) = aka then*)
@@ -905,7 +906,7 @@ let AuthAutr_1r_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_ap
 let AuthAutr_2r_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_appid:Appid,kh:KeyID) =
 (
 	in(AM,AuthMAreq_2rst(ak,fc,appid,kid,in_tr) );
-    if in_tr = tr then
+    (*if in_tr = tr then*)
     let (skAU:sskey,=ak) = sdec(kid,wrapkey) in
     (*if f1(ak,appid) = aka then*)
     let pkAU = spk(skAU) in
