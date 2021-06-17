@@ -1,72 +1,35 @@
-set attacker = passive.
 let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstring,uname:Uname,facetid:Facetid,callerid:Callerid,personaid:PersonaID,cntr:CNTR) =
-((* one RP authenticate one user many times *)
-	(* write "let atype = autr_1b in" down to set the type you want to verify *)
-	(* "autr_1b" for 1B,  "autr_1r" for 1R, "autr_2b" for 2B, "autr_2r" for 2R *)
-	(* write "let ltype = empty in" down to set the phase you want to verify *)
-	(* "empty" for first login, "stepup" for step-up authentication *)
-	(* do not use the combination of autr_2b/autr_2r and empty *)
-	let atype = autr_1b in
-	let ltype = empty in 
-	let pkAU = spk(skAU) in let testskAU = skAU in
-	let kh = get_kh(atype,uname,appid,callerid,token,keyid,wrapkey,skAU) in
-	let kid = get_kid(atype,kh,keyid) in
-	let testkid = kid in
-	insert ASMDB(appid,kid,kh);
-	insert AutrDB(appid,kid,kh);
+(
+	let pkAU = spk(skAU) in 
+	let ak = To_12b_token(appid,token,callerid,personaid) in
+	let kh = senc((skAU,ak,uname,keyid),wrapkey) in
+	let kid = keyid in
+	(*insert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);*)
 	out(c,(uname,appid,facetid,aaid,callerid,personaid,pkAU)); (* public info *)
 	( 
-		new https:channel; new CU:channel; new MC:channel; new AM:channel; out(c,https);
-		new fakecallerid:Callerid; new fakefacetid:Facetid; new fakepersonaid:PersonaID;
-		new tr:Tr;
-				(* following fields may leaked *)
-				(*out(c,token);*)
-				(*out(c,wrapkey);*)
-				(*out(c,skAU);*)
-				(*out(c,cntr);*)
-				(*out(c,kid);*)
-				(* there may exists following malicious entities *)
-				(*AuthUA(https, c, uname, ltype)|*)
-				(*AuthUC(c, MC, fakefacetid, ltype)|*)
-				(*AuthUC(CU, c, facetid, ltype)|*)
-				(*AuthUC(c, c, fakefacetid, ltype)|*)
-				(*AuthASM(c,AM,token,fakecallerid,fakepersonaid,atype,ltype)|*)
-				(*AuthASM(MC,c,token,callerid,personaid,atype,ltype)|*)
-				(*AuthASM(c,c,token,fakecallerid,fakepersonaid,atype,ltype)|*)
-				(*AuthAutr(c,aaid,wrapkey,cntr,tr,atype,ltype)|*)
-		(* honest entities *)
-		AuthRP(https, uname, appid, aaid,kid,pkAU,cntr,tr,ltype)|
-		AuthUA(https, CU,uname, ltype)|
-		AuthUC(CU, MC, facetid, ltype)|		
-		AuthASM(MC,AM,token,callerid,personaid,atype,ltype)|		
-		AuthAutr(AM,aaid,wrapkey,cntr,tr,atype,ltype)	
+	new SR:channel; new https:channel; new CU:channel; new MC:channel; new AM:channel;
+	new fakecallerid:Callerid; new fakefacetid:Facetid; new fakepersonaid:PersonaID;
+	new tr:Tr;
+
+	(event malicious_UA_to_RP(); AuthRP_1b_login_seta(SR,c))|
+
+	AuthUS_1b_login_seta(SR, uname, appid, aaid,kid,pkAU,cntr,tr)|
+	AuthRP_1b_login_seta(SR, https)|
+	AuthUA_1b_login_seta(https, CU,uname)|
+	AuthUC_1b_login_seta(CU, MC, facetid)|
+	AuthASM_1b_login_seta(MC,AM,token,callerid,callerid,personaid,appid,kid,kh)|
+	AuthAutr_1b_login_seta(AM,aaid,wrapkey,cntr,tr,appid,kh)
 	)
 ).
-
 process
 (
-	new appid:Appid;
-	new aaid:AAID;
-	new skAU:sskey; 
-	new keyid:KeyID;
-	new wrapkey:key;	
-	new token:bitstring;	
-	new uname:Uname;
-	new cntr:CNTR;
-	new facetid:Facetid; insert AuthAppList(appid,facetid);
-	new callerid:Callerid; insert TrustCallerid(callerid);
+	new appid:Appid; new aaid:AAID; new skAU:sskey;  new keyid:KeyID; new wrapkey:key;new token:bitstring; new uname:Uname; new cntr:CNTR;
+	let facetid = find_facetid(appid) in
+	new callerid:Callerid;
 	new personaid:PersonaID;
+	new appid2:Appid; new skAU2:sskey; new wrapkey2:key; new token2:bitstring; new uname2:Uname; new cntr2:CNTR; new keyid2:KeyID;
+	let facetid2 = find_facetid(appid2) in
 	(* User 1 authenticates in RP 1 *)
 	!system(appid,aaid,skAU,keyid,wrapkey,token,uname,facetid,callerid,personaid,cntr)|
-	(* User 1 authenticates in RP 2 *)
-	!(
-		new appid2:Appid;
-		new skAU2:sskey;
-		new keyid2:KeyID;
-		new wrapkey2:key;
-		new token2:bitstring;
-		new uname2:Uname;
-		new cntr2:CNTR;
-		system(appid2,aaid,skAU2,keyid2,choice[wrapkey2,wrapkey],choice[token,token2],uname2,facetid,callerid,personaid,cntr2)
-	)
+	!system(appid2,aaid,skAU2,keyid2,choice[wrapkey,wrapkey2],choice[token,token2],uname2,facetid2,callerid,personaid,cntr2)
 )

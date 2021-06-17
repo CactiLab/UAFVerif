@@ -21,6 +21,7 @@ class Parser:
     def __init__(self,root_path):
         self.root_path = root_path
         self.result_path = root_path + "LOG/FINAL_RESULT.log"
+        self.result_path_simplify = root_path + "LOG/FINAL_RESULT_simplify.log"
         self.result_pattern = re.compile("Query.*\.")
         self.secure_pattern = re.compile("Query.*true\.")
         self.false_pattern = re.compile("Query.*proved|false\.")
@@ -80,10 +81,37 @@ class Parser:
                 continue
             else:
                 self.secure_set.append(secure_query)
+                line = secure_query.scene_name + ", " + secure_query.query_name + ", " + secure_query.content + "\n\n"
                 with open(self.result_path,"a") as f:
-                    f.writelines(secure_query.scene_name + ", ")
-                    f.writelines(secure_query.query_name + ", ")
-                    f.writelines(secure_query.content + "\n\n")
+                    f.writelines(line)
+                with open(self.result_path_simplify, "a") as f:
+                    f.writelines(self.simplify_lines(line))
+
+    def simplify_lines(self,line):
+        line = line.replace("event(malicious_US_to_RP)","SR")
+        line =line.replace("event(malicious_RP_to_US)", "RS")
+        line =line.replace("event(malicious_UA_to_RP)", "UR")
+        line = line.replace("event(malicious_RP_to_UA)", "RU")
+        line =line.replace("event(malicious_UA_to_UC)", "UC")
+        line =line.replace("event(malicious_UC_to_UA)", "CU")
+        line =line.replace("event(malicious_UC_to_ASM)", "CM")
+        line =line.replace("event(malicious_ASM_to_UC)", "MC")
+        line = line.replace("event(malicious_Autr_to_ASM)", "AM")
+        line = line.replace("event(malicious_ASM_to_Autr)", "MA")
+        line =line.replace("event(leak_token)", "tok")
+        line =line.replace("event(leak_skau)", "skau")
+        line =line.replace("event(leak_cntr)", "cntr")
+        line =line.replace("event(leak_kid)", "kid")
+        line =line.replace("event(leak_kw)", "kw")
+        line = line.replace("is true", "")
+        pattern = re.compile("Query.*==>")
+        all_delete_line = pattern.findall(line)
+        for item in all_delete_line:
+            line = line.replace(item,"")
+        return line
+
+
+
 
     def parser_record_false(self,query,proverif_result):
         false_result = self.false_pattern.findall(proverif_result)
@@ -214,12 +242,13 @@ class Verif:
         self.parser.parse(case.get_scene_name(),proverif_result_path,result_path)
 
     def analyze_all(self,case,reboot):
-        all_queries, content = case.get_content()
+        reg_queries, auth_queries, content = case.get_content()
         counter = reboot
         scene_log_file = open(root_path + "LOG/" + case.scene_name + ".log", "a")
         result_path = root_path + "LOG/" + case.scene_name + ".result"
-        while counter < len(all_queries):
-            query = all_queries[counter]
+        while counter < len(reg_queries):
+            break
+            query = reg_queries[counter]
             query_path = root_path + "QUERY/" + case.get_scene_name() + "-" + query.query_name + ".pv"
             log_content = ""
             log_content += str(counter) + ", " + query.scene_name + ", " + query.query_name + ", "
@@ -244,6 +273,35 @@ class Verif:
                     self.parser.parser_record(query,result)
                     #else:
                         #self.parser.parser_record_false(query, result)
+            log_content += str(time.strftime("%H:%M:%S", time.localtime()))
+            log_content += "\n\n"
+            scene_log_file.writelines(log_content)
+            scene_log_file.flush()
+            counter += 1
+        counter = 0
+        while counter < len(auth_queries):
+            query = auth_queries[counter]
+            query_path = root_path + "QUERY/" + case.get_scene_name() + "-" + query.query_name + ".pv"
+            log_content = ""
+            log_content += str(counter) + ", " + query.scene_name + ", " + query.query_name + ", "
+            jump_ret = self.parser.jump(query)
+            if jump_ret == "true":
+                log_content += "jump in secure set."
+            #if jump_ret == "false":
+                #log_content += "jump in false set."
+            else:
+                with open(query_path, "w") as query_file:
+                    query_file.writelines(query.content)
+                    query_file.writelines(content)
+                ret,result = self.proverif_group_query(query_path)
+                if ret != "True":
+                    log_content += ret
+                    shutil.copy(query_path, query_path + "-" + str(counter) + "-error.pv")
+                    with open(query_path + str(counter) + "abort.pv", "a") as f:
+                        f.writelines(result)
+                else:
+                    log_content += result
+                    self.parser.parser_record(query, result)
             log_content += str(time.strftime("%H:%M:%S", time.localtime()))
             log_content += "\n\n"
             scene_log_file.writelines(log_content)

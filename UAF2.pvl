@@ -1,7 +1,7 @@
 (**********************************)
 
 set ignoreTypes = false.
-set reconstructTrace = false.
+(*set reconstructTrace = false.
 set traceDisplay = none.
 set verboseClauses = none.
 set explainDerivation = true.
@@ -9,7 +9,7 @@ set reconstructDerivation = false.
 set displayDerivation = false.
 set abbreviateClauses = true.
 set verboseEq = false.
-set verboseTerm = false.(**)
+set verboseTerm = false.*)
 (********************************************************************)
 (*                           Messages Type declaration                                        	    *)
 (********************************************************************)
@@ -518,6 +518,7 @@ let AuthUS_login_noa(SR:channel, uname:Uname, appid:Appid, aaid:AAID, kid:KeyID,
 	new chlg:Chlg;
     out(SR,AuthSRreq_em_null(sdata,chlg));
     in(SR,AuthRSresp_em(new_sdata,new_aaid,nonce,fc,new_kid,xcntr,fcp,s));
+	out(c,debug);
     if new_sdata = sdata then
     if new_aaid = aaid then
     if new_kid = kid then
@@ -891,7 +892,7 @@ let AuthAutr_1r_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_ap
 (
 	in(AM,AuthMAreq_1rst(ak,fc,appid,kid,in_tr) );
     (*if in_tr = tr then*)
-	(*if appid = trust_appid then*)
+	if appid = trust_appid then
     let (skAU:sskey,=ak,uname:Uname,xkid:KeyID) = sdec(kh,wrapkey) in
     (*if f1(ak,appid) = aka then*)
     let pkAU = spk(skAU) in
