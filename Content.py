@@ -13,8 +13,8 @@ class Content:
         self.if_set_type = True
     def get_group_queries(self):
         for basic_query in self.basic_queries:#遍历所有的基本询问语句
-            #if True:
-            if basic_query.name.find("auth") == -1: #secrecy properties
+            if True:
+            #if basic_query.name.find("auth") == -1: #secrecy properties
                 temp_group_query = basic_query.head + "\n"
                 for num in range(len(self.query_test) + 1): #遍历每种增加的个数
                     for events in itertools.combinations((self.query_test), num):#遍历每种num数量下的event
@@ -128,7 +128,7 @@ class Reg_1b_seta(Reg):
         self.scene_name = "Reg_1b_seta"
         self.set_type("1b_seta")
         self.basic_queries.append(Basic_Query("s-ak","query ","attacker(To_12b_token(new appid,new token,new callerid,new personaid))"))
-        self.basic_queries.append(Basic_Query("s-kid","query seed:bitstring,ak:bitstring;","attacker(gen_kid(new kidbasic,seed))"))
+        #self.basic_queries.append(Basic_Query("s-kid","query seed:bitstring,ak:bitstring;","attacker(gen_kid(new kidbasic,seed))"))
         self.get_group_queries()
 
 class Reg_1b_noa(Reg):
