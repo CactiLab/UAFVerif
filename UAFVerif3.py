@@ -110,9 +110,6 @@ class Parser:
             line = line.replace(item,"")
         return line
 
-
-
-
     def parser_record_false(self,query,proverif_result):
         false_result = self.false_pattern.findall(proverif_result)
         for false_result_item in false_result:
@@ -179,14 +176,18 @@ class Verif:
     def proverif_group_query(self, query_path):  # activate proverif and analyze the temp.pv file
         file_result = open(query_path + "temp.result", "w")
         p = Popen('proverif -lib "' + self.root_path + "UAF.pvl" + '" ' + query_path, stdout=file_result, stderr=file_result,shell=True)
-        #stdout, stderr = p.communicate()
-        while p.poll() is None:
-            continue
+        timer = Timer(20, lambda process: process.kill(), [p])
+        try:
+            timer.start()
+            while p.poll() is None:
+                continue
+        finally:
+            timer.cancel()
             #print("正在运行" + time.strftime("%M:%S", time.localtime()))
         file_result.close()
         with open(query_path + "temp.result", "rb") as f:
             out = f.read()
-        if p.poll() == 5:#timer kill
+        if p.poll() != 0:#timer kill
             ret = "abort or time out"
             result = out
         else:
@@ -230,25 +231,14 @@ class Verif:
         result_path = self.root_path + "LOG/" + case.get_scene_name() + ".result"
         return query_path, result_path
 
-    def analyze_group_queries(self,case):
-        all_queries, content = case.get_content()
-        query_path = root_path + "QUERY/" + case.get_scene_name() + ".pv"
-        with open(query_path,"w") as query_file:
-            query_file.writelines(all_queries)
-            query_file.writelines(content)
-        proverif_result_path = root_path + "LOG/" + case.get_scene_name() + ".result"
-        result_path = root_path + "LOG/" + "result.log"
-        self.proverif_group_query(query_path,proverif_result_path)
-        self.parser.parse(case.get_scene_name(),proverif_result_path,result_path)
-
     def analyze_all(self,case,reboot):
-        reg_queries, auth_queries, content = case.get_content()
+        secrecy_queries, auth_queries, content = case.get_content()
         counter = reboot
         scene_log_file = open(root_path + "LOG/" + case.scene_name + ".log", "a")
         result_path = root_path + "LOG/" + case.scene_name + ".result"
-        while counter < len(reg_queries):
+        while counter < len(secrecy_queries):
 
-            query = reg_queries[counter]
+            query = secrecy_queries[counter]
             query_path = root_path + "QUERY/" + case.get_scene_name() + "-" + query.query_name + ".pv"
             log_content = ""
             log_content += str(counter) + ", " + query.scene_name + ", " + query.query_name + ", "
@@ -264,8 +254,9 @@ class Verif:
                 ret,result = self.proverif_group_query(query_path)
                 if ret != "True":
                     log_content += ret
-                    shutil.copy(query_path, query_path + "-" + str(counter) + "-error.pv")
-                    with open(query_path + str(counter) + "abort.pv", "a") as f:
+                    error_path = root_path + "/ERROR/" + case.get_scene_name() + "-" + query.query_name + "-" + str(counter) + "-error.pv"
+                    shutil.copy(query_path, error_path)
+                    with open(error_path, "a") as f:
                         f.writelines(result)
                 else:
                     log_content += result
@@ -280,8 +271,11 @@ class Verif:
             counter += 1
         counter = reboot
         while counter < len(auth_queries):
-            break
+
             query = auth_queries[counter]
+            #if query.query_name != "Aauth-tr":
+                #counter += 1
+                #continue
             query_path = root_path + "QUERY/" + case.get_scene_name() + "-" + query.query_name + ".pv"
             log_content = ""
             log_content += str(counter) + ", " + query.scene_name + ", " + query.query_name + ", "
@@ -297,8 +291,10 @@ class Verif:
                 ret,result = self.proverif_group_query(query_path)
                 if ret != "True":
                     log_content += ret
-                    shutil.copy(query_path, query_path + "-" + str(counter) + "-error.pv")
-                    with open(query_path + str(counter) + "abort.pv", "a") as f:
+                    error_path = root_path + "/ERROR/" + case.get_scene_name() + "-" + query.query_name + "-" + str(
+                        counter) + "-error.pv"
+                    shutil.copy(query_path, error_path)
+                    with open(error_path, "a") as f:
                         f.writelines(result)
                 else:
                     log_content += result
@@ -327,6 +323,8 @@ class Verif:
 def makedir(root_path):
     if not os.path.exists(root_path  + "QUERY/"):
         os.makedirs(root_path + "QUERY/")
+    if not os.path.exists(root_path  + "ERROR/"):
+        os.makedirs(root_path + "ERROR/")
     if not os.path.exists(root_path + "LOG/"):
         os.makedirs(root_path + "LOG/")
 
@@ -334,26 +332,26 @@ def run(root_path):
     makedir(root_path)
     parser = Parser(root_path)
     verif = Verif(root_path,parser)
-    verif.analyze_all(Reg_1b_seta(),0)
-    verif.analyze_all(Reg_1b_noa(),0)
-    verif.analyze_all(Reg_2b_seta(),0)
-    verif.analyze_all(Reg_2b_noa(),0)
-    verif.analyze_all(Reg_1r_seta(),0)
-    verif.analyze_all(Reg_1r_noa(),0)
-    verif.analyze_all(Reg_2r_seta(),0)
-    verif.analyze_all(Reg_2r_noa(),0)
-    #verif.analyze_all(Auth_1b_login_seta(),0)
-    #verif.analyze_all(Auth_1b_login_noa(),0)
-    #verif.analyze_all(Auth_1b_stepup_seta(),72)
-    #verif.analyze_all(Auth_1b_stepup_noa(),0)
-    #verif.analyze_all(Auth_2b_stepup_seta(), 0)
-    #verif.analyze_all(Auth_2b_stepup_noa(), 0)
-    #verif.analyze_all(Auth_1r_login_seta(), 0)
-    #verif.analyze_all(Auth_1r_login_noa(), 0)
-    #verif.analyze_all(Auth_1r_stepup_seta(), 0)
-    #verif.analyze_all(Auth_1r_stepup_noa(), 0)
-    #verif.analyze_all(Auth_2r_stepup_seta(), 0)
-    #verif.analyze_all(Auth_2r_stepup_noa(), 0)
+    #verif.analyze_all(Reg_1b_seta(),0)
+    #verif.analyze_all(Reg_1b_noa(),0)
+    #verif.analyze_all(Reg_2b_seta(),0)
+    #verif.analyze_all(Reg_2b_noa(),0)
+    #verif.analyze_all(Reg_1r_seta(),0)
+    #verif.analyze_all(Reg_1r_noa(),0)
+    #verif.analyze_all(Reg_2r_seta(),0)
+    #verif.analyze_all(Reg_2r_noa(),0)
+    verif.analyze_all(Auth_1b_login_seta(),0)
+    verif.analyze_all(Auth_1b_login_noa(),0)
+    verif.analyze_all(Auth_1b_stepup_seta(),0)
+    verif.analyze_all(Auth_1b_stepup_noa(),0)
+    verif.analyze_all(Auth_2b_stepup_seta(), 0)
+    verif.analyze_all(Auth_2b_stepup_noa(), 0)
+    verif.analyze_all(Auth_1r_login_seta(), 0)
+    verif.analyze_all(Auth_1r_login_noa(), 0)
+    verif.analyze_all(Auth_1r_stepup_seta(), 0)
+    verif.analyze_all(Auth_1r_stepup_noa(), 0)
+    verif.analyze_all(Auth_2r_stepup_seta(), 0)
+    verif.analyze_all(Auth_2r_stepup_noa(), 0)
 
 
 if __name__ == "__main__":

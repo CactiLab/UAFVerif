@@ -11,6 +11,7 @@ TEMP/
 LOG/
 LOG1/
 QUERY/
+ERROR/
 __pycache__/
 *.pdf
 *.dot

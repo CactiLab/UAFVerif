@@ -117,6 +117,11 @@ fun gen_kid(KeyID,bitstring):KeyID.
 (*                                   channel declarations                                               *)
 (********************************************************************)
 free c:channel.
+free SR:channel[private].
+free https:channel[private].
+free CU:channel[private].
+free MC:channel[private].
+free AM:channel[private].
 (********************************************************************)
 (*                                   const declarations                                                   *)
 (********************************************************************)
@@ -854,11 +859,11 @@ let AuthAutr_1b_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_ap
     let (skAU:sskey,=ak,uname:Uname,kid:KeyID) = sdec(in_kh,wrapkey) in
     (*if f1(ak,appid) = aka then*)
     let pkAU = spk(skAU) in
-    let htr = hash_tr(tr) in
+    let htr = hash_tr(in_tr) in
     new nonce:Nonce;
     let s = sign((aaid,nonce,fc,htr,kid,cntr),skAU) in
     event Autr_verify_auth_1br(uname,appid,aaid,kid);
-    event Autr_verify_tr(tr);
+    event Autr_verify_tr(in_tr);
     out(AM,AuthAMresp_st(aaid,nonce,fc,htr,kid,cntr,s))
 ).
 let AuthAutr_2b_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_appid:Appid,kh:KeyID) =
@@ -868,11 +873,11 @@ let AuthAutr_2b_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_ap
     let (skAU:sskey,=ak,kid:KeyID) = sdec(in_kh,wrapkey) in
     (*if f1(ak,appid) = aka then*)
     let pkAU = spk(skAU) in
-    let htr = hash_tr(tr) in
+    let htr = hash_tr(in_tr) in
     new nonce:Nonce;
     let s = sign((aaid,nonce,fc,htr,kid,cntr),skAU) in
     event Autr_verify_auth_2br(appid,aaid,kid);
-    event Autr_verify_tr(tr);
+    event Autr_verify_tr(in_tr);
     out(AM,AuthAMresp_st(aaid,nonce,fc,htr,kid,cntr,s))
 ).
 let AuthAutr_1r_login(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_appid:Appid,kh:KeyID) =
@@ -895,11 +900,11 @@ let AuthAutr_1r_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_ap
     let (skAU:sskey,=ak,uname:Uname,xkid:KeyID) = sdec(kh,wrapkey) in
     (*if f1(ak,appid) = aka then*)
     let pkAU = spk(skAU) in
-    let htr = hash_tr(tr) in
+    let htr = hash_tr(in_tr) in
     new nonce:Nonce;
     let s = sign((aaid,nonce,fc,htr,kid,cntr),skAU) in
     event Autr_verify_auth_1br(uname,appid,aaid,kid);
-    event Autr_verify_tr(tr);
+    event Autr_verify_tr(in_tr);
     out(AM,AuthAMresp_st(aaid,nonce,fc,htr,kid,cntr,s))
 ).
 let AuthAutr_2r_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_appid:Appid,kh:KeyID) =
@@ -909,11 +914,11 @@ let AuthAutr_2r_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_ap
     let (skAU:sskey,=ak) = sdec(kid,wrapkey) in
     (*if f1(ak,appid) = aka then*)
     let pkAU = spk(skAU) in
-    let htr = hash_tr(tr) in
+    let htr = hash_tr(in_tr) in
     new nonce:Nonce;
     let s = sign((aaid,nonce,fc,htr,kid,cntr),skAU) in
     event Autr_verify_auth_2br(appid,aaid,kid);
-    event Autr_verify_tr(tr);
+    event Autr_verify_tr(in_tr);
     out(AM,AuthAMresp_st(aaid,nonce,fc,htr,kid,cntr,s))
 ).
 
