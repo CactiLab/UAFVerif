@@ -86,12 +86,21 @@ class Parser:
                     f.writelines(line)
                 with open(self.result_path_simplify, "a") as f:
                     f.writelines(self.simplify_lines(line))
-
+    def parser_record_single(self,secure_query):
+        self.secure_set.append(secure_query)
+        line = secure_query.scene_name + ", " + secure_query.query_name + ", " + secure_query.content
+        for assumption in secure_query.assumptions:
+            line += assumption + "&"
+        line += "\n\n"
+        with open(self.result_path, "a") as f:
+            f.writelines(line)
+        with open(self.result_path_simplify, "a") as f:
+            f.writelines(self.simplify_lines(line))
     def simplify_lines(self,line):
-        line = line.replace("event(malicious_US_to_RP)","SR")
-        line =line.replace("event(malicious_RP_to_US)", "RS")
-        line =line.replace("event(malicious_UA_to_RP)", "UR")
-        line = line.replace("event(malicious_RP_to_UA)", "RU")
+        line = line.replace("event(malicious_US_to_RP)","SW")
+        line =line.replace("event(malicious_RP_to_US)", "WS")
+        line =line.replace("event(malicious_UA_to_RP)", "UW")
+        line = line.replace("event(malicious_RP_to_UA)", "WU")
         line =line.replace("event(malicious_UA_to_UC)", "UC")
         line =line.replace("event(malicious_UC_to_UA)", "CU")
         line =line.replace("event(malicious_UC_to_ASM)", "CM")
@@ -104,8 +113,9 @@ class Parser:
         line =line.replace("event(leak_kid)", "kid")
         line =line.replace("event(leak_kw)", "kw")
         line = line.replace("is true", "")
-        pattern = re.compile("Query.*==>")
-        all_delete_line = pattern.findall(line)
+        pattern1 = re.compile("query.*==>")
+        pattern2 = re.compile("query.*.")
+        all_delete_line = pattern2.findall(line)
         for item in all_delete_line:
             line = line.replace(item,"")
         return line
@@ -176,7 +186,7 @@ class Verif:
     def proverif_group_query(self, query_path):  # activate proverif and analyze the temp.pv file
         file_result = open(query_path + "temp.result", "w")
         p = Popen('proverif -lib "' + self.root_path + "UAF.pvl" + '" ' + query_path, stdout=file_result, stderr=file_result,shell=True)
-        timer = Timer(20, lambda process: process.kill(), [p])
+        timer = Timer(40, lambda process: process.kill(), [p])
         try:
             timer.start()
             while p.poll() is None:
@@ -237,7 +247,7 @@ class Verif:
         scene_log_file = open(root_path + "LOG/" + case.scene_name + ".log", "a")
         result_path = root_path + "LOG/" + case.scene_name + ".result"
         while counter < len(secrecy_queries):
-
+            break
             query = secrecy_queries[counter]
             query_path = root_path + "QUERY/" + case.get_scene_name() + "-" + query.query_name + ".pv"
             log_content = ""
@@ -271,11 +281,45 @@ class Verif:
             counter += 1
         counter = reboot
         while counter < len(auth_queries):
-
             query = auth_queries[counter]
-            #if query.query_name != "Aauth-tr":
-                #counter += 1
-                #continue
+            query_path = root_path + "QUERY/" + case.get_scene_name() + "-" + query.query_name + ".pv"
+            log_content = ""
+            log_content += str(counter) + ", " + query.scene_name + ", " + query.query_name + ", "
+            jump_ret = self.parser.jump(query)
+            if jump_ret == "true":
+                log_content += "jump in secure set."
+            else:
+                with open(query_path, "w") as query_file:
+                    temp_content = content[:]
+                    for assumption in query.assumptions:
+                        for i in range(len(temp_content)):
+                            if temp_content[i].find(assumption[6:-1]) != -1:
+                                temp_content[i] = "(*" + temp_content[i][:-1] + "*)\n"
+                                break
+                    query_file.writelines(query.content)
+                    query_file.writelines(temp_content)
+                ret, result = self.proverif_group_query(query_path)
+                if ret != "True":
+                    log_content += ret
+                    error_path = root_path + "/ERROR/" + case.get_scene_name() + "-" + query.query_name + "-" + str(
+                        counter) + "-error.pv"
+                    shutil.copy(query_path, error_path)
+                    with open(error_path, "a") as f:
+                        f.writelines(result)
+                else:
+                    log_content += result
+                    if result.find("true") != -1:
+                        self.parser.parser_record_single(query)
+            log_content += str(time.strftime("%H:%M:%S", time.localtime()))
+            log_content += "\n\n"
+            scene_log_file.writelines(log_content)
+            scene_log_file.flush()
+            counter += 1
+        scene_log_file.close()
+    '''
+        counter = reboot
+        while counter < len(auth_queries):
+            query = auth_queries[counter]
             query_path = root_path + "QUERY/" + case.get_scene_name() + "-" + query.query_name + ".pv"
             log_content = ""
             log_content += str(counter) + ", " + query.scene_name + ", " + query.query_name + ", "
@@ -304,7 +348,8 @@ class Verif:
             scene_log_file.writelines(log_content)
             scene_log_file.flush()
             counter += 1
-        scene_log_file.close()
+    '''
+
 
     def is_query_in_secure_assumptions(self,query):
         for secure_query in self.secure_queries:
@@ -340,10 +385,10 @@ def run(root_path):
     #verif.analyze_all(Reg_1r_noa(),0)
     #verif.analyze_all(Reg_2r_seta(),0)
     #verif.analyze_all(Reg_2r_noa(),0)
-    verif.analyze_all(Auth_1b_login_seta(),0)
-    verif.analyze_all(Auth_1b_login_noa(),0)
-    verif.analyze_all(Auth_1b_stepup_seta(),0)
-    verif.analyze_all(Auth_1b_stepup_noa(),0)
+    #verif.analyze_all(Auth_1b_login_seta(),0)
+    #verif.analyze_all(Auth_1b_login_noa(),0)
+    #verif.analyze_all(Auth_1b_stepup_seta(),0)
+    #verif.analyze_all(Auth_1b_stepup_noa(),0)
     verif.analyze_all(Auth_2b_stepup_seta(), 0)
     verif.analyze_all(Auth_2b_stepup_noa(), 0)
     verif.analyze_all(Auth_1r_login_seta(), 0)

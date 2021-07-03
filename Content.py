@@ -36,17 +36,7 @@ class Content:
             else:#authentication properties
                 for num in range(len(self.query_test) + 1):  # 遍历每种增加的个数
                     for events in itertools.combinations((self.query_test), num):  # 遍历每种num数量下的event
-                        temp_one_query = basic_query.head
-                        query_temp = basic_query.body
-                        if query_temp.find("==>") == -1 and num != 0:  # 机密性询问
-                            query_temp += "==>"
-                        for event in events:  # 遍历每个event，增加
-                            if query_temp[-1] == ">":
-                                query_temp += event
-                            else:
-                                query_temp += "||" + event
-                        query_temp += ".\n"
-                        temp_one_query += query_temp
+                        temp_one_query = basic_query.head + basic_query.body + ".\n"
                         self.auth_queries.append(Query(self.scene_name, basic_query.name, temp_one_query, events))
                 #self.auth_queries.reverse()
         #self.all_queries.reverse()
@@ -72,7 +62,6 @@ class Reg(Content):
                         "\t(*insert AppList(appid,facetid);*)\n",
                         "\t(event leak_token();out(c,token))|\n",
                         "\t(event leak_kw(); out(c,wrapkey))|\n",
-                        "\t(*(event leak_skat(); out(c,skAT))|*)\n",
                         "\t(event malicious_RP_to_US();RegUS_(c, appid, facetid))|\n",
                         "\t(event malicious_US_to_RP();RegRP_(c, https, uname, password))|\n",
                         "\t(event malicious_UA_to_RP(); RegRP_(SR, c, uname, password))|\n",
@@ -115,12 +104,13 @@ class Reg(Content):
                            "event(malicious_ASM_to_Autr)",
                            "event(malicious_Autr_to_ASM)"
                            ]
+
         self.secrecy_queries = []
         self.auth_queries = []
         self.scene_name = "has_not_set"
         self.if_set_type = False
         self.need_type_row = 12
-        self.need_type_num = 15
+        self.need_type_num = 14
 
 class Reg_1b_seta(Reg):
     def __init__(self):
@@ -216,7 +206,6 @@ class Auth(Content):
                         "\t(event leak_kw(); out(c,wrapkey))|\n",
                         "\t(event leak_skau(); out(c,skAU))|\n",
                         "\t(event leak_cntr(); out(c,cntr))|\n",
-                        "\t(*(event leak_kid(); out(c,kid))|*)\n",
                         "\t(event malicious_RP_to_US(); AuthUS_(c, uname, appid, aaid,kid,pkAU,cntr,tr))|\n",
                         "\t(event malicious_US_to_RP();  AuthRP_(c, https))|\n",
                         "\t(event malicious_UA_to_UC(); AuthUC_(c, MC, fakefacetid))|\n",
@@ -245,29 +234,31 @@ class Auth(Content):
         self.basic_queries = [Basic_Query("s-skau", "query ", "attacker(new skAU)"),
                               Basic_Query("s-cntr", "query ", "attacker(new cntr)")
                                 ]
-        self.query_test = ["event(malicious_US_to_RP)",
+        self.secrecy_queries = []
+        self.auth_queries = []
+        self.scene_name = "has_not_set"
+        self.if_set_type = False
+        self.need_specific_operation_row = 3
+        self.need_type_row = 12
+        self.need_type_num = 14
+        self.event_line = 8
+        self.query_test = ["event(leak_token)",
+                           "event(leak_kw)",
+                           "event(leak_skau)",
+                           "event(leak_cntr)",
+                           # "event(leak_kid)"
+                           "event(malicious_US_to_RP)",
                            "event(malicious_RP_to_US)",
-                           #"event(malicious_RP_to_UA)",
-                           #"event(malicious_UA_to_RP)",
+                           # "event(malicious_RP_to_UA)",
+                           # "event(malicious_UA_to_RP)",
                            "event(malicious_UA_to_UC)",
                            "event(malicious_UC_to_UA)",
                            "event(malicious_UC_to_ASM)",
                            "event(malicious_ASM_to_UC)",
                            "event(malicious_ASM_to_Autr)",
                            "event(malicious_Autr_to_ASM)",
-                           "event(leak_token)",
-                           "event(leak_kw)",
-                           "event(leak_skau)",
-                           "event(leak_cntr)",
-                           #"event(leak_kid)"
                            ]
-        self.secrecy_queries = []
-        self.auth_queries = []
-        self.scene_name = "has_not_set"
-        self.if_set_type = False
-        self.need_specific_operation_row = 3
-        self.need_type_row = 13
-        self.need_type_num = 14
+        self.query_delline = dict()
 
     def add_specific_operation(self):
         for i in range(len(self.specific_operation)):
