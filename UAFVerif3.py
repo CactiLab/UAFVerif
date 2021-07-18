@@ -213,24 +213,29 @@ class Verif:
     def proverif3(self,query_path):
         output = os.popen('proverif -lib "' + root_path + "UAF.pvl" + '" ' + query_path)
     def proverif(self, query_path):#这个版本子进程或莫名其妙地卡住
+        file_result = open(query_path + "temp.result", "w")
         output = Popen('proverif -lib "' + root_path + "UAF.pvl" + '" ' + query_path, stdout=PIPE, stderr=PIPE)
-        timer = Timer(300, lambda process: process.kill(), [output])
+        timer = Timer(6, lambda process: process.kill(), [output])
         try:
             timer.start()
             stdout, stderr = output.communicate()
             return_code = output.returncode
         finally:
             timer.cancel()
-        with open(self.root_path + "LOG/all_log", "a") as LOG_FILE:
+        with open(query_path + "temp.result", "w") as LOG_FILE:
             LOG_FILE.writelines(str(stdout,encoding='utf-8'))
         if return_code != 0:
-            ret = False
+            ret = "abort or time out"
             result = stdout
         else:
             i = stdout[0:-10].rfind(b'--------------------------------------------------------------')  # find last results
-            ret = True
-            result = stdout[i+89:-70]
-        return ret, str(result,encoding='utf-8')  # return the results
+            if i == -1:
+                ret = "could not find ----- in result"
+                result = stdout
+            else:
+                ret = "True"
+                result = stdout[i + 89:-70]
+        return ret, str(result, encoding='utf-8')  # return the results
 
     def generate_file_name(self,case):
         query_path = self.root_path + "Query/" + case.get_scene_name() + ".pv"
@@ -280,6 +285,7 @@ class Verif:
             scene_log_file.flush()
             counter += 1
         counter = reboot
+        unbound_state = False#表示先分析单次会话，用于就加速分析，安全了再设置为true分析多次会话
         while counter < len(auth_queries):
             query = auth_queries[counter]
             query_path = root_path + "QUERY/" + case.get_scene_name() + "-" + query.query_name + ".pv"
@@ -296,9 +302,14 @@ class Verif:
                             if temp_content[i].find(assumption[6:-1]) != -1:
                                 temp_content[i] = "(*" + temp_content[i][:-1] + "*)\n"
                                 break
+                    if unbound_state == False:
+                        for i in range(len(temp_content)):
+                            if temp_content[i].find("!system") != -1:
+                                temp_content[i] = temp_content[i].replace("!","")
+                                break
                     query_file.writelines(query.content)
                     query_file.writelines(temp_content)
-                ret, result = self.proverif_group_query(query_path)
+                ret, result = self.proverif(query_path)
                 if ret != "True":
                     log_content += ret
                     error_path = root_path + "/ERROR/" + case.get_scene_name() + "-" + query.query_name + "-" + str(
@@ -309,16 +320,21 @@ class Verif:
                 else:
                     log_content += result
                     if result.find("true") != -1:
-                        self.parser.parser_record_single(query)
+                        if unbound_state == False:
+                            unbound_state = True
+                            counter -= 1
+                        else:
+                            unbound_state = False
+                            self.parser.parser_record_single(query)
             log_content += str(time.strftime("%H:%M:%S", time.localtime()))
             log_content += "\n\n"
             scene_log_file.writelines(log_content)
             scene_log_file.flush()
             counter += 1
-        scene_log_file.close()
-    '''
+        #scene_log_file.close()
         counter = reboot
         while counter < len(auth_queries):
+            break
             query = auth_queries[counter]
             query_path = root_path + "QUERY/" + case.get_scene_name() + "-" + query.query_name + ".pv"
             log_content = ""
@@ -332,7 +348,7 @@ class Verif:
                 with open(query_path, "w") as query_file:
                     query_file.writelines(query.content)
                     query_file.writelines(content)
-                ret,result = self.proverif_group_query(query_path)
+                ret,result = self.proverif(query_path)
                 if ret != "True":
                     log_content += ret
                     error_path = root_path + "/ERROR/" + case.get_scene_name() + "-" + query.query_name + "-" + str(
@@ -348,7 +364,6 @@ class Verif:
             scene_log_file.writelines(log_content)
             scene_log_file.flush()
             counter += 1
-    '''
 
 
     def is_query_in_secure_assumptions(self,query):
@@ -385,10 +400,10 @@ def run(root_path):
     #verif.analyze_all(Reg_1r_noa(),0)
     #verif.analyze_all(Reg_2r_seta(),0)
     #verif.analyze_all(Reg_2r_noa(),0)
-    #verif.analyze_all(Auth_1b_login_seta(),0)
-    #verif.analyze_all(Auth_1b_login_noa(),0)
-    #verif.analyze_all(Auth_1b_stepup_seta(),0)
-    #verif.analyze_all(Auth_1b_stepup_noa(),0)
+    verif.analyze_all(Auth_1b_login_seta(),0)
+    verif.analyze_all(Auth_1b_login_noa(),0)
+    verif.analyze_all(Auth_1b_stepup_seta(),0)
+    verif.analyze_all(Auth_1b_stepup_noa(),0)
     verif.analyze_all(Auth_2b_stepup_seta(), 0)
     verif.analyze_all(Auth_2b_stepup_noa(), 0)
     verif.analyze_all(Auth_1r_login_seta(), 0)

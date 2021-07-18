@@ -487,8 +487,8 @@ event RP_success_auth(Uname,Appid,AAID,KeyID).
 event RP_success_tr(Tr).
 event UA_launch_auth(Uname).
 event UA_launch_auth_tr(Tr).
-event Autr_verify_auth_1br(Uname,Appid,AAID,KeyID).
-event Autr_verify_auth_2br(Appid,AAID,KeyID).
+event Autr_verify_auth_1br(Uname,AAID,KeyID).
+event Autr_verify_auth_2br(AAID,KeyID).
 event Autr_verify_tr(Tr).
 
 const ok:bitstring.
@@ -849,7 +849,7 @@ let AuthAutr_1b_login(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_app
     let pkAU = spk(skAU) in
     new nonce:Nonce;
     let s = sign((aaid,nonce,fc,kid,cntr),skAU) in
-    event Autr_verify_auth_1br(uname,appid,aaid,kid);
+    event Autr_verify_auth_1br(uname,aaid,kid);
     out(AM,AuthAMresp_em(aaid,nonce,fc,kid,cntr,s))
 ).
 let AuthAutr_1b_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_appid:Appid,kh:KeyID) =
@@ -862,7 +862,7 @@ let AuthAutr_1b_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_ap
     let htr = hash_tr(in_tr) in
     new nonce:Nonce;
     let s = sign((aaid,nonce,fc,htr,kid,cntr),skAU) in
-    event Autr_verify_auth_1br(uname,appid,aaid,kid);
+    event Autr_verify_auth_1br(uname,aaid,kid);
     event Autr_verify_tr(in_tr);
     out(AM,AuthAMresp_st(aaid,nonce,fc,htr,kid,cntr,s))
 ).
@@ -876,7 +876,7 @@ let AuthAutr_2b_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_ap
     let htr = hash_tr(in_tr) in
     new nonce:Nonce;
     let s = sign((aaid,nonce,fc,htr,kid,cntr),skAU) in
-    event Autr_verify_auth_2br(appid,aaid,kid);
+    event Autr_verify_auth_2br(aaid,kid);
     event Autr_verify_tr(in_tr);
     out(AM,AuthAMresp_st(aaid,nonce,fc,htr,kid,cntr,s))
 ).
@@ -889,7 +889,7 @@ let AuthAutr_1r_login(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_app
     let pkAU = spk(skAU) in
     new nonce:Nonce;
     let s = sign((aaid,nonce,fc,kid,cntr),skAU) in 
-    event Autr_verify_auth_1br(uname,appid,aaid,kid);
+    event Autr_verify_auth_1br(uname,aaid,kid);
     out(AM,AuthAMresp_em(aaid,nonce,fc,kid,cntr,s))
 ).
 let AuthAutr_1r_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_appid:Appid,kh:KeyID) =
@@ -903,7 +903,7 @@ let AuthAutr_1r_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_ap
     let htr = hash_tr(in_tr) in
     new nonce:Nonce;
     let s = sign((aaid,nonce,fc,htr,kid,cntr),skAU) in
-    event Autr_verify_auth_1br(uname,appid,aaid,kid);
+    event Autr_verify_auth_1br(uname,aaid,kid);
     event Autr_verify_tr(in_tr);
     out(AM,AuthAMresp_st(aaid,nonce,fc,htr,kid,cntr,s))
 ).
@@ -917,7 +917,7 @@ let AuthAutr_2r_stepup(AM:channel,aaid:AAID,wrapkey:key,cntr:CNTR,tr:Tr,trust_ap
     let htr = hash_tr(in_tr) in
     new nonce:Nonce;
     let s = sign((aaid,nonce,fc,htr,kid,cntr),skAU) in
-    event Autr_verify_auth_2br(appid,aaid,kid);
+    event Autr_verify_auth_2br(aaid,kid);
     event Autr_verify_tr(in_tr);
     out(AM,AuthAMresp_st(aaid,nonce,fc,htr,kid,cntr,s))
 ).

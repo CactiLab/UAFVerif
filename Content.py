@@ -33,13 +33,29 @@ class Content:
                 list_str[index] = "."
                 temp_group_query = "".join(list_str) #set last ; to .
                 self.secrecy_queries.append(Query(self.scene_name,basic_query.name,temp_group_query,[]))
-            else:#authentication properties
+            else:  # authentication properties
                 for num in range(len(self.query_test) + 1):  # 遍历每种增加的个数
                     for events in itertools.combinations((self.query_test), num):  # 遍历每种num数量下的event
                         temp_one_query = basic_query.head + basic_query.body + ".\n"
                         self.auth_queries.append(Query(self.scene_name, basic_query.name, temp_one_query, events))
-                #self.auth_queries.reverse()
-        #self.all_queries.reverse()
+            '''
+            else:  # authentication properties
+                for num in range(len(self.query_test) + 1):  # 遍历每种增加的个数
+                    for events in itertools.combinations((self.query_test), num):  # 遍历每种num数量下的event
+                        temp_one_query = basic_query.head
+                        query_temp = basic_query.body
+                        if query_temp.find("==>") == -1 and num != 0:  # 机密性询问
+                            query_temp += "==>"
+                        for event in events:  # 遍历每个event，增加
+                            if query_temp[-1] == ">":
+                                query_temp += event
+                            else:
+                                query_temp += "||" + event
+                        query_temp += ".\n"
+                        temp_one_query += query_temp
+                        self.auth_queries.append(Query(self.scene_name, basic_query.name, temp_one_query, events))
+            '''
+
     def get_scene_name(self):
         return self.scene_name
     def get_content(self):
@@ -194,18 +210,18 @@ class Reg_2r_noa(Reg):
 class Auth(Content):
     def __init__(self):
         Content.__init__(self)
-        self.content = ["let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstring,uname:Uname,facetid:Facetid,callerid:Callerid,personaid:PersonaID,cntr:CNTR) =\n",
+        self.content = ["let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstring,uname:Uname,facetid:Facetid,callerid:Callerid,personaid:PersonaID) =\n",
                         "(\n",
                         "\tlet pkAU = spk(skAU) in \n",
                         "\tout(c,(uname,appid,facetid,aaid,callerid,personaid,pkAU,kid)); (* public info *)\n",
                         "\t( \n",
                         "\t(*new SR:channel; new https:channel; new CU:channel; new MC:channel; new AM:channel;*)\n",
                         "\tnew fakecallerid:Callerid; new fakefacetid:Facetid; new fakepersonaid:PersonaID;\n",
-                        "\tnew tr:Tr;\n",
+                        "\tnew cntr:CNTR; new tr:Tr; out(c,cntr);\n",
                         "\t(event leak_token(); out(c,token))|\n",
                         "\t(event leak_kw(); out(c,wrapkey))|\n",
                         "\t(event leak_skau(); out(c,skAU))|\n",
-                        "\t(event leak_cntr(); out(c,cntr))|\n",
+                        "\t(*(event leak_cntr(); out(c,cntr))|*)\n",
                         "\t(event malicious_RP_to_US(); AuthUS_(c, uname, appid, aaid,kid,pkAU,cntr,tr))|\n",
                         "\t(event malicious_US_to_RP();  AuthRP_(c, https))|\n",
                         "\t(event malicious_UA_to_UC(); AuthUC_(c, MC, fakefacetid))|\n",
@@ -213,7 +229,7 @@ class Auth(Content):
                         "\t(event malicious_UC_to_ASM();  AuthASM_(c,AM,token,fakecallerid,callerid,personaid,appid,kid,kh))|\n",
                         "\t(event malicious_ASM_to_UC(); AuthUC_(CU, c, facetid))|\n",
                         "\t(event malicious_ASM_to_Autr(); AuthAutr_(c,aaid,wrapkey,cntr,tr,appid,kh))|\n",
-                        "\t(event malicious_Autr_to_ASM(); AuthASM_(MC,c,token,callerid,callerid,personaid,appid,kid,kh))|\n",
+                        "\t(event malicious_Autr_to_ASM(); out(c,kh); AuthASM_(MC,c,token,callerid,callerid,personaid,appid,kid,kh))|\n",
                         "\tAuthUS_(SR, uname, appid, aaid,kid,pkAU,cntr,tr)|\n",
                         "\tAuthRP_(SR, https)|\n",
                         "\tAuthUA_(https, CU,uname)|\n",
@@ -224,12 +240,12 @@ class Auth(Content):
                         ").\n",
                         "process\n",
                         "(\n",
-                        "\tnew appid:Appid; new aaid:AAID; new skAU:sskey; new keyid:KeyID; new wrapkey:key; new token:bitstring; new uname:Uname; new cntr:CNTR;\n",
+                        "\tnew appid:Appid; new aaid:AAID; new skAU:sskey; new keyid:KeyID; new wrapkey:key; new token:bitstring; new uname:Uname;\n",
                         "\tlet facetid = find_facetid(appid) in\n",
                         "\tnew callerid:Callerid;\n",
                         "\tnew personaid:PersonaID;\n",
                         "\t(* User 1 authenticates in RP 1 *)\n",
-                        "\t!system(appid,aaid,skAU,keyid,wrapkey,token,uname,facetid,callerid,personaid,cntr)\n",
+                        "\t!system(appid,aaid,skAU,keyid,wrapkey,token,uname,facetid,callerid,personaid)\n",
                         ")\n"]
         self.basic_queries = [Basic_Query("s-skau", "query ", "attacker(new skAU)"),
                               Basic_Query("s-cntr", "query ", "attacker(new cntr)")
@@ -245,7 +261,7 @@ class Auth(Content):
         self.query_test = ["event(leak_token)",
                            "event(leak_kw)",
                            "event(leak_skau)",
-                           "event(leak_cntr)",
+                           #"event(leak_cntr)",
                            # "event(leak_kid)"
                            "event(malicious_US_to_RP)",
                            "event(malicious_RP_to_US)",
@@ -284,7 +300,7 @@ class Auth_1b_login_seta(Auth):
         self.set_type("1b_login_seta")
         self.basic_queries.append(Basic_Query("s-ak", "query ", "attacker(To_12b_token(new appid,new token,new callerid,new personaid))"))
         #self.basic_queries.append(Basic_Query("s-kid","query ","attacker(new keyid)"))
-        self.basic_queries.append(Basic_Query("Aauth-1br","query u:Uname,a:Appid,aa:AAID,kid:KeyID;","inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
+        self.basic_queries.append(Basic_Query("Aauth-1br","query u:Uname,a:Appid,aa:AAID,kid:KeyID;","inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
         self.get_group_queries()
 
 class Auth_1b_login_noa(Auth):
@@ -301,7 +317,7 @@ class Auth_1b_login_noa(Auth):
         self.basic_queries.append(
             Basic_Query("s-ak", "query ", "attacker(To_12b_token(facetid_to_appid(find_facetid(new appid)),new token,new callerid,new personaid))"))
         #self.basic_queries.append(Basic_Query("s-kid", "query ", "attacker(new keyid)"))
-        self.basic_queries.append(Basic_Query("Aauth-1br","query u:Uname,a:Appid,aa:AAID,kid:KeyID;","inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
+        self.basic_queries.append(Basic_Query("Aauth-1br","query u:Uname,a:Appid,aa:AAID,kid:KeyID;","inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
         self.get_group_queries()
 
 class Auth_1b_stepup_seta(Auth):
@@ -317,7 +333,7 @@ class Auth_1b_stepup_seta(Auth):
         self.basic_queries.append(Basic_Query("s-ak", "query ", "attacker(To_12b_token(new appid,new token,new callerid,new personaid))"))
         #self.basic_queries.append(Basic_Query("s-kid", "query seed:bitstring,ak:bitstring;", "attacker(new keyid)"))
         self.basic_queries.append(Basic_Query("s-tr", "query ", "attacker(new tr)"))
-        self.basic_queries.append(Basic_Query("Aauth-1br","query u:Uname,a:Appid,aa:AAID,kid:KeyID;","inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
+        self.basic_queries.append(Basic_Query("Aauth-1br","query u:Uname,a:Appid,aa:AAID,kid:KeyID;","inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
         self.basic_queries.append(Basic_Query("Aauth-tr", "query tr:Tr;",
                                               "inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr)))"))
         self.get_group_queries()
@@ -337,7 +353,7 @@ class Auth_1b_stepup_noa(Auth):
         #self.basic_queries.append(Basic_Query("s-kid", "query seed:bitstring,ak:bitstring;", "attacker(new keyid)"))
         self.basic_queries.append(Basic_Query("s-tr", "query ", "attacker(new tr)"))
         self.basic_queries.append(Basic_Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID;",
-                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
+                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
         self.basic_queries.append(Basic_Query("Aauth-tr", "query tr:Tr;",
                                               "inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr)))"))
         self.get_group_queries()
@@ -357,7 +373,7 @@ class Auth_2b_stepup_seta(Auth):
         self.basic_queries.append(Basic_Query("s-tr", "query ", "attacker(new tr)"))
         #self.basic_queries.append(Basic_Query("s-kid", "query seed:bitstring,ak:bitstring;", "attacker(new keyid)"))
         self.basic_queries.append(Basic_Query("Aauth-2br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID;",
-                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(a,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
+                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
         self.basic_queries.append(Basic_Query("Aauth-tr", "query tr:Tr;",
                                               "inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr)))"))
         self.get_group_queries()
@@ -378,7 +394,7 @@ class Auth_2b_stepup_noa(Auth):
         #self.basic_queries.append(Basic_Query("s-kid", "query seed:bitstring,ak:bitstring;", "attacker(new keyid)"))
         self.basic_queries.append(Basic_Query("s-tr", "query ", "attacker(new tr)"))
         self.basic_queries.append(Basic_Query("Aauth-2br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID;",
-                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(a,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
+                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
         self.basic_queries.append(Basic_Query("Aauth-tr", "query tr:Tr;",
                                               "inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr)))"))
         self.get_group_queries()
@@ -398,7 +414,7 @@ class Auth_1r_login_seta(Auth):
             Basic_Query("s-ak", "query ", "attacker(To_12r_token(new appid))"))
         #self.basic_queries.append(Basic_Query("s-kid", "query ", "attacker(new keyid)"))
         self.basic_queries.append(Basic_Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID;",
-                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
+                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
         self.get_group_queries()
 
 class Auth_1r_login_noa(Auth):
@@ -416,7 +432,7 @@ class Auth_1r_login_noa(Auth):
             Basic_Query("s-ak", "query ", "attacker(To_12r_token(facetid_to_appid(find_facetid(new appid))))"))
         #self.basic_queries.append(Basic_Query("s-kid", "query ", "attacker(new keyid)"))
         self.basic_queries.append(Basic_Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID;",
-                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
+                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
         self.get_group_queries()
 
 
@@ -435,7 +451,7 @@ class Auth_1r_stepup_seta(Auth):
         #self.basic_queries.append(Basic_Query("s-kid", "query ", "attacker(new keyid)"))
         self.basic_queries.append(Basic_Query("s-tr", "query ", "attacker(new tr)"))
         self.basic_queries.append(Basic_Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID;",
-                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
+                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
         self.basic_queries.append(Basic_Query("Aauth-tr", "query tr:Tr;",
                                               "inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr)))"))
         self.get_group_queries()
@@ -458,7 +474,7 @@ class Auth_1r_stepup_noa(Auth):
         #self.basic_queries.append(Basic_Query("s-kid", "query ", "attacker(new keyid)"))
         self.basic_queries.append(Basic_Query("s-tr", "query ", "attacker(new tr)"))
         self.basic_queries.append(Basic_Query("Aauth-1br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID;",
-                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,a,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
+                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
         self.basic_queries.append(Basic_Query("Aauth-tr", "query tr:Tr;",
                                               "inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr)))"))
         self.get_group_queries()
@@ -479,7 +495,7 @@ class Auth_2r_stepup_seta(Auth):
         #self.basic_queries.append(Basic_Query("s-kid","query ak:bitstring;","attacker(senc((new skAU,ak),new wrapkey))"))
         self.basic_queries.append(Basic_Query("s-tr", "query ", "attacker(new tr)"))
         self.basic_queries.append(Basic_Query("Aauth-2br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID;",
-                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(a,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
+                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
         self.basic_queries.append(Basic_Query("Aauth-tr", "query tr:Tr;",
                                               "inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr)))"))
         self.get_group_queries()
@@ -499,7 +515,7 @@ class Auth_2r_stepup_noa(Auth):
         #self.basic_queries.append(Basic_Query("s-kid", "query ak:bitstring;", "attacker(senc((new skAU,ak),new wrapkey))"))
         self.basic_queries.append(Basic_Query("s-tr", "query ", "attacker(new tr)"))
         self.basic_queries.append(Basic_Query("Aauth-2br", "query u:Uname,a:Appid,aa:AAID,kid:KeyID;",
-                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(a,aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
+                                              "inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_2br(aa,kid)) ==> inj-event(UA_launch_auth(u)))"))
         self.basic_queries.append(Basic_Query("Aauth-tr", "query tr:Tr;",
                                               "inj-event(RP_success_tr(tr)) ==> (inj-event(Autr_verify_tr(tr)) ==> inj-event(UA_launch_auth_tr(tr)))"))
         self.get_group_queries()
