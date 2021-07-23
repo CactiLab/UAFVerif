@@ -1,51 +1,60 @@
 Auth_1b_login_seta, Aauth:
 (!skau&!am)|(!skau&!kw&!ma)
-
+(am&ma)|(am&kw)|(skau)
 
 Auth_1b_login_noa, Aauth:
-(!skau&!am)|(!skau&!kw&!ma)|(!sw&!wu&!ma&!cntr)|(!sw&!wu&!am&!kw&!cntr)
-(kw&ma&skau)|(am&kw&wu)|(am&kw&sw)|(am&cntr&kw)|(skau&wu)|(skau&sw)|(cntr&skau)|(am&ma)
+(!skau&!am)|(!skau&!kw&!ma)
+(am&ma)|(am&kw)|(skau)
 
 Auth_1b_stepup_seta, Aauth:
-(!skau&!am)|(!skau&!kw&!ma)|(!sw&!ma&!cntr)|(!sw&!am&!kw&!cntr)
-(kw&ma&skau)|(am&kw&sw)|(am&cntr&kw)|(skau&sw)|(cntr&skau)|(am&ma)
+(!skau&!am)|(!skau&!kw&!ma)|(!skau&!kw&!ws)|(!ws&!cu&!mc&!am)
+(am&ma&ws)|(skau&ws)|(mc&skau)|(cu&skau)|(am&skau)|(am&kw)
 
 Auth_1b_stepup_noa, Aauth:
-(!skau&!am)|(!skau&!kw&!ma)|(!sw&!ma&!cntr)|(!sw&!am&!kw&!cntr)
-(kw&ma&skau)|(am&kw&sw)|(am&cntr&kw)|(skau&sw)|(cntr&skau)|(am&ma)
+(!skau&!am)|(!skau&!kw&!ma)|(!skau&!kw&!ws)|(!ws&!cu&!mc&!am)
+(am&ma&ws)|(skau&ws)|(mc&skau)|(cu&skau)|(am&skau)|(am&kw)
+
+Auth_1b_stepup_seta, Tr:
+(!skau&!am)|(!skau&!kw&!ma)|(!skau&!kw&!ws)|(!ws&!cu&!mc&!am)
+(am&ma&ws)|(skau&ws)|(mc&skau)|(cu&skau)|(am&skau)|(am&kw)
+
+Auth_1b_stepup_noa, Tr:
+(!skau&!am)|(!skau&!kw&!ma)|(!skau&!kw&!ws)|(!ws&!cu&!mc&!am)
+(am&ma&ws)|(skau&ws)|(mc&skau)|(cu&skau)|(am&skau)|(am&kw)
 
 Auth_2b_stepup_seta, Aauth:
-(!skau&!am)|(!skau&!kw&!ma)|(!sw&!ma&!cntr)|(!sw&!am&!kw&!cntr)
-(kw&ma&skau)|(am&kw&sw)|(am&cntr&kw)|(skau&sw)|(cntr&skau)|(am&ma)
+(!skau&!am)|(!skau&!kw&!ma)|(!skau&!kw&!ws)|(!ws&!cu&!mc&!am)
+(am&ma&ws)|(skau&ws)|(mc&skau)|(cu&skau)|(am&skau)|(am&kw)
 
 Auth_2b_stepup_noa, Aauth:
-(!skau&!am)|(!skau&!kw&!ma)|(!sw&!ma&!cntr)|(!sw&!am&!kw&!cntr)
-(kw&ma&skau)|(am&kw&sw)|(am&cntr&kw)|(skau&sw)|(cntr&skau)|(am&ma)
+(!skau&!am)|(!skau&!kw&!ma)|(!skau&!kw&!ws)|(!ws&!cu&!mc&!am)
+(am&ma&ws)|(skau&ws)|(mc&skau)|(cu&skau)|(am&skau)|(am&kw)
 
 Auth_1r_login_seta, Aauth:
-(!skau&!am)|(!skau&!kw&!ma)|(!sw&!wu&!cm&!ma&!cntr)|(!sw&!wu&!cm&!am&!kw&!cntr)
-(kw&ma&skau)|(am&kw&wu)|(am&kw&sw)|(am&cntr&kw)|(am&cm&kw)|(skau&wu)|(skau&sw)|(cntr&skau)|(cm&skau)|(am&ma)
+(!skau&!kww&!cm&!ma)|(!skau&!cm&!ma&!am)
+(am&kww)|(skau)|(ma)|(cm)
 
 Auth_1r_login_noa, Aauth:
-(!skau&!am)|(!skau&!kw&!ma)|(!sw&!wu&!cm&!ma&!cntr)|(!sw&!wu&!cm&!am&!kw&!cntr)
-(kw&ma&skau)|(am&kw&wu)|(am&kw&sw)|(am&cntr&kw)|(am&cm&kw)|(skau&wu)|(skau&sw)|(cntr&skau)|(cm&skau)|(am&ma)
+(!skau&!kww&!cm&!ma)|(!skau&!cm&!ma&!am)
+(am&kww)|(skau)|(ma)|(cm)
 
 Auth_1r_stepup_seta, Aauth:
-(!skau&!am)|(!skau&!kw&!ma)|(!sw&!cm&!ma&!cntr)|(!sw&!cm&!am&!kw&!cntr)
-(kw&ma&skau)|(am&kw&sw)|(am&cntr&kw)|(am&cm&kw)|(skau&sw)|(cntr&skau)|(cm&skau)|(am&ma)
+(!skau&!kw&!ws)|(!skau&!ws&!am)|(!skau&!kw&!cm&!ma)|(!skau&!cm&!ma&!am)|(!ws&!cu&!mc&!am)
+(skau&ws)|(mc&skau)|(ma&ws)|(cu&skau)|(cm&ws)|(am&skau)|(am&kw)
 
 Auth_1r_stepup_noa, Aauth:
-(!skau&!am)|(!skau&!kw&!ma)|(!sw&!cm&!ma&!cntr)|(!sw&!cm&!am&!kw&!cntr)
-(kw&ma&skau)|(am&kw&sw)|(am&cntr&kw)|(am&cm&kw)|(skau&sw)|(cntr&skau)|(cm&skau)|(am&ma)
+(!skau&!kw&!ws)|(!skau&!ws&!am)|(!skau&!kw&!cm&!ma)|(!skau&!cm&!ma&!am)|(!ws&!cu&!mc&!am)
+(skau&ws)|(mc&skau)|(ma&ws)|(cu&skau)|(cm&ws)|(am&skau)|(am&kw)
 
 Auth_2r_stepup_seta, Aauth:
-(!skau&!am)|(!skau&!kw&!ma)|(!sw&!cm&!ma&!cntr)|(!sw&!cm&!am&!kw&!cntr)
-(kw&ma&skau)|(am&kw&sw)|(am&cntr&kw)|(am&cm&kw)|(skau&sw)|(cntr&skau)|(cm&skau)|(am&ma)
+(!skau&!kw&!ws)|(!skau&!kw&!cm&!ma)|(!skau&!cm&!ma&!am)|(!ws&!cu&!mc&!am)
+(skau&ws)|(mc&skau)|(ma&ws)|(cu&skau)|(cm&ws)|(am&skau)|(am&kw)
 
 Auth_2r_stepup_noa, Aauth:
-(!skau&!am)|(!skau&!kw&!ma)|(!sw&!cm&!ma&!cntr)|(!sw&!cm&!am&!kw&!cntr)
-(kw&ma&skau)|(am&kw&sw)|(am&cntr&kw)|(am&cm&kw)|(skau&sw)|(cntr&skau)|(cm&skau)|(am&ma)
+(!skau&!kw&!ws)|(!skau&!kw&!cm&!ma)|(!skau&!cm&!ma&!am)|(!ws&!cu&!mc&!am)
+(skau&ws)|(mc&skau)|(ma&ws)|(cu&skau)|(cm&ws)|(am&skau)|(am&kw)
 
+xxx
 
 Auth_1b_stepup_seta, Aauth-Tr:
 (!ws&!skau&!kw)|(!sw&!am&!skau)|(!ws&!am&!skau)|(!sw&!ma&!cntr)
