@@ -2,57 +2,25 @@ Auth_1b_login_seta, Aauth:
 (!skau&!am)|(!skau&!kw&!ma)
 (am&ma)|(am&kw)|(skau)
 
-Auth_1b_login_noa, Aauth:
-(!skau&!am)|(!skau&!kw&!ma)
-(am&ma)|(am&kw)|(skau)
-
-Auth_1b_stepup_seta, Aauth:
+Auth_1b_stepup_seta, Aauth,tr:
 (!skau&!am)|(!skau&!kw&!ma)|(!skau&!kw&!ws)|(!ws&!cu&!mc&!am)
 (am&ma&ws)|(skau&ws)|(mc&skau)|(cu&skau)|(am&skau)|(am&kw)
 
-Auth_1b_stepup_noa, Aauth:
-(!skau&!am)|(!skau&!kw&!ma)|(!skau&!kw&!ws)|(!ws&!cu&!mc&!am)
-(am&ma&ws)|(skau&ws)|(mc&skau)|(cu&skau)|(am&skau)|(am&kw)
-
-Auth_1b_stepup_seta, Tr:
-(!skau&!am)|(!skau&!kw&!ma)|(!skau&!kw&!ws)|(!ws&!cu&!mc&!am)
-(am&ma&ws)|(skau&ws)|(mc&skau)|(cu&skau)|(am&skau)|(am&kw)
-
-Auth_1b_stepup_noa, Tr:
-(!skau&!am)|(!skau&!kw&!ma)|(!skau&!kw&!ws)|(!ws&!cu&!mc&!am)
-(am&ma&ws)|(skau&ws)|(mc&skau)|(cu&skau)|(am&skau)|(am&kw)
-
-Auth_2b_stepup_seta, Aauth:
-(!skau&!am)|(!skau&!kw&!ma)|(!skau&!kw&!ws)|(!ws&!cu&!mc&!am)
-(am&ma&ws)|(skau&ws)|(mc&skau)|(cu&skau)|(am&skau)|(am&kw)
-
-Auth_2b_stepup_noa, Aauth:
+Auth_2b_stepup_seta, Aauthtr:
 (!skau&!am)|(!skau&!kw&!ma)|(!skau&!kw&!ws)|(!ws&!cu&!mc&!am)
 (am&ma&ws)|(skau&ws)|(mc&skau)|(cu&skau)|(am&skau)|(am&kw)
 
 Auth_1r_login_seta, Aauth:
-(!skau&!kww&!cm&!ma)|(!skau&!cm&!ma&!am)
-(am&kww)|(skau)|(ma)|(cm)
+(!skau&!cm&!ma)
 
-Auth_1r_login_noa, Aauth:
-(!skau&!kww&!cm&!ma)|(!skau&!cm&!ma&!am)
-(am&kww)|(skau)|(ma)|(cm)
+Auth_1r_stepup_seta, Aauth,tr:
+(!skau&!ws)|(!skau&!cm&!ma)|(!ws&!cu&!mc&!am)
+(skau&ws)|(mc&skau)|(ma&ws)|(cu&skau)|(cm&ws)|(am&skau)
 
-Auth_1r_stepup_seta, Aauth:
-(!skau&!kw&!ws)|(!skau&!ws&!am)|(!skau&!kw&!cm&!ma)|(!skau&!cm&!ma&!am)|(!ws&!cu&!mc&!am)
-(skau&ws)|(mc&skau)|(ma&ws)|(cu&skau)|(cm&ws)|(am&skau)|(am&kw)
+Auth_2r_stepup_seta, Aauth,tr:
+(!skau&!kw&!ws)|(!skau&!kw&!cm&!ma)|(!ws&!cu&!mc&!am)
+(skau&ws)|(mc&skau)|(ma&ws)|(kw&ws)|(kw&mc)|(cu&skau)|(cu&kw)|(cm&ws)|(am&skau)|(am&kw)
 
-Auth_1r_stepup_noa, Aauth:
-(!skau&!kw&!ws)|(!skau&!ws&!am)|(!skau&!kw&!cm&!ma)|(!skau&!cm&!ma&!am)|(!ws&!cu&!mc&!am)
-(skau&ws)|(mc&skau)|(ma&ws)|(cu&skau)|(cm&ws)|(am&skau)|(am&kw)
-
-Auth_2r_stepup_seta, Aauth:
-(!skau&!kw&!ws)|(!skau&!kw&!cm&!ma)|(!skau&!cm&!ma&!am)|(!ws&!cu&!mc&!am)
-(skau&ws)|(mc&skau)|(ma&ws)|(cu&skau)|(cm&ws)|(am&skau)|(am&kw)
-
-Auth_2r_stepup_noa, Aauth:
-(!skau&!kw&!ws)|(!skau&!kw&!cm&!ma)|(!skau&!cm&!ma&!am)|(!ws&!cu&!mc&!am)
-(skau&ws)|(mc&skau)|(ma&ws)|(cu&skau)|(cm&ws)|(am&skau)|(am&kw)
 
 xxx
 

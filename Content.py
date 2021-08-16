@@ -229,7 +229,7 @@ class Auth(Content):
                         "\t(event malicious_UC_to_ASM();  AuthASM_(c,AM,token,fakecallerid,callerid,personaid,appid,kid,kh))|\n",
                         "\t(event malicious_ASM_to_UC(); AuthUC_(CU, c, facetid))|\n",
                         "\t(event malicious_ASM_to_Autr(); AuthAutr_(c,aaid,wrapkey,cntr,tr,appid,kh))|\n",
-                        "\t(event malicious_Autr_to_ASM(); out(c,kh); AuthASM_(MC,c,token,callerid,callerid,personaid,appid,kid,kh))|\n",
+                        "\t(event malicious_Autr_to_ASM(); AuthASM_(MC,c,token,callerid,callerid,personaid,appid,kid,kh))|\n",
                         "\tAuthUS_(SR, uname, appid, aaid,kid,pkAU,cntr,tr)|\n",
                         "\tAuthRP_(SR, https)|\n",
                         "\tAuthUA_(https, CU,uname)|\n",
