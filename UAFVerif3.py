@@ -252,7 +252,6 @@ class Verif:
         scene_log_file = open(root_path + "LOG/" + case.scene_name + ".log", "a")
         result_path = root_path + "LOG/" + case.scene_name + ".result"
         while counter < len(secrecy_queries):
-            break
             query = secrecy_queries[counter]
             query_path = root_path + "QUERY/" + case.get_scene_name() + "-" + query.query_name + ".pv"
             log_content = ""
@@ -287,6 +286,7 @@ class Verif:
         counter = reboot
         unbound_state = False#表示先分析单次会话，用于就加速分析，安全了再设置为true分析多次会话
         while counter < len(auth_queries):
+            break
             query = auth_queries[counter]
             query_path = root_path + "QUERY/" + case.get_scene_name() + "-" + query.query_name + ".pv"
             log_content = ""
@@ -400,18 +400,18 @@ def run(root_path):
     #verif.analyze_all(Reg_1r_noa(),0)
     #verif.analyze_all(Reg_2r_seta(),0)
     #verif.analyze_all(Reg_2r_noa(),0)
-    #verif.analyze_all(Auth_1b_login_seta(),0)
-    #verif.analyze_all(Auth_1b_login_noa(),0)
-   # verif.analyze_all(Auth_1b_stepup_seta(),0)
-    #verif.analyze_all(Auth_1b_stepup_noa(),0)
-   # verif.analyze_all(Auth_2b_stepup_seta(), 0)
-    #verif.analyze_all(Auth_2b_stepup_noa(), 0)
-    #verif.analyze_all(Auth_1r_login_seta(), 0)
-    #verif.analyze_all(Auth_1r_login_noa(), 0)
+    verif.analyze_all(Auth_1b_login_seta(),0)
+    verif.analyze_all(Auth_1b_login_noa(),0)
+    verif.analyze_all(Auth_1b_stepup_seta(),0)
+    verif.analyze_all(Auth_1b_stepup_noa(),0)
+    verif.analyze_all(Auth_2b_stepup_seta(), 0)
+    verif.analyze_all(Auth_2b_stepup_noa(), 0)
+    verif.analyze_all(Auth_1r_login_seta(), 0)
+    verif.analyze_all(Auth_1r_login_noa(), 0)
     verif.analyze_all(Auth_1r_stepup_seta(), 0)
-    #verif.analyze_all(Auth_1r_stepup_noa(), 0)
+    verif.analyze_all(Auth_1r_stepup_noa(), 0)
     verif.analyze_all(Auth_2r_stepup_seta(), 0)
-    #verif.analyze_all(Auth_2r_stepup_noa(), 0)
+    verif.analyze_all(Auth_2r_stepup_noa(), 0)
 
 
 if __name__ == "__main__":

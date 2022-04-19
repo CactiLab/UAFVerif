@@ -217,7 +217,7 @@ class Auth(Content):
                         "\t( \n",
                         "\t(*new SR:channel; new https:channel; new CU:channel; new MC:channel; new AM:channel;*)\n",
                         "\tnew fakecallerid:Callerid; new fakefacetid:Facetid; new fakepersonaid:PersonaID;\n",
-                        "\tnew cntr:CNTR; new tr:Tr; out(c,cntr);\n",
+                        "\tnew cntr:CNTR; new tr:Tr;\n",
                         "\t(event leak_token(); out(c,token))|\n",
                         "\t(event leak_kw(); out(c,wrapkey))|\n",
                         "\t(event leak_skau(); out(c,skAU))|\n",
@@ -509,7 +509,7 @@ class Auth_2r_stepup_noa(Auth):
                                    "\tlet kid = kh in\n",
                                    "\t(*insert ASMDB(facetid_to_appid(facetid),kid,kh); insert AutrDB(facetid_to_appid(facetid),kid,kh);*)\n"]
         self.add_specific_operation()
-        self.set_type("2r_stepup_seta")
+        self.set_type("2r_stepup_noa")
         self.basic_queries.append(
             Basic_Query("s-ak", "query ", "attacker(To_12r_token(facetid_to_appid(find_facetid(new appid))))"))
         #self.basic_queries.append(Basic_Query("s-kid", "query ak:bitstring;", "attacker(senc((new skAU,ak),new wrapkey))"))
