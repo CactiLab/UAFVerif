@@ -12,7 +12,7 @@ If you want to cite our paper in your work, please use the following BibTeX entr
 }
 ```
 
-The project is still being updated, with the ``version 1.0`` corresponding to the NDSS paper.
+The project is still being updated, with the tag ``version_1.0`` corresponding to the NDSS paper.
 
 ## Instructions
 
