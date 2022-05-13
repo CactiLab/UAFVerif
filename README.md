@@ -6,7 +6,7 @@ If you want to cite our paper in your work, please use the following BibTeX entr
 ```
 @inproceedings{UAFAnalysis2021,
   title={A formal analysis of the FIDO UAF protocol},
-  author={Feng, Haonan and Li, Hui and Pan, Xuesong Pan and Zhao, Ziming},
+  author={Feng, Haonan and Li, Hui and Pan, Xuesong and Zhao, Ziming},
   booktitle={Proceedings of the Network and Distributed System Security Symposium (NDSS)},
   year={2021}
 }
