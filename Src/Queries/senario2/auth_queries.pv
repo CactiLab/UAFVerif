@@ -1,0 +1,1 @@
+Aauth-1br| query u:Uname,a:Appid,aa:AAID,kid:KeyID; |inj-event(RP_success_auth(u,a,aa,kid)) ==> (inj-event(Autr_verify_auth_1br(u,aa,kid)) ==> inj-event(UA_launch_auth(u)))

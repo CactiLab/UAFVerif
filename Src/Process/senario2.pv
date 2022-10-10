@@ -1,0 +1,44 @@
+let system(appid:Appid,aaid:AAID,skAU:sskey,keyid:KeyID,wrapkey:key,token:bitstring,uname:Uname,facetid:Facetid,callerid:Callerid,personaid:PersonaID) =
+(
+	let pkAU = spk(skAU) in 
+	let ak = To_12b_token(appid,token,callerid,personaid) in
+	let kh = senc((skAU,ak,uname,keyid),wrapkey) in
+	let kid = keyid in
+	(*insert ASMDB(appid,kid,kh); insert AutrDB(appid,kid,kh);*)
+	out(c,(uname,appid,facetid,aaid,callerid,personaid,pkAU,kid)); (* public info *)
+	( 
+	(*new SR:channel; new https:channel; new CU:channel; new MC:channel; new AM:channel;*)
+	new fakecallerid:Callerid; new fakefacetid:Facetid; new fakepersonaid:PersonaID;
+	new cntr:CNTR; new tr:Tr; out(c,cntr);
+	(event leak_token(); out(c,token))|
+	(event leak_kw(); out(c,wrapkey))|
+	(event leak_skau(); out(c,skAU))|
+	(event leak_cntr(); out(c,cntr))|
+	(event malicious_US_to_RP();  AuthRP_1b_login_seta(c, https))|
+	(event malicious_RP_to_UA(); AuthUA_1b_login_seta(c,CU,uname))|
+	(event malicious_UA_to_RP(); AuthRP_1b_login_seta(SR,c))|
+	(*(event malicious_RP_to_US(); AuthUS_1b_login_seta(c, uname, appid, aaid,kid,pkAU,cntr,tr))|*)
+	(event malicious_UA_to_RP(); AuthRP_1b_login_seta(SR, c))|
+	(event malicious_UA_to_UC(); AuthUC_1b_login_seta(c, MC, fakefacetid))|
+	(event malicious_UC_to_UA();  AuthUA_1b_login_seta(https, c,uname))|
+	(event malicious_UC_to_ASM();  AuthASM_1b_login_seta(c,AM,token,fakecallerid,callerid,personaid,appid,kid,kh))|
+	(event malicious_ASM_to_UC(); AuthUC_1b_login_seta(CU, c, facetid))|
+	(event malicious_ASM_to_Autr(); AuthAutr_1b_login_seta(c,aaid,wrapkey,cntr,tr,appid,kh))|
+	(*(event malicious_Autr_to_ASM(); AuthASM_1b_login_seta(MC,c,token,callerid,callerid,personaid,appid,kid,kh))|*)
+	AuthUS_1b_login_seta(SR, uname, appid, aaid,kid,pkAU,cntr,tr)|
+	AuthRP_1b_login_seta(SR, https)|
+	AuthUA_1b_login_seta(https, CU,uname)|
+	AuthUC_1b_login_seta(CU, MC, facetid)|
+	AuthASM_1b_login_seta(MC,AM,token,callerid,callerid,personaid,appid,kid,kh)|
+	AuthAutr_1b_login_seta(AM,aaid,wrapkey,cntr,tr,appid,kh)
+	)
+).
+process
+(
+	new appid:Appid; new aaid:AAID; new skAU:sskey; new keyid:KeyID; new wrapkey:key; new token:bitstring; new uname:Uname;
+	let facetid = find_facetid(appid) in
+	new callerid:Callerid;
+	new personaid:PersonaID;
+	(* User 1 authenticates in RP 1 *)
+	!system(appid,aaid,skAU,keyid,wrapkey,token,uname,facetid,callerid,personaid)
+)

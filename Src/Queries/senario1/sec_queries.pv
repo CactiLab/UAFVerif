@@ -1,0 +1,3 @@
+s-skau|query seed:bitstring; |attacker(gen_skAU(new skAUbasic,seed))
+s-cntr|query seed:bitstring;|attacker(gen_cntr(new cntrbasic,seed))
+s-skat| query |attacker(new skAT)

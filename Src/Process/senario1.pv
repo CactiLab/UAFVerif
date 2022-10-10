@@ -1,0 +1,34 @@
+let system(appid:Appid,aaid:AAID,skAT:sskey,uname:Uname,password:bitstring,facetid:Facetid,callerid:Callerid,personaid:PersonaID,token:bitstring,wrapkey:key)=
+(
+	(*new SR:channel; new https:channel; new CU:channel; new MC:channel; new AM:channel;*)
+	let pkAT = spk(skAT) in
+	new skAUbasic:sskey; new cntrbasic:CNTR; new kidbasic:KeyID;
+	new fakefacetid:Facetid; new fakecallerid:Callerid; new fakepersonaid:PersonaID;
+	(* the attacker has access to following fields *)
+	out(c,(uname,appid,facetid,callerid,fakefacetid,personaid,fakepersonaid,aaid,skAT,pkAT));
+	(*insert AppList(appid,facetid);*)
+	(event leak_token();out(c,token))|
+	(event leak_kw(); out(c,wrapkey))|
+	(event malicious_RP_to_US();RegUS_1b_seta(c, appid, facetid))|
+	(event malicious_US_to_RP();RegRP_1b_seta(c, https, uname, password))|
+	(event malicious_UA_to_RP(); RegRP_1b_seta(SR, c, uname, password))|
+	(event malicious_UA_to_UC();RegUC_1b_seta(c,MC,fakefacetid))|
+	(event malicious_UC_to_UA();RegUA_1b_seta(https, c, uname, password))|
+	(event malicious_UC_to_ASM();RegASM_1b_seta(c,AM,token, fakecallerid, personaid))|
+	(event malicious_ASM_to_UC();RegUC_1b_seta(CU,c,facetid))|
+	(event malicious_ASM_to_Autr();RegAutr_1b_seta(c,aaid, skAT, wrapkey,skAUbasic,cntrbasic,kidbasic))|
+	(event malicious_Autr_to_ASM();RegASM_1b_seta(MC,c,token, callerid, personaid))|
+	RegUS_1b_seta(SR, appid, facetid)|
+	RegRP_1b_seta(SR, https, uname, password)|
+	RegUA_1b_seta(https, CU, uname, password)|
+	RegUC_1b_seta(CU,MC,facetid)|
+	RegASM_1b_seta(MC,AM,token, callerid, personaid)|
+	RegAutr_1b_seta(AM,aaid, skAT, wrapkey,skAUbasic,cntrbasic,kidbasic)
+).
+process
+( 
+	new appid:Appid; new aaid:AAID; new callerid:Callerid;  new personaid:PersonaID; new skAT:sskey;  new wrapkey:key; new token:bitstring;
+	new uname:Uname; new password:bitstring; let facetid = find_facetid(appid) in
+	(* User 1 registers in RP 1 *)
+	system(appid,aaid,skAT,uname,password,facetid,callerid,personaid,token,wrapkey)
+)

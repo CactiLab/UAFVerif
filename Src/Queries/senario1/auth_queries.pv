@@ -1,0 +1,1 @@
+Rauth| query u:Uname,a:Appid,aa:AAID,kid:KeyID; |inj-event(RP_success_reg(u,a,aa,kid)) ==> (inj-event(Autr_verify_reg(u,a,aa,kid)) ==>inj-event(UA_init_reg(u)))

@@ -1,0 +1,11 @@
+event(leak_token),tok
+event(leak_kw),kw
+event(malicious_US_to_RP),SW
+event(malicious_RP_to_US),WS
+event(malicious_UA_to_RP),UW
+event(malicious_UA_to_UC),UC
+event(malicious_UC_to_UA),CU
+event(malicious_UC_to_ASM),CM
+event(malicious_ASM_to_UC),MC
+event(malicious_ASM_to_Autr),MA
+event(malicious_Autr_to_ASM),AM

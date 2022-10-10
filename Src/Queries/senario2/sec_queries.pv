@@ -1,0 +1,3 @@
+s-skau|query seed:bitstring; |attacker(new skAU)
+s-cntr|query seed:bitstring;|attacker(new cntr)
+s-ak| query |attacker(To_12b_token(new appid,new token,new callerid,new personaid))
